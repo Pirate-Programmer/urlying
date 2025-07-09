@@ -1,16 +1,33 @@
 {
   "manifest_version": 3,
-  "name": "Link Reader",
+  "name": "URLying",
   "version": "1.0",
-  "description": "Reads all links from the current page.",
+  "description": "In Progress.",
   "permissions": ["activeTab", "scripting"],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "commands": {
+    "toggle-links": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Toggle link highlighting"
+    }
+  },
   "content_scripts": [
     {
-      "matches": ["https://*/*", "http://*/*"],
-      "js": ["content.js"]
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js", "popup.js"]
     }
-  ],
-  "icons": {
-    "128": "icons/icon128.png"
-  }
+  ]
 }
