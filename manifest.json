@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Link Reader",
+  "version": "1.0",
+  "description": "Reads all links from the current page.",
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "128": "icons/icon128.png"
+  }
+}
