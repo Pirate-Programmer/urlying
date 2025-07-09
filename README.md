@@ -3,8 +3,9 @@ urlying
 <br>
 <hr>
 <h3> File Structure</h3>
-urlying/
+<pre>urlying/
 ├── manifest.json
 ├── content.js
 └── icons/
     └── icon128.png (optional)
+</pre>
