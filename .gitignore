@@ -1,4 +1,4 @@
 env/
 *.bat
 **/.ipynb_checkpoints/*
-.env
+.env*
