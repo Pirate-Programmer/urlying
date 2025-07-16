@@ -1,0 +1,148 @@
+tld,metadata,metadata_comment
+icu,Critical,Often abused by malicious actors  particularly for phishing and malware distribution.
+ml,Critical,Frequently abused TLD
+py,Critical,Country code TLD for Paraguay - can also be associated with Python scripts - used for phishing and abused by attackers
+tk,Critical,Notorious for being used in phishing campaigns because of free registration.
+xn--2scrj9c,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--5tzm5g,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--6frz82g,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--czrs0t,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--fjq720a,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--s9brj9c,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--unup4y,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--vhquv,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xn--xhq521b,Critical,Non-Latin script TLD - potential for phishing and targeted scams
+xyz,Critical,Historically abused due to its inexpensive registration costs.
+am,High,Abused by attackers
+bd,High,Abused by attackers
+best,High,Abused by attackers
+bid,High,Frequently used in auction frauds.
+cd,High,Abused by attackers
+cfd,High,Abused by attackers
+cf,High,Abused by attackers
+click,High,Abused by attackers
+cyou,High,Abused by attackers
+date,High,Often associated with spam and phishing.
+download,High,Commonly used for distributing malware.
+faith,High,Often used in religious scams.
+ga,High,Abused by attackers
+gq,High,Abused by attackers
+help,High,Abused by attackers
+info,High,Frequently abused TLD - High volume
+ke,High,Abused by attackers
+loan,High,Often associated with financial scams.
+men,High,Associated with spam and malicious sites.
+porn,High,Adult content TLD -  legal and reputational risks.
+pw,High,Country code TLD for Palau - can also be associated with the word 'password' - has been abused by attackers.
+quest,High,Abused by attackers
+rest,High,Abused by attackers
+review,High,Often used for fake review sites and scams.
+sbs,High,Abused by attackers
+sex,High,Adult content TLD -  legal and reputational risks.
+su,High,Old USSR country code -  still in use with a mixed risk profile.
+support,High,Abused by attackers
+win,High,Frequently used for gambling and scamming.
+ws,High,Abused by attackers
+xn--*,High,All Non-Latin script TLD - potential for phishing and targeted scams (optional)
+xxx,High,Adult content TLD high reputational risks.
+zip,HIgh,High potential for phishing attempts
+zw,High,Country code TLD - abused by malwares
+asia,Low,Abused by attackers
+autos,Low,Abused by attackers
+bar,Low,Abused by attackers
+bio,Low,Abused by attackers
+blue,Low,Abused by attackers
+buzz,Low,Abused by attackers
+casa,Low,Abused by attackers
+cc,Low,Abused by attackers
+cfd,Low,Abused by attackers
+charity,Low,Abused by attackers
+club,Low,Abused by attackers
+country,Low,Abused by attackers
+dad,Low,Abused by attackers
+degree,Low,Abused by attackers
+earth,Low,Abused by attackers
+email,Low,Abused by attackers
+fit,Low,Abused by attackers
+fund,Low,Abused by attackers
+futbol,Low,Abused by attackers
+fyi,Low,Abused by attackers
+gdn,Low,Abused by attackers
+gives,Low,Abused by attackers
+gold,Low,Abused by attackers
+guru,Low,Abused by attackers
+haus,Low,Abused by attackers
+homes,Low,Abused by attackers
+id,Low,Abused by attackers
+in,Low,Abused by attackers
+ink,Low,Abused by attackers
+jetzt,Low,Abused by attackers
+kim,Low,Abused by attackers
+lat,Low,Abused by attackers
+life,Low,Abused by attackers
+live,Low,Abused by attackers
+lol,Low,Abused by attackers
+ltd,Low,Abused by attackers
+makeup,Low,Abused by attackers
+mom,Low,Abused by attackers
+monster,Low,Abused by attackers
+mov,Low,Abused by attackers
+ninja,Low,Abused by attackers
+online,Low,Abused by attackers
+pics,Low,Potential misuse for adult content or phishing.
+plus,Low,Abused by attackers
+pro,Low,Abused by attackers
+pub,Low,Abused by attackers
+racing,Low,Abused by attackers
+realtor,Low,Abused by attackers
+ren,Low,Abused by attackers
+rip,High,Abused by attackers
+rocks,Low,Abused by attackers
+rodeo,Low,Abused by attackers
+run,Low,Abused by attackers
+shop,Low,Abused by attackers
+skin,Low,Abused by attackers
+space,Low,Abused by attackers
+support,Low,Abused by attackers
+tokyo,Low,Abused by attackers
+uno,Low,Abused by attackers
+vip,Low,Abused by attackers
+wang,Low,Abused by attackers
+wiki,Low,Abused by attackers
+work,Low,Abused by attackers
+world,Low,Abused by attackers
+xin,Low,Abused by attackers
+zone,Low,Abused by attackers
+accountant,Medium,misused for financial scams.
+accountants,Medium,misused for financial scams.
+adult,Medium,Adult content TLD high reputational risks.
+adult,Medium,TLD associated with adult content but has been used for deceptive malicious content distribution.
+bet,Medium,Abused by attackers
+cam,Medium,Adult content TLD high reputational risks.
+casino,Medium,Higher risk due to association with gambling.
+cm,Medium,Abused by attackers
+cn,Medium,Abused by attackers
+cricket,Medium,Abused by attackers
+ge,Medium,Abused by attackers
+il,Medium,Abused by attackers
+link,Medium,Abused by attackers
+lk,Medium,Abused by attackers
+me,Medium,Abused by attackers
+ng,Medium,Abused by attackers
+party,Medium,Often used for adult content and malware distribution.
+pk,Medium,Abused by attackers
+poker,Medium,Gambling related TLD -  legal implications.
+ru,Medium,Frequently abused TLD - huge volume - false positives expected
+sa,Medium,Abused by attackers
+science,Medium,Has been used for academic frauds.
+sexy,Medium,Adult content TLD -  legal and reputational risks.
+site,Medium,Abused by attackers
+stream,Medium,Often misused for pirated streaming.
+th,Medium,Abused by attackers
+tn,Medium,Abused by attackers
+top,Medium,Abused by attackers
+trade,Medium,Commonly used for trade scams.
+tube,Medium,Adult content TLD high reputational risks.
+webcam,Medium,Adult content TLD high reputational risks.
+webcam,Medium,Potential misuse for adult content or phishing.
+wtf,Medium,Abused by attackers
