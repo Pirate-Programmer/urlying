@@ -3,4 +3,5 @@ env/
 **/.ipynb_checkpoints/*
 .env*
 /datasets/eda_dataset/*
-/datasets/training_dataset_with_features/*
+/datasets/training_dataset/*
+/datasets/dataset_with_features/*
