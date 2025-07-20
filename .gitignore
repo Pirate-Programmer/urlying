@@ -2,3 +2,5 @@ env/
 *.bat
 **/.ipynb_checkpoints/*
 .env*
+/datasets/eda_dataset/*
+/datasets/training_dataset_with_features/*
