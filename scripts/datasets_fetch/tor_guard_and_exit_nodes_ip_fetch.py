@@ -1,6 +1,9 @@
 import requests
 import hashlib
 import os
+import csv
+import zlib
+from io import StringIO
 
 # ==== Tor Node Feeds ====
 TOR_SOURCES = [
@@ -15,8 +18,11 @@ TOR_SOURCES = [
 ]
 
 # ==== Utilities ====
-def get_hash(data):
+def get_md5(data):
     return hashlib.md5(data).hexdigest()
+
+def get_crc32(data):
+    return format(zlib.crc32(data) & 0xffffffff, "08x")
 
 def load_previous_hash(hash_file):
     if os.path.exists(hash_file):
@@ -25,11 +31,42 @@ def load_previous_hash(hash_file):
     return ""
 
 def save_new_hash(hash_file, hash_val):
+    os.makedirs(os.path.dirname(hash_file), exist_ok=True)
     with open(hash_file, "w") as f:
         f.write(hash_val)
 
 def ensure_dirs(path):
     os.makedirs(path, exist_ok=True)
+
+# ==== CSV Processing ====
+def process_csv(content, save_as):
+    decoded = content.decode("utf-8", errors="replace")
+    reader = csv.DictReader(StringIO(decoded))
+
+    processed_rows = []
+    for row in reader:
+        ip = row.get("dest_ip", "").strip()
+        if ip:
+            processed_rows.append({
+                "ip": ip,
+                "hash": get_crc32(ip.encode("utf-8"))
+            })
+
+    # Remove duplicates
+    seen = {}
+    for entry in processed_rows:
+        seen[entry["ip"]] = entry
+    unique_rows = list(seen.values())
+
+    # Sort by hash for binary search
+    unique_rows.sort(key=lambda x: x["hash"])
+
+    with open(save_as, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["ip", "hash"])
+        writer.writeheader()
+        writer.writerows(unique_rows)
+
+    print(f"[✓] Processed & saved: {save_as}")
 
 # ==== Fetch Logic ====
 def fetch_tor_lists():
@@ -50,14 +87,13 @@ def fetch_tor_lists():
                 continue
 
             new_content = response.content
-            new_hash = get_hash(new_content)
+            new_hash = get_md5(new_content)
             old_hash = load_previous_hash(hash_file)
 
             if new_hash == old_hash:
                 print(f"[=] {filename}: No update needed.")
             else:
-                with open(save_as, "wb") as f:
-                    f.write(new_content)
+                process_csv(new_content, save_as)
                 save_new_hash(hash_file, new_hash)
                 print(f"[✓] {filename}: File updated.")
 
