@@ -1,17 +1,25 @@
 import requests
 import hashlib
 import os
+import csv
+import zlib
+from io import StringIO
 
-# GitHub raw file URL for ProtonVPN IP list
+# ProtonVPN IP list
 RAW_URL = "https://raw.githubusercontent.com/mthcht/awesome-lists/main/Lists/VPN/ProtonVPN/protonvpn_ip_list.csv"
 
-# File setup
 FILENAME = "proton_vpn_ip_list.csv"
 SAVE_AS = f"./datasets/vpn_ips/{FILENAME}"
 HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 
-def get_hash(data):
+# === Utilities ===
+def get_md5(data):
+    """MD5 hash for whole file update check."""
     return hashlib.md5(data).hexdigest()
+
+def get_crc32(data):
+    """Fast per-IP hash for binary search."""
+    return format(zlib.crc32(data) & 0xffffffff, "08x")
 
 def load_previous_hash():
     if os.path.exists(HASH_FILE):
@@ -20,13 +28,48 @@ def load_previous_hash():
     return ""
 
 def save_new_hash(hash_val):
+    os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
     with open(HASH_FILE, "w") as f:
         f.write(hash_val)
 
 def ensure_dirs():
     os.makedirs(os.path.dirname(SAVE_AS), exist_ok=True)
-    os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
 
+# === Processing ===
+def process_csv(content):
+    decoded = content.decode("utf-8", errors="replace")
+    reader = csv.DictReader(StringIO(decoded))
+
+    processed_rows = []
+    for row in reader:
+        src_ip = row.get("src_ip_entry", "").strip()
+        exit_ip = row.get("src_ip_exit", "").strip()
+
+        # Add both if present
+        for ip in (src_ip, exit_ip):
+            if ip:
+                processed_rows.append({
+                    "ip": ip,
+                    "hash": get_crc32(ip.encode("utf-8"))
+                })
+
+    # Remove duplicates based on IP
+    seen = {}
+    for entry in processed_rows:
+        seen[entry["ip"]] = entry
+    unique_rows = list(seen.values())
+
+    # Sort by hash for binary search
+    unique_rows.sort(key=lambda x: x["hash"])
+
+    with open(SAVE_AS, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["ip", "hash"])
+        writer.writeheader()
+        writer.writerows(unique_rows)
+
+    print(f"[✓] Processed & saved: {SAVE_AS}")
+
+# === Fetching ===
 def fetch_file():
     try:
         ensure_dirs()
@@ -37,19 +80,19 @@ def fetch_file():
             return
 
         new_content = response.content
-        new_hash = get_hash(new_content)
+        new_hash = get_md5(new_content)
         old_hash = load_previous_hash()
 
         if new_hash == old_hash:
             print("[=] File unchanged. No update needed.")
         else:
-            with open(SAVE_AS, "wb") as f:
-                f.write(new_content)
+            process_csv(new_content)
             save_new_hash(new_hash)
             print("[✓] File updated successfully.")
 
     except Exception as e:
         print(f"[!] Error: {e}")
 
-# Run once when script is called
-fetch_file()
+# === Run ===
+if __name__ == "__main__":
+    fetch_file()

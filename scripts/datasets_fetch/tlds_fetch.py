@@ -1,5 +1,6 @@
 import requests
 import hashlib
+import zlib
 import os
 import csv
 
@@ -12,8 +13,13 @@ SAVE_CSV = f"./datasets/tlds/{FILENAME_CSV}"
 HASH_FILE = f"./hashed_files/{FILENAME_TXT}.md5"
 
 # ==== Utilities ====
-def get_hash(data):
+def get_md5(data):
+    """Return MD5 hash (hex) for full file update checking."""
     return hashlib.md5(data).hexdigest()
+
+def get_crc32(data):
+    """Return unsigned CRC32 hash as hex string for fast per-row search."""
+    return format(zlib.crc32(data) & 0xffffffff, "08x")
 
 def load_previous_hash():
     if os.path.exists(HASH_FILE):
@@ -22,6 +28,7 @@ def load_previous_hash():
     return ""
 
 def save_new_hash(hash_val):
+    os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
     with open(HASH_FILE, "w") as f:
         f.write(hash_val)
 
@@ -40,7 +47,7 @@ def fetch_tld_list():
             return False
 
         new_content = response.content
-        new_hash = get_hash(new_content)
+        new_hash = get_md5(new_content)
         old_hash = load_previous_hash()
 
         if new_hash == old_hash:
@@ -58,7 +65,7 @@ def fetch_tld_list():
         print(f"[!] Error fetching TLD list: {e}")
         return False
 
-# ==== Step 2: Convert TXT → CSV ====
+# ==== Step 2: Convert TXT → CSV with Hashes ====
 def convert_txt_to_csv(txt_file, csv_file):
     try:
         with open(txt_file, "r") as infile:
@@ -67,13 +74,16 @@ def convert_txt_to_csv(txt_file, csv_file):
         # Skip first line (comment), convert to lowercase
         tlds = [line.strip().lower() for line in lines if not line.startswith("#")]
 
+        # Create sorted list of (hash_crc32, tld)
+        hashed_tlds = [(get_crc32(tld.encode("utf-8")), tld) for tld in tlds]
+        hashed_tlds.sort(key=lambda x: x[0])  # Sort by hash for binary search later
+
         with open(csv_file, "w", newline='') as outfile:
             writer = csv.writer(outfile)
-            writer.writerow(["tld"])
-            for tld in tlds:
-                writer.writerow([tld])
+            writer.writerow(["hash", "tld"])
+            writer.writerows(hashed_tlds)
 
-        print(f"[✓] Converted to CSV: {csv_file}")
+        print(f"[✓] Converted to CSV with per-row hashes: {csv_file}")
     except Exception as e:
         print(f"[!] Error during CSV conversion: {e}")
 
