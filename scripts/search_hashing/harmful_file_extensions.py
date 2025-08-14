@@ -23,7 +23,7 @@ def process_extensions():
     hashed_ext_list.sort(key=lambda x: x[1])
 
     # Save to CSV
-    output_df = pd.DataFrame(hashed_ext_list, columns=["extension", "crc32_hash"])
+    output_df = pd.DataFrame(hashed_ext_list, columns=["extensions", "hash"])
     output_df.to_csv(OUTPUT_FILE, index=False)
 
     print(f"[✓] Saved sorted CSV with CRC32 hashes to {OUTPUT_FILE}")
