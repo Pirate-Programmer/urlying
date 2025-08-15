@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+h2 {
+    margin-top: 30px;
+}
+
+ul {
+    padding: 0;
+}
+
+li {
+    list-style: none;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+button {
+    margin-left: 10px;
+}
