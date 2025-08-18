@@ -66,32 +66,56 @@ if (!window.__analyzeInjected) {
     container.style.fontFamily = "Arial, sans-serif";
 
     container.innerHTML = `
-      <div style="margin-bottom:10px;font-size:14px;word-break:break-all;">${displayText}</div>
-      <svg width="220" height="140" viewBox="0 0 220 140">
-        <defs>
-          <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="green" />
-            <stop offset="50%" stop-color="yellow" />
-            <stop offset="100%" stop-color="red" />
-          </linearGradient>
-        </defs>
-        <path d="M30 110 A80 80 0 0 1 190 110"
-          fill="none" stroke="url(#arcGradient)"
-          stroke-width="15" stroke-linecap="round"/>
-        <path id="needle" d="M110 110 L110 40" stroke="white"
-          stroke-width="4" stroke-linecap="round"
-          transform="rotate(-90, 110, 110)"
-          style="transition: transform 1s ease-out;"/>
-      </svg>
-    `;
+    <div style="margin-bottom:10px;font-size:14px;word-break:break-all;">
+      ${displayText}
+    </div>
+    <svg width="220" height="140" viewBox="0 0 220 140">
+      <defs>
+        <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="green" />
+          <stop offset="50%" stop-color="yellow" />
+          <stop offset="100%" stop-color="red" />
+        </linearGradient>
+      </defs>
+      <path d="M30 110 A80 80 0 0 1 190 110"
+        fill="none" stroke="url(#arcGradient)"
+        stroke-width="15" stroke-linecap="round"/>
+      <path id="needle" d="M110 110 L110 40" stroke="white"
+        stroke-width="4" stroke-linecap="round"
+        transform="rotate(-90, 110, 110)"
+        style="transition: transform 1s ease-out;"/>
+    </svg>
+    <div id="speedValue" style="margin-top:15px;font-size:20px;font-weight:bold;"></div>
+  `;
 
     document.body.appendChild(container);
-
+    let fontLink = document.createElement("link");
+    fontLink.href = "https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap";
+    fontLink.rel = "stylesheet";
+    document.head.appendChild(fontLink);
+    // Random value between -90 and 90
     let value = Math.floor(Math.random() * 180) - 90;
+
+    // Move needle
     let needle = container.querySelector("#needle");
     setTimeout(() => {
       needle.setAttribute("transform", `rotate(${value}, 110, 110)`);
     }, 50);
+
+    // Animate number counting
+    let speedValueElem = container.querySelector("#speedValue");
+    let current = 0;
+    let target = value;
+    let step = target > 0 ? 1 : -1; // move towards the target
+    speedValueElem.style.fontFamily = "'Orbitron', sans-serif";
+    speedValueElem.style.color = "#00ffcc";
+    speedValueElem.style.letterSpacing = "2px";
+
+    let interval = setInterval(() => {
+      current += step;
+      speedValueElem.textContent = current;
+      if (current === target) clearInterval(interval);
+    }, 50); // adjust speed of counting here
 
     // Click outside to remove
     setTimeout(() => {
