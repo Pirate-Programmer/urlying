@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blocked Site</title>
+  <link rel="stylesheet" href="../css/blocked.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <img src="../icons/danger.jpg" alt="Danger" class="danger-icon">
+      <h1>Access Blocked</h1>
+      <p id="blocked-domain"></p>
+      <p class="warning-text">This site may be unsafe or malicious.</p><br>
+      
+      <div class="button-group">
+        <button id="unblock-btn" class="tooltip">
+          ⚡ Remove from blacklist & Continue
+          <span class="tooltiptext">This action will add the domain to whitelist.</span>
+        </button>
+        
+        <button id="go-back-btn" class="secondary">⬅ Go Back</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="../js/blocked.js"></script>
+</body>
+</html>
