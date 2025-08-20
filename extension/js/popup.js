@@ -1,42 +1,20 @@
-(function () {
-  if (window.__urlCheckInjected) return; // prevent double injection
-  window.__urlCheckInjected = true;
+document.getElementById("blacklistBtn").addEventListener("click", () => {
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    let url = new URL(tabs[0].url);
+    let domain = url.hostname;
 
-  const domain = window.location.hostname;
+    chrome.storage.local.get({blacklist: [], whitelist: []}, (data) => {
+      let { blacklist, whitelist } = data;
 
-  // Helper to check domain list
-  function isDomainInList(listName) {
-    return new Promise((resolve) => {
-      chrome.storage.local.get([listName], (result) => {
-        const list = result[listName] || [];
-        resolve(list.includes(domain));
+      whitelist = whitelist.filter(d => d !== domain);
+
+      if (!blacklist.includes(domain)) {
+        blacklist.push(domain);
+      }
+
+      chrome.storage.local.set({ blacklist, whitelist }, () => {
+        alert(`${domain} has been blacklisted`);
       });
     });
-  }
-
-  // Blocked page HTML with "Unblock" button
-  function showBlockedPage() {
-    window.location.href = `../html/blocked.html?domain=${domain}`;
-
-    document.getElementById("unblock-btn").addEventListener("click", () => {
-      chrome.storage.local.get(["blacklist"], (result) => {
-        const updatedList = (result.blacklist || []).filter(d => d !== domain);
-        chrome.storage.local.set({ blacklist: updatedList }, () => {
-          location.reload();
-        });
-      });
-    });
-  }
-
-  (async () => {
-    const inWhitelist = await isDomainInList("whitelist");
-    if (inWhitelist) return;
-
-    const inBlacklist = await isDomainInList("blacklist");
-    if (inBlacklist) {
-      showBlockedPage();
-      return;
-    }
-
-  })();
-})();
+  });
+});

@@ -2,15 +2,21 @@
   "manifest_version": 3,
   "name": "URLying",
   "version": "1.0",
-  "permissions": ["contextMenus", "activeTab", "scripting"],
+  "permissions": ["contextMenus", "activeTab", "scripting", "storage", "declarativeNetRequest", "declarativeNetRequestFeedback"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "js/background.js"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["html/blocked.html", "js/blocked.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "css": ["content.css"]
+      "js": ["js/content.js", "js/popup.js"],
+      "css": ["css/content.css"]
     }
   ],
   "icons": {
@@ -19,6 +25,8 @@
   "action": {
     "default_icon": {
       "128": "icons/icon128.png"
-    }
-  }
+    },
+    "default_popup": "html/popup.html"
+  },
+  "options_page": "html/options.html"
 }
