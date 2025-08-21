@@ -9,7 +9,6 @@ if (!window.__analyzeInjected) {
 
   let currentSelection = "";
 
-  // Track text selection
   document.addEventListener("mouseup", () => {
     let text = window.getSelection().toString().trim();
     if (text.length > 0) {
