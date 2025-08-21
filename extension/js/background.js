@@ -36,6 +36,34 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
   }
 });
 
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.action === "moveToWhitelist") {
+    const domain = msg.domain;
+
+    chrome.storage.local.get(["blacklist", "whitelist"], (data) => {
+      let blacklist = data.blacklist || [];
+      let whitelist = data.whitelist || [];
+
+      // Remove from blacklist
+      blacklist = blacklist.filter(d => d !== domain);
+
+      // Add to whitelist if not already
+      if (!whitelist.includes(domain)) {
+        whitelist.push(domain);
+      }
+
+      // Save back
+      chrome.storage.local.set({ blacklist, whitelist }, () => {
+        sendResponse({ ok: true });
+      });
+    });
+
+    // Important for async sendResponse
+    return true;
+  }
+});
+
+
 // Track last blocked domain (for blocked.html display)
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (info) => {
   if (info.request && info.request.url) {

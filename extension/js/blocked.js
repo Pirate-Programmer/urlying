@@ -1,37 +1,35 @@
-const params = new URLSearchParams(window.location.search);
-const domain = params.get("domain");
+// Get last blocked domain from storage
+chrome.storage.local.get("lastBlockedDomain", ({ lastBlockedDomain }) => {
+  const domain = lastBlockedDomain || null;
+  const messageEl = document.getElementById("blocked-domain");
 
-const messageEl = document.getElementById("blocked-domain");
-if (domain) {
+  if (domain) {
     messageEl.textContent = `The domain "${domain}" is in your blacklist.`;
-} else {
+  } else {
     messageEl.textContent = "This site is in your blacklist.";
-}
+  }
 
-document.getElementById("unblock-btn").addEventListener("click", () => {
+  // Handle Unblock button
+  document.getElementById("unblock-btn").addEventListener("click", () => {
     if (!domain) return;
 
-    chrome.storage.local.get(["blacklist", "whitelist"], (result) => {
-        let updatedBlacklist = (result.blacklist || []).filter(d => d !== domain);
-        let updatedWhitelist = result.whitelist || [];
-
-        if (!updatedWhitelist.includes(domain)) {
-            updatedWhitelist.push(domain);
-        }
-
-        chrome.storage.local.set(
-            { blacklist: updatedBlacklist, whitelist: updatedWhitelist },
-            () => {
-                window.location.href = "https://" + domain;
-            }
-        );
+    // Ask background.js to move domain from blacklist → whitelist
+    chrome.runtime.sendMessage({ action: "moveToWhitelist", domain }, (res) => {
+      if (res?.ok) {
+        // Redirect user back to site
+        window.location.href = "https://" + domain;
+      } else {
+        alert("Failed to unblock the domain.");
+      }
     });
+  });
 });
 
+// Handle Go Back button
 document.getElementById("go-back-btn").addEventListener("click", () => {
-    if (window.history.length > 1) {
-        window.history.back();
-    } else {
-        window.close(); 
-    }
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.close();
+  }
 });
