@@ -2,7 +2,11 @@
   "manifest_version": 3,
   "name": "URLying",
   "version": "1.0",
-  "permissions": ["contextMenus", "activeTab", "scripting", "storage", "declarativeNetRequest", "declarativeNetRequestFeedback"],
+  "permissions": ["contextMenus", "activeTab", "scripting", "storage", 
+  "declarativeNetRequest", "declarativeNetRequestFeedback", "declarativeNetRequestWithHostAccess"],
+  "host_permissions": [
+    "*://*/*"
+  ],
   "background": {
     "service_worker": "js/background.js"
   },

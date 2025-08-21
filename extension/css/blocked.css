@@ -46,7 +46,7 @@ body {
 
 .danger-icon {
   width: 80px;
-  margin-bottom: 10px;
+  margin-bottom: -15px;
   animation: shake 1.5s infinite;
 }
 

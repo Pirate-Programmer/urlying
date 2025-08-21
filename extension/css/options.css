@@ -25,6 +25,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    border: 1px solid rgb(248, 166, 2);
 }
 
 h2 {

@@ -1,29 +1,34 @@
 let lastSelectedText = "";
 let lastLinkUrl = "";
 
-// --- Storage keys & defaults ---
+// --- Safe defaults ---
 const DEFAULT_STATE = {
-  blacklist: [],  // ["example.com", "bad.site"]
-  whitelist: [],  // ["my-safe.site"]
+  blacklist: [],
+  whitelist: [],
   enableBlocking: true
 };
 
-// Ensure defaults exist
-chrome.runtime.onInstalled.addListener(async () => {
-  const current = await chrome.storage.local.get(Object.keys(DEFAULT_STATE));
-  const toSet = {};
-  for (const [k, v] of Object.entries(DEFAULT_STATE)) {
-    if (!(k in current)) toSet[k] = v;
-  }
-  if (Object.keys(toSet).length) await chrome.storage.local.set(toSet);
-  await rebuildRules();
+// ✅ On install, only set defaults if missing (don’t clear lists)
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.get(Object.keys(DEFAULT_STATE), (data) => {
+    const toSet = {};
+    for (const [k, v] of Object.entries(DEFAULT_STATE)) {
+      if (data[k] === undefined) {
+        toSet[k] = v;
+      }
+    }
+    if (Object.keys(toSet).length > 0) {
+      chrome.storage.local.set(toSet);
+    }
+  });
 });
 
+// ✅ On startup, rebuild rules from current lists
 chrome.runtime.onStartup.addListener(async () => {
   await rebuildRules();
 });
 
-// Rebuild rules whenever lists change
+// Rebuild whenever storage changes
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area !== "local") return;
   if (changes.blacklist || changes.whitelist || changes.enableBlocking) {
@@ -31,22 +36,20 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
   }
 });
 
-// Listen which rule matched to know what was blocked (for blocked.html to show domain)
+// Track last blocked domain (for blocked.html display)
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (info) => {
-  // We encode domain in rule's id map/metadata
-  if (info.rule && info.rule.id && info.request) {
-    // Store the last blocked domain for the blocked page to display
+  if (info.request && info.request.url) {
     const url = new URL(info.request.url);
     await chrome.storage.local.set({ lastBlockedDomain: url.hostname });
   }
 });
 
-// Build DNR rules from blacklist (minus whitelist)
+// Build DNR rules from blacklist - whitelist
 async function rebuildRules() {
   const { blacklist = [], whitelist = [], enableBlocking = true } =
     await chrome.storage.local.get(["blacklist", "whitelist", "enableBlocking"]);
 
-  // First, clear existing dynamic rules
+  // Clear current rules
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const existingIds = existing.map(r => r.id);
   if (existingIds.length) {
@@ -55,28 +58,23 @@ async function rebuildRules() {
 
   if (!enableBlocking) return;
 
-  // Compute effective blocked domains
+  // Effective blocked domains = blacklist - whitelist
   const wl = new Set(whitelist.map(normalizeDomain));
   const effective = [...new Set(blacklist.map(normalizeDomain))].filter(d => !wl.has(d));
 
-  // Create redirect rules (main_frame only) to local blocked.html
-  // Use regexFilter to match domain + subdomains
-  // NOTE: We can't pass query params to extensionPath, so we store domain via onRuleMatchedDebug
-  const rules = effective.map((domain, idx) => {
-    const escaped = domain.replace(/\./g, "\\.");
-    return {
-      id: 1000 + idx, // unique id
-      priority: 1,
-      action: {
-        type: "redirect",
-        redirect: { extensionPath: "/html/blocked.html" }
-      },
-      condition: {
-        regexFilter: `^https?://([^.]+\\.)*${escaped}(/|$)`,
-        resourceTypes: ["main_frame"]
-      }
-    };
-  });
+  // Build redirect rules
+  const rules = effective.map((domain, idx) => ({
+    id: 1000 + idx,
+    priority: 1,
+    action: {
+      type: "redirect",
+      redirect: { extensionPath: "/html/blocked.html" }
+    },
+    condition: {
+      urlFilter: `||${domain}`,
+      resourceTypes: ["main_frame"]
+    }
+  }));
 
   if (rules.length) {
     await chrome.declarativeNetRequest.updateDynamicRules({ addRules: rules });
@@ -87,7 +85,7 @@ function normalizeDomain(d) {
   return (d || "").trim().toLowerCase();
 }
 
-// Message handlers (used by blocked.js to remove a domain)
+// Handle unblock messages from blocked.js
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg?.action === "unblock" && msg.domain) {
     (async () => {
@@ -101,7 +99,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-// Create context menu
+// Context menu for “Check if your URL is Lying”
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "analyzeText",
@@ -110,7 +108,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Listen for selection or link clicks
+// Track selection/link messages
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "updateSelection") {
     lastSelectedText = msg.text;
@@ -120,7 +118,7 @@ chrome.runtime.onMessage.addListener((msg) => {
   }
 });
 
-// On context menu click, inject into page
+// Context menu click handler
 chrome.contextMenus.onClicked.addListener(() => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.scripting.executeScript({
