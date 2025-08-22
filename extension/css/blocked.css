@@ -65,7 +65,7 @@ button {
   color: white;
   font-size: 15px;
   cursor: pointer;
-  transition: transform 0.2s ease, background 0.3s ease;
+  transition: transform 0.8s ease, background 0.3s ease;
   box-shadow: 0 0 15px rgba(255, 0, 55, 0.6);
   white-space: nowrap; /* ✅ force text to stay on one line */
   position: relative;  /* needed for tooltip positioning */
@@ -109,7 +109,7 @@ button.secondary:hover {
   border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
-  transition: background 0.3s;
+  transition: transform 1s ease, background 0.4s ease;
 }
 
 .tooltip:hover {
