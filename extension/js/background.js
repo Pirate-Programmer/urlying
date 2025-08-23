@@ -53,15 +53,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
 
       // Save back
-      chrome.storage.local.set({ blacklist, whitelist }, () => {
+      chrome.storage.local.set({ blacklist, whitelist }, async () => {
+        // 🔑 Rebuild rules immediately
+        await rebuildRules();
         sendResponse({ ok: true });
       });
     });
 
-    // Important for async sendResponse
-    return true;
+    return true; // async
   }
 });
+
 
 
 // Track last blocked domain (for blocked.html display)
