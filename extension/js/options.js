@@ -27,40 +27,57 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // --- Add to whitelist ---
   document.getElementById("add-whitelist").onclick = () => {
     const input = document.getElementById("whitelist-input");
-    const domain = input.value.trim();
-    if (domain) {
-      chrome.storage.local.get(["whitelist"], (result) => {
-        const list = result.whitelist || [];
-        if (!list.includes(domain)) {
-          list.push(domain);
-          chrome.storage.local.set({ whitelist: list }, () => {
-            input.value = "";
-            renderList("whitelist", "whitelist-list");
-          });
-        }
+    const domain = input.value.trim().toLowerCase();
+    if (!domain) return;
+
+    chrome.storage.local.get(["whitelist", "blacklist"], (result) => {
+      let whitelist = result.whitelist || [];
+      let blacklist = result.blacklist || [];
+
+      // Remove from blacklist if present
+      blacklist = blacklist.filter(d => d !== domain);
+
+      if (!whitelist.includes(domain)) {
+        whitelist.push(domain);
+      }
+
+      chrome.storage.local.set({ whitelist, blacklist }, () => {
+        input.value = "";
+        renderList("whitelist", "whitelist-list");
+        renderList("blacklist", "blacklist-list"); // refresh both
       });
-    }
+    });
   };
 
+  // --- Add to blacklist ---
   document.getElementById("add-blacklist").onclick = () => {
     const input = document.getElementById("blacklist-input");
-    const domain = input.value.trim();
-    if (domain) {
-      chrome.storage.local.get(["blacklist"], (result) => {
-        const list = result.blacklist || [];
-        if (!list.includes(domain)) {
-          list.push(domain);
-          chrome.storage.local.set({ blacklist: list }, () => {
-            input.value = "";
-            renderList("blacklist", "blacklist-list");
-          });
-        }
+    const domain = input.value.trim().toLowerCase();
+    if (!domain) return;
+
+    chrome.storage.local.get(["whitelist", "blacklist"], (result) => {
+      let whitelist = result.whitelist || [];
+      let blacklist = result.blacklist || [];
+
+      // Remove from whitelist if present
+      whitelist = whitelist.filter(d => d !== domain);
+
+      if (!blacklist.includes(domain)) {
+        blacklist.push(domain);
+      }
+
+      chrome.storage.local.set({ whitelist, blacklist }, () => {
+        input.value = "";
+        renderList("blacklist", "blacklist-list");
+        renderList("whitelist", "whitelist-list"); // refresh both
       });
-    }
+    });
   };
 
+  // --- Search filters ---
   ["whitelist", "blacklist"].forEach(listName => {
     document.getElementById(`search-${listName}`).addEventListener("input", (e) => {
       renderList(listName, `${listName}-list`, e.target.value);
