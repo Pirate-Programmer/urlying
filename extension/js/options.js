@@ -90,3 +90,17 @@ document.addEventListener("DOMContentLoaded", () => {
   renderList("whitelist", "whitelist-list");
   renderList("blacklist", "blacklist-list");
 });
+
+  // --- Allow Enter key to trigger Add buttons ---
+  document.getElementById("whitelist-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("add-whitelist").click();
+    }
+  });
+
+  document.getElementById("blacklist-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("add-blacklist").click();
+    }
+  });
+
