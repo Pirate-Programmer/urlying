@@ -65,12 +65,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 });
 
 
-
 // Track last blocked domain (for blocked.html display)
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (info) => {
   if (info.request && info.request.url) {
     const url = new URL(info.request.url);
-    await chrome.storage.local.set({ lastBlockedDomain: url.hostname });
+    await chrome.storage.local.set({ lastBlockedDomain: url.hostname, lastBlockedUrl: info.request.url });
   }
 });
 

@@ -1,8 +1,10 @@
-// Get last blocked domain from storage
-chrome.storage.local.get("lastBlockedDomain", ({ lastBlockedDomain }) => {
+// Get last blocked info from storage
+chrome.storage.local.get(["lastBlockedDomain", "lastBlockedUrl"], ({ lastBlockedDomain, lastBlockedUrl }) => {
   const domain = lastBlockedDomain || null;
+  const blockedUrl = lastBlockedUrl || null;
   const messageEl = document.getElementById("blocked-domain");
 
+  // Show only the domain
   if (domain) {
     messageEl.textContent = `The domain "${domain}" is in your blacklist.`;
   } else {
@@ -13,11 +15,13 @@ chrome.storage.local.get("lastBlockedDomain", ({ lastBlockedDomain }) => {
   document.getElementById("unblock-btn").addEventListener("click", () => {
     if (!domain) return;
 
-    // Ask background.js to move domain from blacklist → whitelist
     chrome.runtime.sendMessage({ action: "moveToWhitelist", domain }, (res) => {
       if (res?.ok) {
-        // Redirect user back to site
-        window.location.href = "https://" + domain;
+        if (blockedUrl) {
+          window.location.href = blockedUrl;
+        } else {
+          window.location.href = "https://" + domain; // fallback
+        }
       } else {
         alert("Failed to unblock the domain.");
       }
