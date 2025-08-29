@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const domain = input.value.trim().toLowerCase();
     if (!domain) return;
 
-    const expiryPeriod = 30000; // 24 hours
+    const expiryPeriod = 30 * 24 * 60 * 60 * 1000; // 24 hours
     const expiry = Date.now() + expiryPeriod;
 
     chrome.storage.local.get(["whitelist", "blacklist"], (result) => {
