@@ -4,7 +4,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const ul = document.getElementById(ulId);
       ul.innerHTML = "";
 
-      (result[listName] || [])
+      let list = result[listName] || [];
+
+      // ✅ If whitelist, clean up expired entries silently
+      if (listName === "whitelist") {
+        const now = Date.now();
+        list = list.filter(entry => entry.expiry > now); // keep only valid
+        if (list.length !== (result[listName] || []).length) {
+          chrome.storage.local.set({ whitelist: list });
+        }
+      }
+
+      // Normalize to strings for rendering
+      const displayList = listName === "whitelist"
+        ? list.map(entry => entry.domain)
+        : list;
+
+      displayList
         .filter(domain => domain.toLowerCase().includes(filter.toLowerCase()))
         .forEach(domain => {
           const li = document.createElement("li");
@@ -14,7 +30,12 @@ document.addEventListener("DOMContentLoaded", () => {
           delBtn.textContent = "Remove";
           delBtn.onclick = () => {
             chrome.storage.local.get([listName], (res) => {
-              const updatedList = (res[listName] || []).filter(d => d !== domain);
+              let updatedList = res[listName] || [];
+              if (listName === "whitelist") {
+                updatedList = updatedList.filter(e => e.domain !== domain);
+              } else {
+                updatedList = updatedList.filter(d => d !== domain);
+              }
               chrome.storage.local.set({ [listName]: updatedList }, () => {
                 renderList(listName, ulId, filter);
               });
@@ -27,11 +48,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- Add to whitelist ---
+  // --- Add to whitelist with expiry ---
   document.getElementById("add-whitelist").onclick = () => {
     const input = document.getElementById("whitelist-input");
     const domain = input.value.trim().toLowerCase();
     if (!domain) return;
+
+    const expiryPeriod = 30000; // 24 hours
+    const expiry = Date.now() + expiryPeriod;
 
     chrome.storage.local.get(["whitelist", "blacklist"], (result) => {
       let whitelist = result.whitelist || [];
@@ -40,8 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Remove from blacklist if present
       blacklist = blacklist.filter(d => d !== domain);
 
-      if (!whitelist.includes(domain)) {
-        whitelist.push(domain);
+      // Only add if not already whitelisted
+      if (!whitelist.some(e => e.domain === domain)) {
+        whitelist.push({ domain, expiry });
       }
 
       chrome.storage.local.set({ whitelist, blacklist }, () => {
@@ -63,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let blacklist = result.blacklist || [];
 
       // Remove from whitelist if present
-      whitelist = whitelist.filter(d => d !== domain);
+      whitelist = whitelist.filter(e => e.domain !== domain);
 
       if (!blacklist.includes(domain)) {
         blacklist.push(domain);
@@ -91,16 +116,15 @@ document.addEventListener("DOMContentLoaded", () => {
   renderList("blacklist", "blacklist-list");
 });
 
-  // --- Allow Enter key to trigger Add buttons ---
-  document.getElementById("whitelist-input").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      document.getElementById("add-whitelist").click();
-    }
-  });
+// --- Allow Enter key to trigger Add buttons ---
+document.getElementById("whitelist-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    document.getElementById("add-whitelist").click();
+  }
+});
 
-  document.getElementById("blacklist-input").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      document.getElementById("add-blacklist").click();
-    }
-  });
-
+document.getElementById("blacklist-input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    document.getElementById("add-blacklist").click();
+  }
+});

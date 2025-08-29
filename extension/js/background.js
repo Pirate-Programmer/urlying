@@ -4,7 +4,7 @@ let lastLinkUrl = "";
 // --- Safe defaults ---
 const DEFAULT_STATE = {
   blacklist: [],
-  whitelist: [],
+  whitelist: [], // now stores {domain, expiry}
   enableBlocking: true
 };
 
@@ -39,6 +39,8 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === "moveToWhitelist") {
     const domain = msg.domain;
+    const expiryPeriod = 24 * 60 * 60 * 1000; // 24 hours
+    const expiry = Date.now() + expiryPeriod;
 
     chrome.storage.local.get(["blacklist", "whitelist"], (data) => {
       let blacklist = data.blacklist || [];
@@ -48,8 +50,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       blacklist = blacklist.filter(d => d !== domain);
 
       // Add to whitelist if not already
-      if (!whitelist.includes(domain)) {
-        whitelist.push(domain);
+      if (!whitelist.some(e => e.domain === domain)) {
+        whitelist.push({ domain, expiry });
       }
 
       // Save back
@@ -64,12 +66,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-
 // Track last blocked domain (for blocked.html display)
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (info) => {
   if (info.request && info.request.url) {
     const url = new URL(info.request.url);
-    await chrome.storage.local.set({ lastBlockedDomain: url.hostname, lastBlockedUrl: info.request.url });
+    await chrome.storage.local.set({
+      lastBlockedDomain: url.hostname,
+      lastBlockedUrl: info.request.url
+    });
   }
 });
 
@@ -77,6 +81,13 @@ chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (info) => {
 async function rebuildRules() {
   const { blacklist = [], whitelist = [], enableBlocking = true } =
     await chrome.storage.local.get(["blacklist", "whitelist", "enableBlocking"]);
+
+  // ✅ Filter expired whitelist entries
+  const now = Date.now();
+  const validWhitelist = (whitelist || []).filter(e => e.expiry > now);
+  if (validWhitelist.length !== (whitelist || []).length) {
+    await chrome.storage.local.set({ whitelist: validWhitelist });
+  }
 
   // Clear current rules
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
@@ -88,7 +99,7 @@ async function rebuildRules() {
   if (!enableBlocking) return;
 
   // Effective blocked domains = blacklist - whitelist
-  const wl = new Set(whitelist.map(normalizeDomain));
+  const wl = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
   const effective = [...new Set(blacklist.map(normalizeDomain))].filter(d => !wl.has(d));
 
   // Build redirect rules
