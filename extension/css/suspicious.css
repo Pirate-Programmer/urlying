@@ -1,7 +1,7 @@
 body {
   margin: 0;
   font-family: monospace;
-  background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+  background: linear-gradient(135deg, #202020, #2a2a2a);
   color: #fff;
   height: 100vh;
   display: flex;
@@ -28,7 +28,7 @@ body {
   font-size: 28px;
   font-weight: bold;
   font-family: 'Courier New', Courier, monospace;
-  color: #ff0033;
+  color: #ffcc00;
   margin: 0;
 }
 
@@ -39,38 +39,53 @@ body {
 }
 
 .card {
-  background: black;
-  border: 2px solid #ff0033;
-  border-radius: 16px;
-  padding: 40px;
+  background: #1a1a1a;
+  border: 2px solid #ffcc00;
+  border-radius: 18px;
+  padding: 50px;
   text-align: center;
-  width: 420px;
-  box-shadow: 0 0 30px rgba(255, 0, 55, 0.4);
-  animation: pulse 2s infinite;
+  width: 600px;   /* bigger box */
+  box-shadow: 0 0 30px rgba(255, 204, 0, 0.4);
+}
+
+.icon {
+  font-size: 60px;
+  margin-bottom: 10px;
 }
 
 .card h1 {
   font-size: 28px;
   margin-bottom: 16px;
-  color: #ff0033;
-  text-shadow: 0 0 10px rgba(255, 0, 55, 0.7);
+  color: #ffcc00;
+  text-shadow: 0 0 8px rgba(255, 204, 0, 0.7);
 }
 
-.card p {
+.domain-text {
   font-size: 16px;
-  margin: 10px 0;
+  color: #eeeeee;
+  margin-bottom: 15px;
+  word-break: break-all;
 }
 
 .warning-text {
-  font-size: 14px;
-  color: #ff5555;
-  margin-bottom: 25px;
+  font-size: 15px;
+  color: #ffdd55;
+  margin-bottom: 20px;
+  line-height: 1.5;
 }
 
-.danger-icon {
-  width: 80px;
-  margin-bottom: -15px;
-  animation: shake 1.5s infinite;
+.advice-list {
+  list-style: square;
+  padding: 0;
+  margin: 15px 0 30px;
+  text-align: left;
+  font-size: 14px;
+  color: #f2f2f2;
+  margin-left: 22px;
+}
+
+.advice-list li {
+  margin: 8px 0;
 }
 
 .button-group {
@@ -81,62 +96,51 @@ body {
 }
 
 button {
-  background: linear-gradient(90deg, #ff0033, #cc0000);
   border: none;
   border-radius: 8px;
-  padding: 12px 20px;
+  padding: 12px 22px;
   color: white;
   font-size: 15px;
   cursor: pointer;
-  transition: transform 0.8s ease, background 0.3s ease;
-  box-shadow: 0 0 15px rgba(255, 0, 55, 0.6);
-  white-space: nowrap; /* ✅ force text to stay on one line */
-  position: relative;  /* needed for tooltip positioning */
+  transition: transform 0.3s ease, background 0.3s ease;
+  white-space: nowrap;
 }
 
 button:hover {
-  transform: scale(1.08);
-  background: linear-gradient(90deg, #cc0000, #990000);
+  transform: scale(1.07);
+}
+
+button.primary {
+  background: linear-gradient(90deg, #ffcc00, #e6b800);
+  color: #1a1a1a;
+  font-weight: bold;
+  box-shadow: 0 0 12px rgba(255, 204, 0, 0.6);
+}
+
+button.primary:hover {
+  background: linear-gradient(90deg, #e6b800, #cc9900);
 }
 
 button.secondary {
   background: linear-gradient(90deg, #333333, #1a1a1a);
-  box-shadow: 0 0 10px rgba(200, 200, 200, 0.3);
+  box-shadow: 0 0 8px rgba(200, 200, 200, 0.3);
 }
 
 button.secondary:hover {
   background: linear-gradient(90deg, #555555, #2a2a2a);
 }
 
-@keyframes pulse {
-  0% { box-shadow: 0 0 15px rgba(255, 0, 55, 0.3); }
-  50% { box-shadow: 0 0 35px rgba(255, 0, 55, 0.8); }
-  100% { box-shadow: 0 0 15px rgba(255, 0, 55, 0.3); }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-4px); }
-  40% { transform: translateX(4px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
+.highlight-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffcc00;
+  text-shadow: 0 0 12px rgba(255, 204, 0, 0.9);
+  margin: 12px 0 18px;
 }
 
 .tooltip {
   position: relative;
   display: inline-block;
-  background: #ff4d4f;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: transform 1s ease, background 0.4s ease;
-}
-
-.tooltip:hover {
-  background: #e63946;
 }
 
 .tooltip .tooltiptext {
