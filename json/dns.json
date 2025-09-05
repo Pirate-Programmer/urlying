@@ -1,39 +1,41 @@
 {
     "google.com": {
         "A": [
-            "142.251.222.110"
+            "172.217.26.110"
         ],
         "AAAA": [
-            "2404:6800:4002:804::200e"
+            "2404:6800:4002:81e::200e"
         ],
         "CNAME": [],
         "MX": [
             "10 smtp.google.com."
         ],
         "NS": [
-            "ns3.google.com.",
             "ns2.google.com.",
             "ns1.google.com.",
+            "ns3.google.com.",
             "ns4.google.com."
         ],
         "TXT": [
+            "\"docusign=1b0a6754-49b1-4db5-8540-d2c12664b289\"",
             "\"cisco-ci-domain-verification=47c38bc8c4b74b7233e9053220c1bbe76bcc1cd33c7acf7acd36cd6a5332004b\"",
-            "\"docusign=05958488-4752-4ef2-95eb-aa7ba8a3bd0e\"",
             "\"google-site-verification=4ibFUgB-wXLQ_S7vsXVomSTVamuOXBiVAzpR5IZ87D0\"",
-            "\"onetrust-domain-verification=de01ed21f2fa4d8781cbc3ffb89cf4ef\"",
+            "\"docusign=05958488-4752-4ef2-95eb-aa7ba8a3bd0e\"",
             "\"apple-domain-verification=30afIBcvSuDV2PLX\"",
             "\"facebook-domain-verification=22rm551cu4k0ab0bxsw536tlds4h95\"",
+            "\"MS=E4A68B9AB2BB9670BCE15412F62916164C0B20BB\"",
             "\"globalsign-smime-dv=CDYX+XFHUw2wml6/Gb8+59BsH31KzUr6c1l2BPvqKX8=\"",
-            "\"google-site-verification=wD8N7i1JTNTkezJ49swvWW48f8_9xveREV4oB-0Hf5o\"",
-            "\"docusign=1b0a6754-49b1-4db5-8540-d2c12664b289\"",
-            "\"google-site-verification=TV9-DBe4R80X4v0M4U_bd_J9cpOJM0nikft0jAgjmsQ\"",
             "\"v=spf1 include:_spf.google.com ~all\"",
-            "\"MS=E4A68B9AB2BB9670BCE15412F62916164C0B20BB\""
+            "\"onetrust-domain-verification=de01ed21f2fa4d8781cbc3ffb89cf4ef\"",
+            "\"google-site-verification=TV9-DBe4R80X4v0M4U_bd_J9cpOJM0nikft0jAgjmsQ\"",
+            "\"google-site-verification=wD8N7i1JTNTkezJ49swvWW48f8_9xveREV4oB-0Hf5o\""
         ],
         "SOA": [
-            "ns1.google.com. dns-admin.google.com. 798102527 900 900 1800 60"
+            "ns1.google.com. dns-admin.google.com. 802961439 900 900 1800 60"
         ],
-        "PTR": [],
-        "SRV": []
+        "CAA": [
+            "0 issue \"pki.goog\""
+        ],
+        "PTR": []
     }
 }
