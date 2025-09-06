@@ -10,6 +10,7 @@ body {
   width: 300px; /* wider popup */
   min-height: 180px;
   box-sizing: border-box;
+  border: 1px solid #bd93f9;
 }
 
 .container {
@@ -29,7 +30,7 @@ body {
 
 .toggle-container {
   position: relative;
-  width: 250px;
+  width: 300px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -42,8 +43,10 @@ body {
   width: 100%;
   height: 60px;
   transform-style: preserve-3d;
-  transform: scale(0.5);   /* adjust size: 0.5 = half, 0.8 = 80% */
+  transform: scale(0.6) translateZ(0);   /* adjust size: 0.5 = half, 0.8 = 80% */
   transform-origin: center; /* keep it centered */
+  margin-right: 50px;
+  margin-bottom: 0.45cm;
 }
 
 .toggle-input {
@@ -656,8 +659,23 @@ button:disabled:hover {
 }
 
 .protection-text {
-  margin-right: 10px;
+  display: flex;
+  flex-direction: row;
+  margin-right: 7px;
   color: #f8f8f2; /* Dracula foreground */
   font-weight: bold;
   font-size: 0.95rem;
+}
+
+#data-text{
+  font-size: 24px;
+  font-family: 'Courier New', Courier, monospace;
+  margin-bottom: 10px;
+}
+
+#protection {
+  font-size: 20px;
+  margin-right: 8px;
+  margin-top: 2px;
+  font-family: 'Courier New', Courier, monospace;
 }
