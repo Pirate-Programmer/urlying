@@ -24,20 +24,14 @@ blacklistBtn.addEventListener("click", () => {
 // ==========================
 // Toggle ON/OFF logic
 // ==========================
-const toggle = document.getElementById("holo-toggle");
-const statusText = document.getElementById("protectionStatus");
-const onOrOff = document.getElementById("data-text");
+const toggle = document.getElementById("cb3-8");
 
 function updateToggleUI(isEnabled) {
   if (isEnabled) {
-    onOrOff.textContent = "ON";
-    onOrOff.style.color = "limegreen"; // use string, not variable
     blacklistBtn.disabled = false;
     blacklistBtn.style.opacity = "1";
     blacklistBtn.style.pointerEvents = "auto";
   } else {
-    onOrOff.textContent = "OFF";
-    onOrOff.style.color = "red"; // use string
     blacklistBtn.disabled = true;
     blacklistBtn.style.opacity = "0.5";  // dim when off
     blacklistBtn.style.pointerEvents = "none";
