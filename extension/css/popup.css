@@ -18,14 +18,30 @@ body {
   width: 100%;
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* spacing between icon and text */
+  margin-bottom: 5px;
+}
+
+.logo {
+  width: 38px;
+  height: 38px;
+  filter: drop-shadow(0 0 6px rgba(189, 147, 249, 0.7));
+  margin-right: -10px;
+}
+
 .brand {
-  text-align: center;
-  font-size: 1.5rem;
+  font-size: 25px;
   font-weight: bold;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
+  letter-spacing: 1.5px;
+  margin: 0;
   color: #bd93f9; /* Dracula purple */
-  text-shadow: 0 0 10px rgba(189, 147, 249, 0.6);
+  text-shadow: 0 0 12px rgba(189, 147, 249, 0.9), 0 0 20px rgba(189, 147, 249, 0.6);
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  margin-bottom: 7px;
 }
 
 /* From Uiverse.io by Shoh2008 */ 
@@ -190,5 +206,21 @@ body {
 #blacklistBtn:active {
   transform: translateY(0);    /* reset lift on click */
   box-shadow: 0 0 6px rgba(189, 147, 249, 0.4);
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid rgba(189, 147, 249, 0.4); /* subtle Dracula purple line */
+  margin: 0;
+  width: 100%;
+  margin-top: -10px;
+}
+
+.container {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* adds breathing space between sections */
 }
 
