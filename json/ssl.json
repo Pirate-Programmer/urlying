@@ -1,0 +1,22 @@
+{
+    "hostname": "uiverse.io",
+    "tls_version": "TLSv1.3",
+    "cipher": "TLS_AES_256_GCM_SHA384",
+    "key_size": 256,
+    "subject": {
+        "commonName": "uiverse.io"
+    },
+    "issuer": {
+        "countryName": "US",
+        "organizationName": "Google Trust Services",
+        "commonName": "WE1"
+    },
+    "serialNumber": "F0A6BDC5FE610BAF0E77FD8D83FB4C2B",
+    "version": 3,
+    "notBefore": "2025-07-31T17:03:19",
+    "notAfter": "2025-10-29T18:03:00",
+    "subjectAltName": [
+        "uiverse.io",
+        "*.uiverse.io"
+    ]
+}
