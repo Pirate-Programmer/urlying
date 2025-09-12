@@ -8,7 +8,7 @@ if (!window.__analyzeInjected) {
   document.body.appendChild(analyzeBtn);
 
   let currentSelection = "";
-
+  //only button if valid link
   document.addEventListener("mouseup", () => {
     let text = window.getSelection().toString().trim();
     if (text.length > 0) {
