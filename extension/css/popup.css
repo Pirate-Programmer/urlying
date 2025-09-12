@@ -493,7 +493,7 @@ body {
 }
 #fan_off:checked ~ .off {
   color: #50fa7b;
-  text-shadow: 0 0 5px #50fa7b);
+  text-shadow: 0 0 5px #50fa7b;
 }
 #fan_off:checked ~ .pointer span {
   background: radial-gradient(
