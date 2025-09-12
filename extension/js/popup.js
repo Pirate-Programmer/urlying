@@ -21,9 +21,11 @@ blacklistBtn.addEventListener("click", () => {
   });
 });
 
-// ==========================
-// Toggle ON/OFF logic
-// ==========================
+document.getElementById("listBtn").addEventListener("click", () => {
+  chrome.runtime.openOptionsPage();
+});
+
+
 const toggle = document.getElementById("cb3-8");
 
 function updateToggleUI(isEnabled) {

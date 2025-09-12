@@ -182,30 +182,39 @@ body {
   font-size: 20px;
   margin: 0; /* remove default paragraph spacing */
   font-family: 'Courier New', Courier, monospace;
+  font-weight: 600;
 }
 
+#listBtn, 
 #blacklistBtn {
   padding: 8px 14px;
-  background: #bd93f9;         /* Dracula purple */
+  background: #ff79c6;       /* Dracula magenta */
   border: none;
-  border-radius: 8px;          /* smooth rounded edges */
-  color: #f8f8f2;              /* Dracula foreground (off-white) */
+  border-radius: 8px;
+  color: #282a36;            /* dark text for contrast */
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 0 8px rgba(189, 147, 249, 0.5); /* glowing effect */
+  box-shadow: 0 0 8px rgba(255, 121, 198, 0.4);
 }
 
+#listBtn:hover, 
 #blacklistBtn:hover {
-  background: #9a72e2;         /* lighter purple on hover */
-  box-shadow: 0 0 12px rgba(189, 147, 249, 0.8);
-  transform: translateY(-2px); /* slight lift */
+  background: #e863b2;       /* darker magenta hover */
+  box-shadow: 0 0 12px rgba(255, 121, 198, 0.7);
+  transform: translateY(-2px);
 }
 
+#listBtn:active, 
 #blacklistBtn:active {
-  transform: translateY(0);    /* reset lift on click */
-  box-shadow: 0 0 6px rgba(189, 147, 249, 0.4);
+  transform: translateY(0);
+  box-shadow: 0 0 6px rgba(255, 121, 198, 0.3);
+}
+
+#listBtn {
+  margin-top: -10px;
+  margin-bottom: 10px;
 }
 
 .divider {
@@ -223,4 +232,3 @@ body {
   flex-direction: column;
   gap: 10px; /* adds breathing space between sections */
 }
-
