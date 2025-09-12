@@ -1,25 +1,32 @@
 import ssl
 import socket
 import json
+import os
 from datetime import datetime
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 
 def get_ssl_info(hostname, port=443):
-    """Fetch SSL certificate details for a given hostname."""
     context = ssl.create_default_context()
-
     with socket.create_connection((hostname, port)) as sock:
         with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+            der_cert = ssock.getpeercert(binary_form=True)  # binary DER form
             cert = ssock.getpeercert()
             cipher = ssock.cipher()
             tls_version = ssock.version()
 
+    x509_cert = x509.load_der_x509_certificate(der_cert, default_backend())
+    public_key = x509_cert.public_key()
+    key_size = getattr(public_key, "key_size", None)
+
     def parse_date(date_str):
         return datetime.strptime(date_str, "%b %d %H:%M:%S %Y %Z").isoformat()
 
-    ssl_info = {
+    return {
         "hostname": hostname,
         "tls_version": tls_version,
         "cipher": cipher[0],
+        "key_size": key_size,
         "subject": dict(x[0] for x in cert.get("subject", [])),
         "issuer": dict(x[0] for x in cert.get("issuer", [])),
         "serialNumber": cert.get("serialNumber"),
@@ -29,15 +36,14 @@ def get_ssl_info(hostname, port=443):
         "subjectAltName": [name for _, name in cert.get("subjectAltName", [])],
     }
 
-    return ssl_info
+def save_ssl_info(hostname, filename="ssl.json"):
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    json_dir = os.path.join(project_root, "json")
+    os.makedirs(json_dir, exist_ok=True)
+    file_path = os.path.join(json_dir, filename)
 
-def save_ssl_info(hostname, filename="../../json/ssl.json"):
-    """Fetch SSL info and save it to JSON file."""
     info = get_ssl_info(hostname)
-    with open(filename, "w") as f:
+    with open(file_path, "w") as f:
         json.dump(info, f, indent=4)
-    return filename
 
-# If run directly, just print usage
-if __name__ == "__main__":
-    print("This is a module. Import and call save_ssl_info() from another script.")
+    return file_path

@@ -1,35 +1,42 @@
 import dns.resolver
-import dns.reversename
-import dns.exception
 import json
 import os
 
 def get_dns_records(domain):
-    record_types = ["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "CAA"]
+    """Fetch DNS records and TTL for a given domain."""
+    record_types = ["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "PTR", "SRV"]
     all_records = {}
 
     for rtype in record_types:
         try:
             answers = dns.resolver.resolve(domain, rtype)
-            all_records[rtype] = [str(rdata) for rdata in answers]
+            records = [str(rdata) for rdata in answers]
+
+            # Get TTL (same for all answers in rrset)
+            ttl = answers.rrset.ttl if answers.rrset else None
+
+            all_records[rtype] = {
+                "records": records,
+                "ttl": ttl
+            }
         except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.exception.Timeout):
-            all_records[rtype] = []
+            all_records[rtype] = {
+                "records": [],
+                "ttl": None
+            }
 
-    # Handle PTR separately if input is an IP
-    try:
-        rev = dns.reversename.from_address(domain)
-        answers = dns.resolver.resolve(rev, "PTR")
-        all_records["PTR"] = [str(rdata) for rdata in answers]
-    except Exception:
-        all_records["PTR"] = []
+    return all_records
 
-    output_file = os.path.join(os.path.dirname(__file__), "../../json/dns.json")
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+def save_dns_records(domain, filename="dns.json"):
+    """Save DNS records into project json folder."""
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    json_dir = os.path.join(project_root, "json")
+    os.makedirs(json_dir, exist_ok=True)
 
-    with open(output_file, "w") as f:
-        json.dump({domain: all_records}, f, indent=4)
+    file_path = os.path.join(json_dir, filename)
+    records = get_dns_records(domain)
 
-    print(f"DNS records for {domain} saved to {output_file}")
+    with open(file_path, "w") as f:
+        json.dump({domain: records}, f, indent=4)
 
-if __name__ == "__main__":
-    get_dns_records("")
+    return file_path
