@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Suspicious Site</title>
+    <link rel="stylesheet" href="../css/suspicious.css">
+</head>
+
+<body>
+    <div class="header">
+        <img src="../icons/icon_on_pages.png" alt="icon">
+        <p>URLying</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="icon">⚠️</div>
+
+            <h1 class="highlight-text">URLying thinks this URL may be lying.</h1>
+
+            <p id="suspicious-domain" class="domain-text">example.com</p>
+
+            <p class="warning-text">
+                This site maybe harmful.
+            </p>
+
+            <ul class="advice-list">
+                <li>Continue only if you trust the source.</li>
+                <li>Think twice before downloading files or sharing personal details.</li>
+                <li>Avoid entering sensitive information like passwords or bank details.</li>
+                <li>Avoid clicking on unexpected pop-ups, ads, or redirect links on this site.</li>
+            </ul>
+
+            <div class="button-group">
+                <div class="tooltip">
+                    <button id="continue-btn" class="primary">➡ Continue Anyway</button>
+                    <span class="tooltiptext">This action will add the domain to whitelist.</span>
+                </div>
+
+                <div class="tooltip">
+                    <button id="go-back-btn" class="secondary">⬅ Go Back</button>
+                    <span class="tooltiptext">This action will add the domain to blacklist.</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

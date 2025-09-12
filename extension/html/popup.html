@@ -1,11 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-  <title>Blacklist Control</title>
+  <meta charset="UTF-8">
+  <title>URLying - Blacklist Control</title>
   <link rel="stylesheet" href="../css/popup.css">
 </head>
+
 <body>
+  <div class="container">
+  <div class="header">
+    <img src="../icons/icon_on_pages.png" alt="URLying Icon" class="logo">
+    <p class="brand">URLying</p>
+  </div>
+  <hr class="divider">
+
+  <div class="onOrOff">
+    <p class="protection">Protection</p>
+    <div class="checkbox-wrapper-8">
+      <input type="checkbox" id="cb3-8" class="tgl tgl-skewed">
+      <label for="cb3-8" data-tg-on="ON" data-tg-off="OFF" class="tgl-btn"></label>
+    </div>
+  </div>
+  <button id="listBtn">Manage Lists</button>
+  <hr class="divider">
+
   <button id="blacklistBtn">Add to Blacklist</button>
+  <hr class="divider">
+<p class="defenseLevel">Defense Level</p><br>
+  <!-- From Uiverse.io by chase2k25 --> 
+<div class="fan-speed-knob">
+  <div class="wrapper">
+    <div class="knob-outer">
+      <div class="knob-base">
+        <hr class="divider" />
+        <hr class="divider" />
+        <hr class="divider" />
+        <div class="control">
+          <label for="fan_off"><span class="off">OFF</span></label>
+          <label for="fan_1"><span>1</span></label>
+          <label for="fan_2"><span>2</span></label>
+          <label for="fan_3"><span>3</span></label>
+          <label for="fan_4"><span>4</span></label>
+          <label for="fan_5"><span>5</span></label>
+          <input id="fan_off" name="fan" checked="" type="radio" />
+          <input id="fan_1" name="fan" type="radio" />
+          <input id="fan_2" name="fan" type="radio" />
+          <input id="fan_3" name="fan" type="radio" />
+          <input id="fan_4" name="fan" type="radio" />
+          <input id="fan_5" name="fan" type="radio" />
+          <div class="pointer"><span></span></div>
+          <div class="marker"><span></span></div>
+          <div class="knob-middle">
+            <div class="knob-inner">
+              <div class="knob-core">
+                <div class="status">
+                  <div class="off-light"></div>
+                  <div class="speed-lights">
+                    <span class="speed-light"></span>
+                    <span class="speed-light"></span>
+                    <span class="speed-light"></span>
+                    <span class="speed-light"></span>
+                    <span class="speed-light"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
   <script src="../js/popup.js"></script>
 </body>
+
 </html>
