@@ -41,9 +41,14 @@ function updateToggleUI(isEnabled) {
 }
 
 toggle.addEventListener("change", () => {
-  updateToggleUI(toggle.checked);
+  const isEnabled = toggle.checked;
+  chrome.storage.local.set({ protectionEnabled: isEnabled }, () => {
+    updateToggleUI(isEnabled);
+  });
 });
 
-// initialize on load
-updateToggleUI(toggle.checked);
+chrome.storage.local.get({ protectionEnabled: false }, (data) => {
+  toggle.checked = data.protectionEnabled;
+  updateToggleUI(data.protectionEnabled);
+});
 
