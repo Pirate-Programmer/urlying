@@ -488,14 +488,14 @@ body {
 }
 
 /* Rotations and Indicator States */
-#fan_off:checked ~ .pointer {
+#fan_1:checked ~ .pointer {
   transform: rotate(-90deg);
 }
-#fan_off:checked ~ .off {
+#fan_1:checked ~ .off {
   color: #50fa7b;
   text-shadow: 0 0 5px #50fa7b;
 }
-#fan_off:checked ~ .pointer span {
+#fan_1:checked ~ .pointer span {
   background: radial-gradient(
     ellipse at center,
     #50fa7b 0%,
@@ -503,46 +503,106 @@ body {
     rgba(255, 72, 0, 0) 72%
   );
 }
-#fan_1:checked ~ .pointer {
+#fan_2:checked ~ .pointer {
   transform: rotate(-30deg);
 }
-#fan_2:checked ~ .pointer {
-  transform: rotate(30deg);
+#fan_2:checked ~ .pointer span{
+  background: radial-gradient(
+    ellipse at center,
+    #a8f77b 0%,
+    #5bf402 5%,
+    rgba(255, 72, 0, 0) 72%
+  );
 }
 #fan_3:checked ~ .pointer {
-  transform: rotate(90deg);
+  transform: rotate(30deg);
+}
+#fan_3:checked ~ .pointer span {
+  background: radial-gradient(
+    ellipse at center,
+    #d8f77b 0%,
+    #bfff00 5%,
+    rgba(255, 72, 0, 0) 72%
+  );
 }
 #fan_4:checked ~ .pointer {
-  transform: rotate(150deg);
+  transform: rotate(90deg);
+}
+#fan_4:checked ~ .pointer span{
+  background: radial-gradient(
+    ellipse at center,
+    #f1fa8c 0%,
+    #eaff019a 5%,
+    rgba(255, 72, 0, 0) 72%
+  );
 }
 #fan_5:checked ~ .pointer {
+  transform: rotate(150deg);
+}
+#fan_5:checked ~ .pointer span{
+  background: radial-gradient(
+    ellipse at center,
+    #ff9f5f 0%,
+    #f66403 5%,
+    rgba(255, 72, 0, 0) 72%
+  );
+}
+#fan_6:checked ~ .pointer {
   transform: rotate(210deg);
 }
+#fan_6:checked ~ .pointer span{
+  background: radial-gradient(
+    ellipse at center,
+    #ff5555 0%,
+    #f80606 5%,
+    rgba(255, 72, 0, 0) 72%
+  );
+}
 
-#fan_off:checked ~ .marker {
+#fan_1:checked ~ .marker {
   transform: rotate(-90deg);
 }
-#fan_off:checked ~ .marker span {
+#fan_1:checked ~ .marker span {
   background: #50fa7b;
   box-shadow: 0 0 10px #50fa7b;
 }
-#fan_1:checked ~ .marker {
+#fan_2:checked ~ .marker {
   transform: rotate(-30deg);
 }
-#fan_2:checked ~ .marker {
-  transform: rotate(30deg);
+#fan_2:checked ~ .marker span{
+  background: #a8f77b;
+  box-shadow: 0 0 10px #a8f77b;
 }
 #fan_3:checked ~ .marker {
-  transform: rotate(90deg);
+  transform: rotate(30deg);
+}
+#fan_3:checked ~ .marker span{
+  background: #d8f77b;
+  box-shadow: 0 0 10px #d8f77b;
 }
 #fan_4:checked ~ .marker {
-  transform: rotate(150deg);
+  transform: rotate(90deg);
+}
+#fan_4:checked ~ .marker span{
+  background: #f1fa8c;
+  box-shadow: 0 0 10px #f1fa8c;
 }
 #fan_5:checked ~ .marker {
+  transform: rotate(150deg);
+}
+#fan_5:checked ~ .marker span{
+  background: #ff9f5f;
+  box-shadow: 0 0 10px #ff9f5f;
+}
+#fan_6:checked ~ .marker {
   transform: rotate(210deg);
 }
+#fan_6:checked ~ .marker span{
+  background: #ff5555;
+  box-shadow: 0 0 10px #ff5555;
+}
 
-#fan_off:checked ~ .knob-middle .status .speed-lights .speed-light {
+#fan_1:checked ~ .knob-middle .status .speed-lights .speed-light {
   opacity: 0;
 }
 
