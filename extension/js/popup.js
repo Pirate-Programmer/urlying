@@ -42,13 +42,13 @@ function updateToggleUI(isEnabled) {
 
 toggle.addEventListener("change", () => {
   const isEnabled = toggle.checked;
-  chrome.storage.local.set({ protectionEnabled: isEnabled }, () => {
+  chrome.storage.local.set({ enableBlocking: isEnabled }, () => {
     updateToggleUI(isEnabled);
   });
 });
 
-chrome.storage.local.get({ protectionEnabled: false }, (data) => {
-  toggle.checked = data.protectionEnabled;
-  updateToggleUI(data.protectionEnabled);
+chrome.storage.local.get({ enableBlocking: false }, (data) => {
+  toggle.checked = data.enableBlocking;
+  updateToggleUI(data.enableBlocking);
 });
 

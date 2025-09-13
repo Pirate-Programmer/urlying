@@ -79,47 +79,55 @@ chrome.declarativeNetRequest.onRuleMatchedDebug.addListener(async (info) => {
 
 // Build DNR rules from blacklist - whitelist
 async function rebuildRules() {
+  // Get current state from storage
   const { blacklist = [], whitelist = [], enableBlocking = true } =
     await chrome.storage.local.get(["blacklist", "whitelist", "enableBlocking"]);
 
-  // ✅ Filter expired whitelist entries
-  const now = Date.now();
-  const validWhitelist = (whitelist || []).filter(e => e.expiry > now);
-  if (validWhitelist.length !== (whitelist || []).length) {
-    await chrome.storage.local.set({ whitelist: validWhitelist });
-  }
-
-  // Clear current rules
+  // Clear all existing dynamic rules first (safe always)
   const existing = await chrome.declarativeNetRequest.getDynamicRules();
   const existingIds = existing.map(r => r.id);
   if (existingIds.length) {
     await chrome.declarativeNetRequest.updateDynamicRules({ removeRuleIds: existingIds });
   }
 
+  // If blocking is disabled, don’t add any new rules
   if (!enableBlocking) return;
 
-  // Effective blocked domains = blacklist - whitelist
-  const wl = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
-  const effective = [...new Set(blacklist.map(normalizeDomain))].filter(d => !wl.has(d));
+  // Filter out expired whitelist entries
+  const now = Date.now();
+  const validWhitelist = (whitelist || []).filter(e => e.expiry > now);
 
-  // Build redirect rules
-  const rules = effective.map((domain, idx) => ({
+  // Automatically clean expired whitelist in storage
+  if (validWhitelist.length !== (whitelist || []).length) {
+    await chrome.storage.local.set({ whitelist: validWhitelist });
+  }
+
+  // Calculate effective domains to block: blacklist - whitelist
+  const wl = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
+  const effectiveBlacklist = [...new Set(blacklist.map(normalizeDomain))].filter(
+    domain => !wl.has(domain)
+  );
+
+  // Build declarativeNetRequest blocking rules
+  const rules = effectiveBlacklist.map((domain, idx) => ({
     id: 1000 + idx,
     priority: 1,
     action: {
       type: "redirect",
-      redirect: { extensionPath: "/html/blocked.html" }
+      redirect: { extensionPath: "/html/blocked.html" },  // Redirect blocked domains to custom page
     },
     condition: {
       urlFilter: `||${domain}`,
-      resourceTypes: ["main_frame"]
-    }
+      resourceTypes: ["main_frame"],
+    },
   }));
 
+  // Apply rules if any
   if (rules.length) {
     await chrome.declarativeNetRequest.updateDynamicRules({ addRules: rules });
   }
 }
+
 
 function normalizeDomain(d) {
   return (d || "").trim().toLowerCase();
