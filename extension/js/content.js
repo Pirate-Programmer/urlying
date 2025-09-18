@@ -10,25 +10,36 @@ if (!window.__analyzeInjected) {
   let currentSelection = "";
 
   document.addEventListener("mouseup", () => {
-    let text = window.getSelection().toString().trim();
-    if (text.length > 0 && /^https?:\/\//i.test(text)) {
-    currentSelection = text;
-    chrome.runtime.sendMessage({ type: "updateSelection", text: text });
+      let sel = window.getSelection();
+      if (!sel.rangeCount) return;
 
-    let range = window.getSelection().getRangeAt(0);
-    let rect = range.getBoundingClientRect();
+      let text = sel.toString().trim();
+      let range = sel.getRangeAt(0);
+      let anchor = range.startContainer.parentElement.closest("a"); // get enclosing link
 
-    analyzeBtn.style.top = (window.scrollY + rect.bottom + 5) + "px";
-    analyzeBtn.style.left = (window.scrollX + rect.left) + "px";
-    analyzeBtn.style.position = "absolute";
-    analyzeBtn.style.display = "block";
-    } 
-    else {
-      text = null;
-      analyzeBtn.style.display = "none";
-  }
+      if (anchor && anchor.href) {
+          currentSelection = anchor.href; // prioritize actual link
+      } else if (/^https?:\/\//i.test(text)) {
+          currentSelection = text;
+      } else {
+          currentSelection = "";
+      }
 
+      // Update background
+      chrome.runtime.sendMessage({ type: "updateSelection", text: currentSelection });
+
+      // Position Analyze button
+      if (currentSelection) {
+          let rect = range.getBoundingClientRect();
+          analyzeBtn.style.top = (window.scrollY + rect.bottom + 5) + "px";
+          analyzeBtn.style.left = (window.scrollX + rect.left) + "px";
+          analyzeBtn.style.position = "absolute";
+          analyzeBtn.style.display = "block";
+      } else {
+          analyzeBtn.style.display = "none";
+      }
   });
+
 
   // Track right-clicked links
   document.addEventListener("contextmenu", (e) => {
@@ -40,11 +51,19 @@ if (!window.__analyzeInjected) {
     }
   });
 
-  // Button click triggers speedometer
+// Button click sends url to background.js to be sent to backend and also triggers speedometer
   analyzeBtn.addEventListener("click", () => {
-    analyzeBtn.style.display = "none";
-    showSpeedometer(currentSelection);
+      analyzeBtn.style.display = "none";
+
+      if (!currentSelection) return;
+
+      // Send the selected URL to background
+      chrome.runtime.sendMessage({ type: "analyzeURL", url: currentSelection }, (response) => {
+          // Optional: wait for backend response, then show speedometer
+          showSpeedometer(currentSelection);
+      });
   });
+
 
   //  Speedometer function
   window.showSpeedometer = function(displayText) {
