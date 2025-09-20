@@ -30,6 +30,8 @@ urlying/
 │ ├── eda/ # Exploratory Data Analysis
 │ ├── pca/ # PCA decomposition
 │ ├── training/ # Model training & evaluation
+│     ├── model # Models
+│     └── pcamodels # pca model 
 │ ├── features.ipynb # Feature engineering
 │ └── train_val_test_split.ipynb
 │
