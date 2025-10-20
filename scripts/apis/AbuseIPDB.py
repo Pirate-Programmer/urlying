@@ -27,7 +27,7 @@ class AbuseIPDBScanner:
 
         params = {
             "ipAddress": ip,
-            "maxAgeInDays": 365, #adjust value to get info from how long back 
+            "maxAgeInDays": 60, #adjust value to get info from how long back 
             "verbose": True
         }
 
@@ -43,7 +43,7 @@ class AbuseIPDBScanner:
                 "success": True,
                 "unsafe": is_unsafe,
                 "source": self.source,
-                "extra": data  # include full abuse info
+                #"extra": data  # include full abuse info
             }
 
         except Exception as e:
@@ -59,3 +59,4 @@ class AbuseIPDBScanner:
             return socket.gethostbyname(input_value)
         except socket.gaierror:
             return None
+

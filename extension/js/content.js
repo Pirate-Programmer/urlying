@@ -57,16 +57,18 @@ if (!window.__analyzeInjected) {
 
       if (!currentSelection) return;
 
-      // Send the selected URL to background
       chrome.runtime.sendMessage({ type: "analyzeURL", url: currentSelection }, (response) => {
-          // Optional: wait for backend response, then show speedometer
-          showSpeedometer(currentSelection);
+          if (response && response.risk_score !== undefined) {
+              showSpeedometer(currentSelection, response.risk_score);
+          } else {
+              showSpeedometer(currentSelection, 0); // fallback
+          }
       });
   });
 
 
   //  Speedometer function
-  window.showSpeedometer = function(displayText) {
+  window.showSpeedometer = function(displayText, riskScore=0) {
     if (!/^https?:\/\//i.test(displayText)) {
         // Create a small popup message
         let oldMsg = document.getElementById("speedometerMessage");
@@ -168,17 +170,18 @@ if (!window.__analyzeInjected) {
     fontLink.rel = "stylesheet";
     document.head.appendChild(fontLink);
 
-    let value = Math.floor(Math.random() * 270); // 0–270 along arc
-    let rotation = value - 135; // rotation matches SVG rotation
-
+    // Use riskScore from backend instead of random
     let needle = container.querySelector("#needle");
+    let speedValueElem = container.querySelector("#speedValue");
+
+    let rotation = (riskScore / 100) * 270 - 135; // map 0–100 → -135 to 135 degrees
     setTimeout(() => {
       needle.setAttribute("transform", `rotate(${rotation}, 110, 110)`);
     }, 50);
 
-    let speedValueElem = container.querySelector("#speedValue");
+    // Animate numeric value from 0 → riskScore
     let current = 0;
-    let target = value; // show rotation instead of raw value
+    let target = riskScore;
     let step = target > current ? 1 : -1;
 
     speedValueElem.style.fontFamily = "'Orbitron', sans-serif";
@@ -190,20 +193,39 @@ if (!window.__analyzeInjected) {
     speedValueElem.style.fontSize = "30px";
     speedValueElem.style.fontWeight = "bold";
     speedValueElem.style.transform = "translateX(-50%)";
+
     let interval = setInterval(() => {
       current += step;
       speedValueElem.textContent = current;
-      if (current === target) clearInterval(interval);
+
+      // Stop when current passes target
+      if ((step > 0 && current >= target) || (step < 0 && current <= target)) {
+        speedValueElem.textContent = target; // make sure final value matches exactly
+        clearInterval(interval);
+      }
     }, 20);
 
+
     setTimeout(() => {
-      document.addEventListener("click", function handler(e) {
-        if (!container.contains(e.target)) {
-          container.style.opacity = "0";
-          setTimeout(() => container.remove(), 400);
+      const containerEl = document.getElementById("speedometer");
+      function handler(e) {
+        if (!containerEl.contains(e.target)) {
+          containerEl.style.opacity = "0";
+          setTimeout(() => containerEl.remove(), 400);
           document.removeEventListener("click", handler);
         }
-      });
+      }
+      document.addEventListener("click", handler);
     }, 100);
   };
 }
+
+
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "updateRisk" && msg.risk_score !== undefined) {
+    let riskScore = msg.risk_score;
+    let displayUrl = msg.url || "Selected URL";
+
+    updateSpeedometer(riskScore, displayUrl);
+  }
+});

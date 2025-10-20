@@ -1,14 +1,17 @@
 let lastSelectedText = "";
 let lastLinkUrl = "";
+const risk_score_threshold = 70;
+
 
 // --- Safe defaults ---
 const DEFAULT_STATE = {
   blacklist: [],
   whitelist: [], // now stores {domain, expiry}
-  enableBlocking: true
+  enableBlocking: true,
+  securityLevel: 3
 };
 
-// ✅ On install, only set defaults if missing (don’t clear lists)
+// On install, only set defaults if missing (don’t clear lists)
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(Object.keys(DEFAULT_STATE), (data) => {
     const toSet = {};
@@ -67,13 +70,27 @@ async function processUrl(url, tabId = null) {
     // TODO: additional fast flags can be added here
 
     // Send to backend only if not blacklisted/whitelisted
+  const lvl = await chrome.storage.local.get("securityLevel");
+  const securityLevel = lvl.securityLevel || 3;
+
+    
     const res = await fetch("http://127.0.0.1:5000/check_url", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url, config: { securityLevel } }),
     });
+
     const data = await res.json();
     console.log("Backend scan result:", data);
+
+    // Notify content script (speedometer) if tabId exists
+    if (tabId) {
+      chrome.tabs.sendMessage(tabId, {
+        type: "updateRisk",
+        risk_score: data.risk_score,
+        url: url
+      });
+    }
 
     // // Optional: notify user
     // chrome.notifications.create({
@@ -84,9 +101,12 @@ async function processUrl(url, tabId = null) {
     // });
 
     // Block if high-risk
-    if (tabId && data.risk_score > 70) {
+    if (tabId && data.risk_score > risk_score_threshold) {
       chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
     }
+
+    return data;  //returning result from backend to extention
+
   } catch (err) {
     console.error("processUrl error:", err);
   }
@@ -102,8 +122,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   // Analyze button clicked → process URL through fast flags + backend
   if (msg.type === "analyzeURL" && msg.url) {
-    processUrl(msg.url).then(() => sendResponse({ ok: true }));
-    return true; // async
+    processUrl(msg.url).then(async (backendResult) => {
+      // backendResult = { risk_score, url, api_results }
+      sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
+    });
+    return true; // keep async
   }
 
   // Move domain to whitelist
