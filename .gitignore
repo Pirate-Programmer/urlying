@@ -5,3 +5,4 @@ env/
 /datasets/eda_dataset/*
 /datasets/training_dataset/*
 /datasets/dataset_with_features/*
+**/__pycache__/

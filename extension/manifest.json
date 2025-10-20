@@ -9,11 +9,15 @@
     "storage",
     "declarativeNetRequest",
     "declarativeNetRequestFeedback",
-    "declarativeNetRequestWithHostAccess"
+    "declarativeNetRequestWithHostAccess",
+    "webNavigation",
+    "tabs",
+    "notifications"
   ],
   "host_permissions": [
     "http://*/*",
-    "https://*/*"
+    "https://*/*",
+    "http://127.0.0.1"
   ],
   "background": {
     "service_worker": "js/background.js"

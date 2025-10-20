@@ -52,3 +52,24 @@ chrome.storage.local.get({ enableBlocking: false }, (data) => {
   updateToggleUI(data.enableBlocking);
 });
 
+
+// --- Security level (1-6) ---
+const fanRadios = document.querySelectorAll('input[name="fan"]');
+
+// Load saved security level
+chrome.storage.local.get({ securityLevel: 3 }, (data) => {
+  const level = data.securityLevel;
+  const radio = document.getElementById(`fan_${level}`);
+  if (radio) radio.checked = true;
+});
+
+// Save when user changes level
+fanRadios.forEach(radio => {
+  radio.addEventListener('change', () => {
+    if (radio.checked) {
+      const level = parseInt(radio.id.split('_')[1], 10);
+      chrome.storage.local.set({ securityLevel: level });
+    }
+  });
+});
+
