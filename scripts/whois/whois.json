@@ -1,12 +1,12 @@
 {
-    "domain_name": "hianime.to",
-    "creation_date": "2023-08-26T05:44:12",
-    "expiration_date": "2027-08-26T05:44:12",
-    "updated_date": "2025-07-01T03:11:27",
+    "domain_name": "spit.ac.in",
+    "creation_date": "2006-05-22T04:58:23",
+    "expiration_date": "2030-05-22T04:58:23",
+    "updated_date": "2025-05-24T11:01:05.265000",
     "dnssec": "unsigned",
     "status": "ok https://icann.org/epp#ok",
-    "emails": "info@tonicregistry.to",
-    "registrar": "Government of Kingdom of Tonga",
-    "asn": "13335",
-    "asn_country_code": "US"
+    "emails": "tejalt@eis.ernet.in",
+    "registrar": "ERNET India",
+    "asn": "17625",
+    "asn_country_code": "IN"
 }
