@@ -6,4 +6,3 @@ env/
 /datasets/training_dataset/*
 /datasets/dataset_with_features/*
 **/__pycache__/
-ipynbs/training/models/random_forest_model_with_no_feature_filtration.pkl
