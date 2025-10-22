@@ -58,12 +58,13 @@ def get_whois_info(domain):
         return {"error": str(e)}
 
 def save_whois_info(domain, filename="whois.json"):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, filename)
     info = get_whois_info(domain)
+    with open(file_path, "w") as f:
+        json.dump(info, f, indent=4, default=serialize)  # <-- use default=serialize
 
-    with open(filename, "w") as f:
-        json.dump({domain: info}, f, indent=4, default=serialize)
-
-    return filename
+    return file_path
 
 # https://pam2024.cs.northwestern.edu/pdfs/paper-89.pdf
 # https://bpb-us-e2.wpmucdn.com/faculty.sites.uci.edu/dist/5/764/files/2021/02/ndss21.pdf
