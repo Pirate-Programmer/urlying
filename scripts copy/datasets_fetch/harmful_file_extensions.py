@@ -3,7 +3,7 @@ import pandas as pd
 import zlib
 
 # Paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # go up from /scripts/search_hashing
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  
 EXT_FILE = os.path.join(BASE_DIR, "datasets", "harmful_file_extensions", "harmful_file_extensions.csv")
 OUTPUT_FILE = os.path.join(BASE_DIR, "datasets", "harmful_file_extensions", "harmful_file_extensions.csv")
 

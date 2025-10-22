@@ -1,0 +1,20 @@
+{
+    "uiverse.io": {
+        "domain_name": "uiverse.io",
+        "creation_date": [
+            "2022-03-05T22:54:53",
+            "2022-03-05T22:54:53.130000"
+        ],
+        "expiration_date": "2026-03-05T22:54:53",
+        "updated_date": [
+            "2025-02-08T09:35:37",
+            "2025-02-03T09:35:07.130000"
+        ],
+        "dnssec": null,
+        "status": "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
+        "emails": null,
+        "registrar": "NAMECHEAP INC",
+        "asn": "13335",
+        "asn_country_code": "US"
+    }
+}

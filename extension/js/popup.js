@@ -1,51 +1,60 @@
-// Blacklist button logic
-const blacklistBtn = document.getElementById("blacklistBtn");
-blacklistBtn.addEventListener("click", () => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    let url = new URL(tabs[0].url);
-    let domain = url.hostname;
+document.addEventListener("DOMContentLoaded", () => {
+  const blacklistBtn = document.getElementById("blacklistBtn");
+  const listBtn = document.getElementById("listBtn");
+  const toggle = document.getElementById("cb3-8");
 
-    chrome.storage.local.get({ blacklist: [], whitelist: [] }, (data) => {
-      let { blacklist, whitelist } = data;
+  // Blacklist button logic
+  blacklistBtn.addEventListener("click", () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      let url = new URL(tabs[0].url);
+      let domain = url.hostname;
 
-      whitelist = whitelist.filter(d => d !== domain);
+      chrome.storage.local.get({ blacklist: [], whitelist: [] }, (data) => {
+        let { blacklist, whitelist } = data;
 
-      if (!blacklist.includes(domain)) {
-        blacklist.push(domain);
-      }
+        // remove from whitelist if present
+        whitelist = whitelist.filter(d => d !== domain);
 
-      chrome.storage.local.set({ blacklist, whitelist }, () => {
-        alert(`${domain} has been blacklisted`);
+        // add to blacklist if not already there
+        if (!blacklist.includes(domain)) {
+          blacklist.push(domain);
+        }
+
+        chrome.storage.local.set({ blacklist, whitelist }, () => {
+          blacklistBtn.textContent = "✔ Blacklisted";
+          blacklistBtn.disabled = true;
+          blacklistBtn.style.backgroundColor = "#b30059";
+          blacklistBtn.style.color = "#fff";
+          blacklistBtn.style.cursor = "not-allowed";
+        });
       });
     });
   });
-});
 
-document.getElementById("listBtn").addEventListener("click", () => {
-  chrome.runtime.openOptionsPage();
-});
-
-
-const toggle = document.getElementById("cb3-8");
-
-function updateToggleUI(isEnabled) {
-  if (isEnabled) {
-    blacklistBtn.disabled = false;
-    blacklistBtn.style.opacity = "1";
-    blacklistBtn.style.pointerEvents = "auto";
-  } else {
-    blacklistBtn.disabled = true;
-    blacklistBtn.style.opacity = "0.5";  // dim when off
-    blacklistBtn.style.pointerEvents = "none";
-  }
-}
-
-toggle.addEventListener("change", () => {
-  const isEnabled = toggle.checked;
-  chrome.storage.local.set({ enableBlocking: isEnabled }, () => {
-    updateToggleUI(isEnabled);
+  // Manage list button
+  listBtn.addEventListener("click", () => {
+    chrome.runtime.openOptionsPage();
   });
-});
+
+  // Protection toggle
+  function updateToggleUI(isEnabled) {
+    if (isEnabled) {
+      blacklistBtn.disabled = false;
+      blacklistBtn.style.opacity = "1";
+      blacklistBtn.style.pointerEvents = "auto";
+    } else {
+      blacklistBtn.disabled = true;
+      blacklistBtn.style.opacity = "0.5";
+      blacklistBtn.style.pointerEvents = "none";
+    }
+  }
+
+  toggle.addEventListener("change", () => {
+    const isEnabled = toggle.checked;
+    chrome.storage.local.set({ enableBlocking: isEnabled }, () => {
+      updateToggleUI(isEnabled);
+    });
+  });
 
 chrome.storage.local.get({ enableBlocking: false }, (data) => {
   toggle.checked = data.enableBlocking;
@@ -73,3 +82,21 @@ fanRadios.forEach(radio => {
   });
 });
 
+  // Fan level knob
+  fanRadios.forEach(radio => {
+    radio.addEventListener("change", () => {
+      if (radio.checked) {
+        chrome.storage.local.set({ fanLevel: radio.id }, () => {
+          console.log("Fan level saved:", radio.id);
+        });
+      }
+    });
+  });
+
+  chrome.storage.local.get({ fanLevel: "fan_1" }, (data) => {
+    const saved = document.getElementById(data.fanLevel);
+    if (saved) {
+      saved.checked = true;
+    }
+  });
+});

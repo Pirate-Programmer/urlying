@@ -1,0 +1,42 @@
+{
+    "A": {
+        "records": [
+            "49.44.79.236"
+        ],
+        "ttl": 60
+    },
+    "AAAA": {
+        "records": [
+            "2405:200:1607:2820:41::36"
+        ],
+        "ttl": 60
+    },
+    "CNAME": {
+        "records": [],
+        "ttl": null
+    },
+    "MX": {
+        "records": [],
+        "ttl": null
+    },
+    "NS": {
+        "records": [],
+        "ttl": null
+    },
+    "TXT": {
+        "records": [],
+        "ttl": null
+    },
+    "SOA": {
+        "records": [],
+        "ttl": null
+    },
+    "PTR": {
+        "records": [],
+        "ttl": null
+    },
+    "SRV": {
+        "records": [],
+        "ttl": null
+    }
+}

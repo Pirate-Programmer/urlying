@@ -2,8 +2,7 @@ let lastSelectedText = "";
 let lastLinkUrl = "";
 const risk_score_threshold = 70;
 
-
-// --- Safe defaults ---
+// default state if blacklist and whitelist are empty
 const DEFAULT_STATE = {
   blacklist: [],
   whitelist: [], // now stores {domain, expiry}
@@ -33,7 +32,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// ✅ On startup, rebuild rules from current lists
+// On startup, rebuild rules from current lists
 chrome.runtime.onStartup.addListener(async () => {
   await rebuildRules();
 });
@@ -132,7 +131,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // Move domain to whitelist
   if (msg.action === "moveToWhitelist" && msg.domain) {
     const domain = msg.domain;
-    const expiryPeriod = 24 * 60 * 60 * 1000; // 24 hours
+    const expiryPeriod = 5000; // 24 hours
     const expiry = Date.now() + expiryPeriod;
 
     chrome.storage.local.get(["blacklist", "whitelist"], (data) => {
