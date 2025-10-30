@@ -41,6 +41,16 @@ chrome.runtime.onStartup.addListener(async () => {
   const enabled = await isExtensionEnabled();
   if (enabled) attachListeners();
   else detachListeners();
+
+  // 🔹 Trigger dataset update on backend
+  try {
+    await fetch("http://127.0.0.1:5000/update_dataset", {
+      method: "POST",
+    });
+    console.log("Triggered dataset update on backend startup.");
+  } catch (err) {
+    console.error("Failed to trigger dataset update:", err);
+  }
 });
 
 
