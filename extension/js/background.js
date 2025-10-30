@@ -35,16 +35,32 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // ✅ On startup, rebuild rules from current lists
 chrome.runtime.onStartup.addListener(async () => {
+  await cleanExpiredWhitelist();
   await rebuildRules();
+
+  const enabled = await isExtensionEnabled();
+  if (enabled) attachListeners();
+  else detachListeners();
 });
+
 
 // Rebuild whenever storage changes
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area !== "local") return;
-  if (changes.blacklist || changes.whitelist || changes.enableBlocking) {
+
+  if (changes.enableBlocking) {
+    if (changes.enableBlocking.newValue) {
+      attachListeners();
+    } else {
+      detachListeners();
+    }
+  }
+
+  if (changes.blacklist || changes.whitelist) {
     await rebuildRules();
   }
 });
+
 
 // ---------------------------
 // Fast flag + backend processing
@@ -132,8 +148,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // Move domain to whitelist
   if (msg.action === "moveToWhitelist" && msg.domain) {
     const domain = msg.domain;
-    const expiryPeriod = 24 * 60 * 60 * 1000; // 24 hours
-    const expiry = Date.now() + expiryPeriod;
+
 
     chrome.storage.local.get(["blacklist", "whitelist"], (data) => {
       let blacklist = data.blacklist || [];
@@ -144,6 +159,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
       // Add to whitelist if not already
       if (!whitelist.some(e => e.domain === domain)) {
+        // Use default 30 days (same as options.js)
+        const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; //30 dayz expiry matches with options.js
         whitelist.push({ domain, expiry });
       }
 
@@ -203,11 +220,32 @@ chrome.contextMenus.onClicked.addListener(() => {
 // ---------------------------
 // WebNavigation listener for automatic scanning
 // ---------------------------
-chrome.webNavigation.onCompleted.addListener((details) => {
-  if (details.frameId === 0) {
-    processUrl(details.url, details.tabId);
+// --- Navigation handler ---
+async function navigationHandler(details) {
+  if (details.frameId !== 0) return; // only main frame
+  const enabled = await isExtensionEnabled();
+  if (!enabled) {
+    console.log(" Skipping navigation scan — extension disabled");
+    return;
   }
-});
+  processUrl(details.url, details.tabId);
+}
+
+// --- Listener control ---
+function attachListeners() {
+  if (!chrome.webNavigation.onCompleted.hasListener(navigationHandler)) {
+    chrome.webNavigation.onCompleted.addListener(navigationHandler);
+    console.log(" Navigation listener attached");
+  }
+}
+
+function detachListeners() {
+  if (chrome.webNavigation.onCompleted.hasListener(navigationHandler)) {
+    chrome.webNavigation.onCompleted.removeListener(navigationHandler);
+    console.log(" Navigation listener detached");
+  }
+}
+
 
 // ---------------------------
 // Build DNR rules from blacklist - whitelist
@@ -248,6 +286,49 @@ async function rebuildRules() {
 // ---------------------------
 // Helper: normalize domains
 // ---------------------------
-function normalizeDomain(d) {
-  return (d || "").trim().toLowerCase();
+function normalizeDomain(input) {
+  if (!input) return "";
+  try {
+    // Try to parse full URLs like "https://apple.com/in"
+    const url = new URL(
+      input.startsWith("http") ? input : "https://" + input
+    );
+    return url.hostname.toLowerCase();
+  } catch {
+    // Fallback if it's already just a domain
+    return input.trim().toLowerCase().replace(/\/+$/, "");
+  }
 }
+
+
+//helper function to check exention enable state
+async function isExtensionEnabled() {
+  const { enableBlocking = true } = await chrome.storage.local.get("enableBlocking");
+  return enableBlocking;
+}
+
+
+//this runs for now when chrome starts/lauches
+async function cleanExpiredWhitelist() {
+  const { whitelist = [] } = await chrome.storage.local.get("whitelist");
+  const now = Date.now();
+  const valid = whitelist.filter(e => e.expiry > now);
+  if (valid.length !== whitelist.length) {
+    await chrome.storage.local.set({ whitelist: valid });
+  }
+}
+
+
+// --- Periodic cleanup of expired whitelist entries ---
+setInterval(async () => {
+  const { whitelist = [] } = await chrome.storage.local.get("whitelist");
+  const now = Date.now();
+  console.log("Cleanup check:", { now, whitelist });
+  const valid = whitelist.filter(e => e.expiry > now);
+  if (valid.length !== whitelist.length) {
+    console.log("⚠️ Removing expired entries...");
+    await chrome.storage.local.set({ whitelist: valid });
+    await rebuildRules();
+    console.log("✅ Cleaned expired whitelist entries");
+  }
+}, 5 * 10 * 1000); //runs every 5 mins to check for expired whitelist
