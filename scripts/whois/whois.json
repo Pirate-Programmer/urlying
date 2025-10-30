@@ -1,12 +1,17 @@
 {
-    "domain_name": "spit.ac.in",
-    "creation_date": "2006-05-22T04:58:23",
-    "expiration_date": "2030-05-22T04:58:23",
-    "updated_date": "2025-05-24T11:01:05.265000",
+    "domain_name": "ULTRAFIMA.COM",
+    "creation_date": "2019-09-07T12:32:58",
+    "expiration_date": "2027-09-07T12:32:58",
+    "updated_date": "2025-05-01T13:09:03",
     "dnssec": "unsigned",
-    "status": "ok https://icann.org/epp#ok",
-    "emails": "tejalt@eis.ernet.in",
-    "registrar": "ERNET India",
-    "asn": "17625",
-    "asn_country_code": "IN"
+    "status": [
+        "clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited",
+        "clientRenewProhibited https://icann.org/epp#clientRenewProhibited",
+        "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
+        "clientUpdateProhibited https://icann.org/epp#clientUpdateProhibited"
+    ],
+    "emails": "abuse@godaddy.com",
+    "registrar": "GoDaddy.com, LLC",
+    "asn": "398101",
+    "asn_country_code": "US"
 }

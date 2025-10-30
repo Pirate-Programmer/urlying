@@ -1,7 +1,10 @@
 from dns_records import save_dns_records
 import sys
 
-if __name__ == "__main__":
-    domain = sys.argv[1] if len(sys.argv) > 1 else "netmirror.app"
+def run(domain):
     output_file = save_dns_records(domain, "dns.json")
-    print(f"✅ DNS records for {domain} saved in {output_file}")
+    print(f"SSL info for {domain} saved in {output_file}")
+
+if __name__ == "__main__":
+    host = sys.argv[1] if len(sys.argv) > 1 else "google.com"
+    run(host)
