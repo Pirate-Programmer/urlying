@@ -6,5 +6,5 @@ def run(domain):
     print(f"SSL info for {domain} saved in {output_file}")
 
 if __name__ == "__main__":
-    host = sys.argv[1] if len(sys.argv) > 1 else "google.com"
+    host = sys.argv[1] if len(sys.argv) > 1 else "www.ultrafima.com"
     run(host)
