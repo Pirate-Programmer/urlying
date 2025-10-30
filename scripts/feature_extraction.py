@@ -1,9 +1,6 @@
-import math
+import math,os, re, json, time
 from collections import Counter
-import re
 import pandas as pd
-import json
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Dict, Any
 
@@ -415,7 +412,6 @@ def extract_features_for_url(url: str) -> Dict[str, Any]:
     return features
 
 def process_urls(urls: List[str],
-                 out_file: str = "url_features.json",
                  max_workers: int = 8,
                  timeout: float = None) -> List[Dict[str, Any]]:
     results: List[Dict[str, Any]] = []
@@ -440,9 +436,12 @@ def process_urls(urls: List[str],
         "errors": errors
     }
 
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, "features.json")
+
     # write to file
     try:
-        with open(out_file, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"Failed to write JSON to {out_file}: {e}")
@@ -453,5 +452,5 @@ if __name__ == "__main__":
     urls = [
         "https://www.google.com/search?q=gkfndj&oq=gkfndj&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTINCAEQABiDARixAxiABDITCAIQLhiDARjHARixAxjRAxiABDINCAMQABiDARixAxiABDIKCAQQABixAxiABDINCAUQABiDARixAxiABDITCAYQLhiDARjHARixAxjRAxiABDINCAcQABiDARixAxiABDINCAgQABiDARixAxiABDIKCAkQABixAxiABNIBCDIwMTlqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8"
     ]
-    feats = process_urls(urls, out_file="features.json", max_workers=4)
+    feats = process_urls(urls, max_workers=4)
     print(f"Processed {len(feats)} URLs, saved to features.json")
