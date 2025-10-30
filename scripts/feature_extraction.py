@@ -444,7 +444,7 @@ def process_urls(urls: List[str],
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
     except Exception as e:
-        print(f"Failed to write JSON to {out_file}: {e}")
+        print(f"Failed to write JSON to {file_path}: {e}")
 
     return results
 
