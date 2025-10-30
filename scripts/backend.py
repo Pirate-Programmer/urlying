@@ -4,6 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 from apis.api_manager import ApiManager
 from urllib.parse import urlparse
 
+import subprocess
+
+
 app = Flask(__name__)
 api_manager = ApiManager()
 
@@ -45,7 +48,8 @@ def check_url():
     config = data.get("config", {})
     level = int(config.get("securityLevel", 3))
     print("Received URL:", url, "Security level:", level)
-
+    
+            
     parsed_url = urlparse(url)
     hostname = parsed_url.hostname
     print(f"hostname: {hostname}")
