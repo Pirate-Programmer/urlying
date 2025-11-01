@@ -1,3 +1,5 @@
+import re
+
 def ttl_a(ttl):
     if ttl is None:
         return 5
@@ -34,7 +36,6 @@ def ttl_cname(ttl):
     else:
         return 5
 
-
 def ttl_mx(ttl):
     if ttl is None:
         return 5
@@ -46,7 +47,6 @@ def ttl_mx(ttl):
         return -5
     else:
         return 5
-
 
 def ttl_ns(ttl):
     if ttl is None:
@@ -60,49 +60,12 @@ def ttl_ns(ttl):
     else:
         return 5
 
-
 def ttl_txt(ttl):
     if ttl is None:
         return 5
     if ttl == 3600:
         return -5
     return 10
-
-def ttl_soa(ttl):
-    if ttl is None:
-        return 5
-    if ttl <= 300:
-        return 15
-    elif ttl <= 3600:
-        return 7
-    elif ttl <= 86400:
-        return -5
-    else:
-        return 5
-
-def ttl_ptr(ttl):
-    if ttl is None:
-        return 5
-    if ttl <= 300:
-        return 10
-    elif ttl <= 3600:
-        return 3
-    elif ttl <= 86400:
-        return -5
-    else:
-        return 5
-
-def ttl_srv(ttl):
-    if ttl is None:
-        return 5
-    if ttl <= 300:
-        return 12
-    elif ttl <= 3600:
-        return 4
-    elif ttl <= 86400:
-        return -5
-    else:
-        return 5
 
 def mx_score(records, a_records=None):
     score = 0
@@ -117,9 +80,11 @@ def mx_score(records, a_records=None):
 
     # Known dynamic/DDNS provider substrings
     DDNS_PROVIDERS = [
-        "no-ip.org", "noip.com", "duckdns.org", "dynu.com", "dynu.net",
-        "freedns.afraid.org", "dnsdynamic.org", "ddns.net", "dyndns.org",
-        "xip.io"
+        "dynu.com", "dyn.com", "no-ip.com", "noip.com", "changeip.com", "afraid.org",
+        "duckdns.org", "dnsdynamic.org", "duiadns.net", "myonlineportal.com", "dns4e.com",
+        "gslb.me", "system-ns.com", "dnsexit.com", "nubem.com", "dtdns.com", "nsupdate.info",
+        "dnsomatic.com", "x24hr.com", "tzo.com", "3322.net", "serverthuis.com", "dtdns.net",
+        "spdyn.de", "pubyun.com", "gogoip.com", "do.de", "ddnss.de"
     ]
 
     for mx in records:        
@@ -149,11 +114,13 @@ def ns_score(records, a_records=None):
     records = [r.lower() for r in records]
     a_records = [a.lower() for a in (a_records or [])]
 
-    # low-quality / dynamic hostnames
-    DDNS_PROVIDERS = {
-        "no-ip.org", "noip.com", "duckdns.org", "dynu.com", "dynu.net",
-        "freedns.afraid.org", "dnsdynamic.org", "ddns.net", "dyndns.org", "xip.io"
-    }
+    DDNS_PROVIDERS = [
+        "dynu.com", "dyn.com", "no-ip.com", "noip.com", "changeip.com", "afraid.org",
+        "duckdns.org", "dnsdynamic.org", "duiadns.net", "myonlineportal.com", "dns4e.com",
+        "gslb.me", "system-ns.com", "dnsexit.com", "nubem.com", "dtdns.com", "nsupdate.info",
+        "dnsomatic.com", "x24hr.com", "tzo.com", "3322.net", "serverthuis.com", "dtdns.net",
+        "spdyn.de", "pubyun.com", "gogoip.com", "do.de", "ddnss.de"
+    ]
     
     TRUSTED_PROVIDERS = {"cloudflare", "google", "awsdns", "akamai", "azure"}
 
@@ -172,5 +139,43 @@ def ns_score(records, a_records=None):
 
     return score
 
-def txt_score():
+def txt_score(records):
+    # No TXT records = suspicious / missing email auth
+    if not records:
+        return 10  
     
+    score = 0
+
+    # Too many TXT records (DNS abuse / crypto mining / malware C2)
+    if len(records) > 50:
+        score += 10  
+
+    safe_prefixes = [
+        "v=spf1", "v=dkim1", "v=dmarc1", "google-site-verification",
+        "apple-domain-verification", "ms=", "facebook-domain-verification",
+        "yandex-verification", "onetrust-domain-verification",
+        "cisco-ci-domain-verification", "docusign", "globalsign-smime-dv",
+        "_amazonses", "v=bimi1", "sendgrid", "mailchimp", "mailgun"
+    ]
+
+    for txt in records:
+        t = txt.lower().strip()
+
+        # Safe TXT patterns
+        if any(t.startswith(prefix) for prefix in safe_prefixes):
+            score -= 8 
+
+        # Base64 encoded payload (possible C2)
+        if re.fullmatch(r"[A-Za-z0-9+/]{20,}={0,3}", t):
+            score += 10  
+
+        # Hex blob (botnet / key / payload)
+        if re.fullmatch(r"[0-9a-f]{30,}", t):
+            score += 10  
+
+        # VERY long TXT entry (DNS tunneling behavior)
+        if len(t) > 200:
+            score += 30
+
+    return score
+

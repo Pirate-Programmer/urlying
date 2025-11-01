@@ -1,13 +1,13 @@
 {
     "A": {
         "records": [
-            "172.217.26.14"
+            "142.251.223.110"
         ],
         "ttl": 300
     },
     "AAAA": {
         "records": [
-            "2404:6800:4002:81c::200e"
+            "2404:6800:4009:828::200e"
         ],
         "ttl": 300
     },
@@ -23,33 +23,33 @@
     },
     "NS": {
         "records": [
-            "ns3.google.com.",
-            "ns4.google.com.",
+            "ns1.google.com.",
             "ns2.google.com.",
-            "ns1.google.com."
+            "ns3.google.com.",
+            "ns4.google.com."
         ],
         "ttl": 345600
     },
     "TXT": {
         "records": [
-            "\"apple-domain-verification=30afIBcvSuDV2PLX\"",
-            "\"v=spf1 include:_spf.google.com ~all\"",
-            "\"facebook-domain-verification=22rm551cu4k0ab0bxsw536tlds4h95\"",
-            "\"google-site-verification=wD8N7i1JTNTkezJ49swvWW48f8_9xveREV4oB-0Hf5o\"",
-            "\"google-site-verification=TV9-DBe4R80X4v0M4U_bd_J9cpOJM0nikft0jAgjmsQ\"",
-            "\"cisco-ci-domain-verification=47c38bc8c4b74b7233e9053220c1bbe76bcc1cd33c7acf7acd36cd6a5332004b\"",
-            "\"onetrust-domain-verification=de01ed21f2fa4d8781cbc3ffb89cf4ef\"",
+            "\"MS=E4A68B9AB2BB9670BCE15412F62916164C0B20BB\"",
             "\"docusign=05958488-4752-4ef2-95eb-aa7ba8a3bd0e\"",
+            "\"facebook-domain-verification=22rm551cu4k0ab0bxsw536tlds4h95\"",
+            "\"onetrust-domain-verification=de01ed21f2fa4d8781cbc3ffb89cf4ef\"",
+            "\"google-site-verification=wD8N7i1JTNTkezJ49swvWW48f8_9xveREV4oB-0Hf5o\"",
+            "\"globalsign-smime-dv=CDYX+XFHUw2wml6/Gb8+59BsH31KzUr6c1l2BPvqKX8=\"",
             "\"docusign=1b0a6754-49b1-4db5-8540-d2c12664b289\"",
             "\"google-site-verification=4ibFUgB-wXLQ_S7vsXVomSTVamuOXBiVAzpR5IZ87D0\"",
-            "\"MS=E4A68B9AB2BB9670BCE15412F62916164C0B20BB\"",
-            "\"globalsign-smime-dv=CDYX+XFHUw2wml6/Gb8+59BsH31KzUr6c1l2BPvqKX8=\""
+            "\"apple-domain-verification=30afIBcvSuDV2PLX\"",
+            "\"cisco-ci-domain-verification=47c38bc8c4b74b7233e9053220c1bbe76bcc1cd33c7acf7acd36cd6a5332004b\"",
+            "\"v=spf1 include:_spf.google.com ~all\"",
+            "\"google-site-verification=TV9-DBe4R80X4v0M4U_bd_J9cpOJM0nikft0jAgjmsQ\""
         ],
         "ttl": 3600
     },
     "SOA": {
         "records": [
-            "ns1.google.com. dns-admin.google.com. 825468608 900 900 1800 60"
+            "ns1.google.com. dns-admin.google.com. 826431340 900 900 1800 60"
         ],
         "ttl": 60
     },
