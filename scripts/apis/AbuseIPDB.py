@@ -59,4 +59,3 @@ class AbuseIPDBScanner:
             return socket.gethostbyname(input_value)
         except socket.gaierror:
             return None
-
