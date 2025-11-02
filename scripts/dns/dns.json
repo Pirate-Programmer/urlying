@@ -1,21 +1,18 @@
 {
-    "domain": "microsoft.com",
+    "domain": "secure1stbank.com",
     "A": {
         "records": [
-            "13.107.226.68",
-            "13.107.253.68"
+            "15.197.225.128",
+            "3.33.251.168"
         ],
         "ttl": 3600
     },
     "AAAA": {
         "records": [
-            "2603:1030:b:3::152",
-            "2603:1030:20e:3::23c",
-            "2603:1030:c02:8::14",
-            "2603:1020:201:10::10f",
-            "2603:1010:3:3::5b"
+            "64:ff9b::321:fba8",
+            "64:ff9b::fc5:e180"
         ],
-        "ttl": 3600
+        "ttl": 3544
     },
     "CNAME": {
         "records": [],
@@ -23,62 +20,21 @@
     },
     "MX": {
         "records": [
-            "10 microsoft-com.mail.protection.outlook.com."
+            "0 secure1stbank-com.mail.protection.outlook.com."
         ],
         "ttl": 3600
     },
     "NS": {
         "records": [
-            "ns4-39.azure-dns.info.",
-            "ns1-39.azure-dns.com.",
-            "ns2-39.azure-dns.net.",
-            "ns3-39.azure-dns.org."
+            "ns65.domaincontrol.com.",
+            "ns66.domaincontrol.com."
         ],
-        "ttl": 172800
+        "ttl": 3600
     },
     "TXT": {
         "records": [
-            "\"ms-domain-verification=1c4e4677-e58f-4117-8d61-e5b2810388c2\"",
-            "\"mixpanel-domain-verify=5803bc4c-5bb6-4ce1-8076-753800097373\"",
-            "\"sitecore-domain-verification=1d46cb5467624e33a408d14324874088\"",
-            "\"ms-domain-verification=478640ad-6524-43d5-86c4-a914804b9e93\"",
-            "\"ms-domain-verification=561512fc-b4ba-4ac7-a946-e464c8f49f1b\"",
-            "\"_zx2p8gpzv720db2aqmozy4jhwk2nl43\"",
-            "\"airtable-verification=79a09e4a8013ff5737798ffb4ea88eee\"",
-            "\"1password-site-verification=35ZTURTFFFDC5BW7GFQKRJ77QM\"",
-            "\"d365mktkey=8fEQahTresJms7tZGxGFr94T1zDz36oCbUt1LJc99mox\"",
-            "\"d365mktkey=heYmJ57sWrwMjCgIG1xRwTREJrQokUIDtBcNfGuxoWQx\"",
-            "\"ms-domain-verification=d6545068-89f7-4432-b947-0b137e8a9fe3\"",
-            "\"hcp-domain-verification=3ce174a8b9fba88909633ab13eb1d81ce0123454745d66e500052ed84b7248a1\"",
-            "\"v=MCPv1; k=ecdsap384; p=As/XxnDWZFxFwHvRZj+HbG5/ImtAeabLkiOWu1h7wCJQFAR216E9HoYQ5Hy6o7StoQ==\"",
-            "\"d365mktkey=3uc1cf82cpv750lzk70v9bvf2\"",
-            "\"facebook-domain-verification=fwzwhbbzwmg5fzgotc2go51olc3566\"",
-            "\"google-site-verification=pjPOauSPcrfXOZS9jnPPa5axowcHGCDAl1_86dCqFpk\"",
-            "\"fg2t0gov9424p2tdcuo94goe9j\"",
-            "\"t7sebee51jrj7vm932k531hipa\"",
-            "\"google-site-verification=M--CVfn_YwsV-2FGbCp_HFaEj23BmT0cTF4l8hXgpvM\"",
-            "\"google-site-verification=GfDnTUdATPsK1230J0mXbfsYw-3A9BVMVaKSd4DcKgI\"",
-            "\"d365mktkey=SxDf1EZxLvMwx6eEZUxzjFFgHoapF8DvtWEUjwq7ZTwx\"",
-            "\"hubspot-developer-verification=OTQ5NGIwYWEtODNmZi00YWE1LTkyNmQtNDhjMDMxY2JjNDAx\"",
-            "\"d365mktkey=QDa792dLCZhvaAOOCe2Hz6WTzmTssOp1snABhxWibhMx\"",
-            "\"d365mktkey=6358r1b7e13hox60tl1uagv14\"",
-            "\"google-site-verification=uFg3wr5PWsK8lV029RoXXBBUW0_E6qf1WEWVHhetkOY\"",
-            "\"docusign=d5a3737c-c23c-4bd0-9095-d2ff621f2840\"",
-            "\"d365mktkey=j2qHWq9BHdaa3ZXZH8x64daJZxEWsFa0dxDeilxDoYYx\"",
-            "\"v=spf1 include:_spf-a.microsoft.com include:_spf-b.microsoft.com include:_spf-c.microsoft.com include:_spf-ssg-a.msft.net include:spf-a.hotmail.com include:_spf1-meo.microsoft.com -all\"",
-            "\"atlassian-domain-verification=xvoaqRfxSg3PnlVnR4xCSOlKyw1Aln0MMxRiKXnwWroFG7vI76TUC8xYb03MwMXv\"",
-            "\"workplace-domain-verification=lK0QDLk73xymCYMKUXNpfKAT8TY5Mx\"",
-            "\"google-site-verification=uhh5_jbxpcQgnb-A7gDIjlrr5Ef34lA2t2_BAveYpnk\"",
-            "\"MS=ms79629062\"",
-            "\"d365mktkey=3l6dste9txazu0Qd2zu4135PUB4E35txLxyzJxjkPbsx\"",
-            "\"d365mktkey=wbU64GRacxVEQxwcLSQnx0zisXLYzgUbfvsufIqO9ZUx\"",
-            "\"linear-domain-verification=iuq6saifcnbe\"",
-            "\"d365mktkey=ZGFU0tlXPekPusNHPo5QQQWpVf0gic0xpuKroNy3NQEx\"",
-            "\"d365mktkey=JlXV17lfZjyvWxNje1qiP390ACSKzTxo5mGqZ3V2BmYx\"",
-            "\"google-site-verification=mEAmcTy1e8jIB9W6ENPk2GDg9hjuNytQQRGlK0hPm0c\"",
-            "\"d365mktkey=PNcDqkW71x8VOUhcE96aGM4l5PYX1gnlRl6ieXUl5eMx\"",
-            "\"d365mktkey=Fu49WtSTeClkHtK7S14227RIVpGwwGrzEsO6RVs1I2Ax\"",
-            "\"ms-domain-verification=25524f4b-1476-489c-a086-30f4c5016ecc\""
+            "\"NETORGFT14078264.onmicrosoft.com\"",
+            "\"v=spf1 include:secureserver.net -all\""
         ],
         "ttl": 3600
     }
