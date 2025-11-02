@@ -1,11 +1,31 @@
 #!/usr/bin/env python3
-import argparse
+import os, json
 from api_manager import ApiManager
 
 
-def main(domain):
+def run():
     manager = ApiManager()
 
+    base_path = os.path.dirname(__file__)
+    json_path = os.path.join(base_path, "..", "features.json")
+
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Could not find {json_path}. Put features.json next to this script.")
+    except Exception as e:
+        return {"error": "failed to load features.json", "exception": str(e)}
+
+    features = data.get("features") or []
+    if not features:
+        raise ValueError("features.json does not contain a 'features' array or it's empty.")
+
+    first = features[0]
+    domain = first.get("domain")
+    if not domain:
+        raise ValueError("First feature does not contain a 'domain' key.")
+    
     # VirusTotal
     print("\n[+] VirusTotal")
     vt_result = manager.virustotal.fetch_result(domain)
@@ -28,4 +48,4 @@ def main(domain):
 
 
 if __name__ == "__main__":
-    main("veza-otp.com")
+    run()

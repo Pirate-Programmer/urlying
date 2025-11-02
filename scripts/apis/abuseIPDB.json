@@ -1,8 +1,8 @@
 {
     "success": true,
     "unsafe": false,
-    "abuse_score": 9,
-    "ip": "15.197.130.221",
-    "target": "veza-otp.com",
+    "abuse_score": 29,
+    "ip": "3.33.251.168",
+    "target": "secure1stbank.com",
     "source": "AbuseIPDB"
 }

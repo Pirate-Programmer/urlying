@@ -1,6 +1,6 @@
 {
     "success": true,
-    "unsafe": true,
-    "target": "veza-otp.com",
+    "unsafe": false,
+    "target": "secure1stbank.com",
     "source": "GSB"
 }
