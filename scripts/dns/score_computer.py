@@ -1,4 +1,7 @@
 import re
+import socket
+import os
+import json
 
 def ttl_a(ttl):
     if ttl is None:
@@ -11,7 +14,7 @@ def ttl_a(ttl):
         return -5
     else:
         return 5
-    
+
 def ttl_aaaa(ttl):
     if ttl is None:
         return 5
@@ -23,7 +26,7 @@ def ttl_aaaa(ttl):
         return -5
     else:
         return 5
-    
+
 def ttl_cname(ttl):
     if ttl is None:
         return 5
@@ -67,6 +70,71 @@ def ttl_txt(ttl):
         return -5
     return 10
 
+def aaaa_score(records):
+    if not records:
+        return 0
+    if len(records) > 1:
+        return 10  # suspicious: multiple IPv6 addresses
+    return 0
+
+def cname_score(cname_records, resolve_timeout_seconds=3):
+    BAD_CNAME_HOSTS = [
+        "cloudapp.net", "herokuapp.com", "github.io", "pages.dev",
+        "azurewebsites.net", "s3.amazonaws.com", "amazonaws.com",
+        "wordpress.com", "weebly.com", "netlify.app", "firebaseapp.com",
+        "dynu.com", "dyn.com", "no-ip.com", "noip.com", "changeip.com", "afraid.org",
+        "duckdns.org", "dnsdynamic.org", "duiadns.net", "myonlineportal.com", "dns4e.com",
+        "gslb.me", "system-ns.com", "dnsexit.com", "nubem.com", "dtdns.com", "nsupdate.info",
+        "dnsomatic.com", "x24hr.com", "tzo.com", "3322.net", "serverthuis.com", "dtdns.net",
+        "spdyn.de", "pubyun.com", "gogoip.com", "do.de", "ddnss.de"
+    ]
+
+    cname_records = cname_records or []
+    score = 0
+
+    if not cname_records:
+        return score
+
+    for cname in cname_records:
+        if not cname:
+            continue
+
+        c = cname.strip()
+        cl = c.lower()
+
+        # Root CNAME (bad practice)
+        if c in ("@", "", "@."):
+            score += 10
+            continue
+
+        # Flag bad host patterns (DDNS / takeover surfaces)
+        for bad in BAD_CNAME_HOSTS:
+            if bad in cl:
+                penalty = 15 if bad in ("github.io", "herokuapp.com", "azurewebsites.net", "pages.dev") else 10
+                score += penalty
+                # don't break; a record might match multiple tokens
+
+        # Resolve test for dangling CNAME (always resolve)
+        try:
+            old = socket.getdefaulttimeout()
+            socket.setdefaulttimeout(resolve_timeout_seconds)
+            try:
+                info = socket.getaddrinfo(c, None)
+                score -= 5  # reward: it resolves
+            finally:
+                socket.setdefaulttimeout(old)
+
+        except socket.gaierror as e:
+            # dangling/unresolvable = takeover possible
+            pen = 25
+            score += pen
+
+        except Exception:
+            # small penalty for unexpected errors
+            score += 5
+
+    return score
+
 def mx_score(records, a_records=None):
     score = 0
     has_mx = len(records) > 0
@@ -78,7 +146,6 @@ def mx_score(records, a_records=None):
     records = [r.lower() for r in records]
     a_records = [a.lower() for a in (a_records or [])]
 
-    # Known dynamic/DDNS provider substrings
     DDNS_PROVIDERS = [
         "dynu.com", "dyn.com", "no-ip.com", "noip.com", "changeip.com", "afraid.org",
         "duckdns.org", "dnsdynamic.org", "duiadns.net", "myonlineportal.com", "dns4e.com",
@@ -87,20 +154,16 @@ def mx_score(records, a_records=None):
         "spdyn.de", "pubyun.com", "gogoip.com", "do.de", "ddnss.de"
     ]
 
-    for mx in records:        
-        # Suspicious if MX host is a known DDNS provider
+    for mx in records:
         if any(ddns in mx for ddns in DDNS_PROVIDERS):
-            score += 25  # heavier penalty for DDNS MX
-        
-        # Suspicious if MX is same as A record (web and mail same host)
+            score += 25
+
         if any(mx.startswith(a) or a in mx for a in a_records):
             score += 7
-        
-        # Suspicious if generic or low-quality hostname pattern
+
         if any(x in mx for x in ["mail.local", "localhost", "example", "test", "temp"]):
             score += 15
-        
-        # Otherwise, minor safe offset for clean MX
+
         if "google" in mx or "outlook" in mx or "yahoo" in mx or "zoho" in mx:
             score -= 10
 
@@ -109,7 +172,7 @@ def mx_score(records, a_records=None):
 def ns_score(records, a_records=None):
     score = 0
     if not records:
-        return 15 
+        return 15
 
     records = [r.lower() for r in records]
     a_records = [a.lower() for a in (a_records or [])]
@@ -121,34 +184,29 @@ def ns_score(records, a_records=None):
         "dnsomatic.com", "x24hr.com", "tzo.com", "3322.net", "serverthuis.com", "dtdns.net",
         "spdyn.de", "pubyun.com", "gogoip.com", "do.de", "ddnss.de"
     ]
-    
+
     TRUSTED_PROVIDERS = {"cloudflare", "google", "awsdns", "akamai", "azure"}
 
     for ns in records:
-        # dynamic/DDNS
         if any(ddns in ns for ddns in DDNS_PROVIDERS):
             score += 20
 
-        # trusted provider reduces score
         if any(tp in ns for tp in TRUSTED_PROVIDERS):
             score -= 5
 
-        # same as A record
         if any(ns.startswith(a) or a in ns for a in a_records):
             score += 5
 
     return score
 
 def txt_score(records):
-    # No TXT records = suspicious / missing email auth
     if not records:
-        return 10  
-    
+        return 10
+
     score = 0
 
-    # Too many TXT records (DNS abuse / crypto mining / malware C2)
     if len(records) > 50:
-        score += 10  
+        score += 10
 
     safe_prefixes = [
         "v=spf1", "v=dkim1", "v=dmarc1", "google-site-verification",
@@ -159,23 +217,71 @@ def txt_score(records):
     ]
 
     for txt in records:
-        t = txt.lower().strip()
+        t = txt.lower().strip().strip('"')
 
-        # Safe TXT patterns
         if any(t.startswith(prefix) for prefix in safe_prefixes):
-            score -= 8 
+            score -= 8
 
-        # Base64 encoded payload (possible C2)
         if re.fullmatch(r"[A-Za-z0-9+/]{20,}={0,3}", t):
-            score += 10  
+            score += 10
 
-        # Hex blob (botnet / key / payload)
         if re.fullmatch(r"[0-9a-f]{30,}", t):
-            score += 10  
+            score += 10
 
-        # VERY long TXT entry (DNS tunneling behavior)
         if len(t) > 200:
             score += 30
 
     return score
 
+def score_computer():
+    base_path = os.path.dirname(__file__)
+    json_path = os.path.join(base_path, "dns.json")
+
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Could not find {json_path}. Put dns.json next to this script.")
+    except Exception as e:
+        return {"error": "failed to load dns.json", "exception": str(e)}
+
+    a_records, a_records_ttl       = (data.get("A") or {}).get("records") or [], (data.get("A") or {}).get("ttl")
+    aaaa_records, aaaa_records_ttl = (data.get("AAAA") or {}).get("records") or [], (data.get("AAAA") or {}).get("ttl")
+    cname_records, cname_records_ttl = (data.get("CNAME") or {}).get("records") or [], (data.get("CNAME") or {}).get("ttl")
+    mx_records, mx_records_ttl     = (data.get("MX") or {}).get("records") or [], (data.get("MX") or {}).get("ttl")
+    ns_records, ns_records_ttl     = (data.get("NS") or {}).get("records") or [], (data.get("NS") or {}).get("ttl")
+    txt_records, txt_records_ttl   = (data.get("TXT") or {}).get("records") or [], (data.get("TXT") or {}).get("ttl")
+
+    score = 0
+
+    if a_records:
+        score += ttl_a(a_records_ttl)
+
+    if aaaa_records:
+        score += aaaa_score(aaaa_records)
+        score += ttl_aaaa(aaaa_records_ttl)
+
+    if cname_records:
+        score += cname_score(cname_records)
+        score += ttl_cname(cname_records_ttl)
+
+    if mx_records:
+        score += ttl_mx(mx_records_ttl)
+        score += mx_score(mx_records, a_records)
+
+    if ns_records:
+        score += ttl_ns(ns_records_ttl)
+        score += ns_score(ns_records, a_records)
+    else:
+        score += 25
+
+    if txt_records:
+        score += ttl_txt(txt_records_ttl)
+        score += txt_score(txt_records)
+    else:
+        score += 25
+
+    return score
+
+if __name__ == "__main__":
+    print(score_computer())
