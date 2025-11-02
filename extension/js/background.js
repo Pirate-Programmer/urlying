@@ -70,7 +70,6 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
   }
 });
 
-
 // ---------------------------
 // Fast flag + backend processing
 // ---------------------------
