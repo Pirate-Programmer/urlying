@@ -2,7 +2,6 @@ import requests
 import hashlib
 import os
 import csv
-import zlib
 from io import StringIO
 
 # GitHub raw file URL for NordVPN IPs
@@ -14,9 +13,6 @@ HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 
 def get_md5(data):
     return hashlib.md5(data).hexdigest()
-
-def get_crc32(data):
-    return format(zlib.crc32(data) & 0xffffffff, "08x")
 
 def load_previous_hash():
     if os.path.exists(HASH_FILE):
@@ -38,23 +34,20 @@ def process_csv(content):
     
     processed_rows = []
     for row in reader:
-        ip = row.get("#ip") or row.get("ip")
+        ip = row.get("#ip") or row.get("ip") or row.get("ip_address") or row.get("address")
         if not ip:
             continue
-        ip = ip.strip()
-        processed_rows.append({
-            "ip": ip,
-            "hash": get_crc32(ip.encode("utf-8"))
-        })
+        processed_rows.append({"ip": ip.strip()})
     
-    processed_rows.sort(key=lambda x: x["hash"])
+    # Sort IPs alphabetically
+    processed_rows.sort(key=lambda x: x["ip"])
     
     with open(SAVE_AS, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["ip", "hash"])
+        writer = csv.DictWriter(f, fieldnames=["ip"])
         writer.writeheader()
         writer.writerows(processed_rows)
     
-    print(f"[✓] Processed & saved: {SAVE_AS}")
+    print(f"[✓] Processed {len(processed_rows)} IPs & saved to: {SAVE_AS}")
 
 def fetch_file():
     try:

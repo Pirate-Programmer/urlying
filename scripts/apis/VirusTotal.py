@@ -1,5 +1,7 @@
 import requests
 import base64
+import json
+import os
 
 class VirusTotalScanner:
     def __init__(self, api_key):
@@ -30,9 +32,10 @@ class VirusTotalScanner:
 
             is_unsafe = malicious > 0 or suspicious > 0
 
-            return {
+            result = {
                 "success": True,
                 "unsafe": is_unsafe,
+                "target": target_url,
                 "source": self.source,
                 "extra": {
                     "stats": stats,
@@ -41,13 +44,31 @@ class VirusTotalScanner:
                 }
             }
 
+            self.save_result_to_file(result)
+            return result
+
         except Exception as e:
-            return {
+            result = {
                 "success": False,
                 "error": str(e),
+                "target": target_url,
                 "source": self.source
             }
+            self.save_result_to_file(result)
+            return result
 
     def encode_url(self, url):
         encoded = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
         return encoded
+
+    def save_result_to_file(self, result):
+        """Store ONLY the latest scan result"""
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            file_path = os.path.join(script_dir, "virustotal.json")
+
+            with open(file_path, "w") as f:
+                json.dump(result, f, indent=4)
+
+        except Exception as e:
+            print(f"[ERROR] Could not write log: {e}")

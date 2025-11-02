@@ -1,0 +1,23 @@
+{
+    "hostname": "www.ultrafima.com",
+    "tls_version": "TLSv1.2",
+    "cipher": "ECDHE-RSA-AES256-GCM-SHA384",
+    "key_size": 2048,
+    "subject": {
+        "commonName": "ultrafima.com"
+    },
+    "issuer": {
+        "countryName": "US",
+        "organizationName": "Let's Encrypt",
+        "commonName": "R13"
+    },
+    "serialNumber": "0630A2514E7A0C0F827123592137E4F63562",
+    "version": 3,
+    "notBefore": "2025-08-31T03:49:12",
+    "notAfter": "2025-11-29T03:49:11",
+    "subjectAltName": [
+        "ultrafima.com",
+        "www.ultrafima.com"
+    ],
+    "signature_algorithm": "sha256WithRSAEncryption"
+}

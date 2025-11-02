@@ -2,7 +2,6 @@ import requests
 import hashlib
 import os
 import csv
-import zlib
 from io import StringIO
 
 RAW_URL = "https://raw.githubusercontent.com/mthcht/awesome-lists/main/Lists/VPN/MullVad/mullvad_relay_servers_ips_list.csv"
@@ -12,10 +11,8 @@ SAVE_AS = f"./datasets/vpn_ips/{FILENAME}"
 HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 
 def get_md5(data):
+    """Return MD5 hash (hex) for whole file."""
     return hashlib.md5(data).hexdigest()
-
-def get_crc32(data):
-    return format(zlib.crc32(data) & 0xffffffff, "08x")
 
 def load_previous_hash():
     if os.path.exists(HASH_FILE):
@@ -40,19 +37,15 @@ def process_csv(content):
         ip = row.get("dest_ip") or row.get("ip")
         if not ip:
             continue 
-        ip = ip.strip()
-        
-        processed_rows.append({
-            "ip": ip,
-            "hash": get_crc32(ip.encode("utf-8"))
-        })
+        processed_rows.append({"ip": ip.strip()})
     
-    # Sort by hash for binary search
-    processed_rows.sort(key=lambda x: x["hash"])
+    # Remove duplicates and sort
+    unique_ips = sorted({r["ip"] for r in processed_rows})
+    processed_rows = [{"ip": ip} for ip in unique_ips]
     
     # Save processed CSV
-    with open(SAVE_AS, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["ip", "hash"])
+    with open(SAVE_AS, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["ip"])
         writer.writeheader()
         writer.writerows(processed_rows)
     

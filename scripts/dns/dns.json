@@ -1,0 +1,41 @@
+{
+    "domain": "secure1stbank.com",
+    "A": {
+        "records": [
+            "15.197.225.128",
+            "3.33.251.168"
+        ],
+        "ttl": 3600
+    },
+    "AAAA": {
+        "records": [
+            "64:ff9b::321:fba8",
+            "64:ff9b::fc5:e180"
+        ],
+        "ttl": 3544
+    },
+    "CNAME": {
+        "records": [],
+        "ttl": null
+    },
+    "MX": {
+        "records": [
+            "0 secure1stbank-com.mail.protection.outlook.com."
+        ],
+        "ttl": 3600
+    },
+    "NS": {
+        "records": [
+            "ns65.domaincontrol.com.",
+            "ns66.domaincontrol.com."
+        ],
+        "ttl": 3600
+    },
+    "TXT": {
+        "records": [
+            "\"NETORGFT14078264.onmicrosoft.com\"",
+            "\"v=spf1 include:secureserver.net -all\""
+        ],
+        "ttl": 3600
+    }
+}

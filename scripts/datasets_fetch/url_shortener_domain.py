@@ -3,7 +3,7 @@ import pandas as pd
 import zlib
 
 # Paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # from /scripts/search_hashing
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__))) 
 INPUT_FILE = os.path.join(BASE_DIR, "datasets", "url_shorteners", "url_shortener_domain.csv")
 OUTPUT_FILE = os.path.join(BASE_DIR, "datasets", "url_shorteners", "url_shortener_domain.csv")
 

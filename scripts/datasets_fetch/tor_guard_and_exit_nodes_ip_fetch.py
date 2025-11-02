@@ -2,7 +2,6 @@ import requests
 import hashlib
 import os
 import csv
-import zlib
 from io import StringIO
 
 # ==== Tor Node Feeds ====
@@ -21,52 +20,41 @@ TOR_SOURCES = [
 def get_md5(data):
     return hashlib.md5(data).hexdigest()
 
-def get_crc32(data):
-    return format(zlib.crc32(data) & 0xffffffff, "08x")
-
 def load_previous_hash(hash_file):
     if os.path.exists(hash_file):
-        with open(hash_file, "r") as f:
+        with open(hash_file, "r", encoding="utf-8") as f:
             return f.read().strip()
     return ""
 
 def save_new_hash(hash_file, hash_val):
     os.makedirs(os.path.dirname(hash_file), exist_ok=True)
-    with open(hash_file, "w") as f:
+    with open(hash_file, "w", encoding="utf-8") as f:
         f.write(hash_val)
 
 def ensure_dirs(path):
     os.makedirs(path, exist_ok=True)
 
-# ==== CSV Processing ====
 def process_csv(content, save_as):
     decoded = content.decode("utf-8", errors="replace")
     reader = csv.DictReader(StringIO(decoded))
 
-    processed_rows = []
+    ips = []
     for row in reader:
-        ip = row.get("dest_ip", "").strip()
+        ip = (row.get("dest_ip") or row.get("ip") or "").strip()
         if ip:
-            processed_rows.append({
-                "ip": ip,
-                "hash": get_crc32(ip.encode("utf-8"))
-            })
+            ips.append(ip)
 
-    # Remove duplicates
-    seen = {}
-    for entry in processed_rows:
-        seen[entry["ip"]] = entry
-    unique_rows = list(seen.values())
+    # dedupe and sort
+    unique_sorted_ips = sorted(set(ips))
 
-    # Sort by hash for binary search
-    unique_rows.sort(key=lambda x: x["hash"])
-
-    with open(save_as, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["ip", "hash"])
+    os.makedirs(os.path.dirname(save_as), exist_ok=True)
+    with open(save_as, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["ip"])
         writer.writeheader()
-        writer.writerows(unique_rows)
+        for ip in unique_sorted_ips:
+            writer.writerow({"ip": ip})
 
-    print(f"[✓] Processed & saved: {save_as}")
+    print(f"[✓] Processed & saved: {save_as} (count: {len(unique_sorted_ips)})")
 
 # ==== Fetch Logic ====
 def fetch_tor_lists():

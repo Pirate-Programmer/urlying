@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Suspicious Site</title>
+    <link rel="stylesheet" href="../css/redirect_warn.css">
+</head>
+
+<body>
+    <div class="header">
+        <img src="../icons/icon_on_pages.png" alt="icon">
+        <p>URLying</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="icon">⚠️</div>
+
+            <h1 class="highlight-text">URLying says this URL is lying.</h1>
+
+            <p id="suspicious-domain" class="domain-text">
+    The link appears to go to <b><span id="spoof-domain"></span></b> but actually redirects to <b><span id="redirect-domain"></span></b>.
+    <br>We have blacklisted <b><span id="redirect-domain-2"></span></b> as it might be malicious.
+</p>
+
+
+            <p class="warning-text">
+                Please choose carefully how you want to proceed.
+            </p>
+
+            <div class="button-group">
+                <div class="tooltip">
+                    <button id="continue-btn" class="danger">⚡Continue to Redirect Site</button>
+                    <span class="tooltiptext">Removes from blacklist, adds to whitelist, and continues.</span>
+                </div>
+
+                <div class="tooltip">
+                    <button id="spoof-btn" class="primary">Go to Spoof Site</button>
+                    <span class="tooltiptext">Takes you to the domain before '@' (spoof site).</span>
+                </div>
+
+                <div class="tooltip">
+                    <button id="go-back-btn" class="dark">⬅ Go Back</button>
+                    <span class="tooltiptext">Stay safe and keep redirect site blacklisted.</span>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <script src="../js/redirect_warn.js"></script>
+</body>
+
+</html>

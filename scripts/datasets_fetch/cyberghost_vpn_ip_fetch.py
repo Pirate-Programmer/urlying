@@ -1,24 +1,17 @@
 import requests
 import hashlib
-import zlib
 import os
 import csv
 import io
 
-# ==== Configuration ====
 RAW_URL = "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/vpn/CyberGhostVPNIPs.csv"
 FILENAME = "cyberghost_vpn_ip_list.csv"
 SAVE_AS = f"./datasets/vpn_ips/{FILENAME}"
 HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 
-# ==== Utilities ====
 def get_md5(data):
     """Return MD5 hash (hex) for whole file."""
     return hashlib.md5(data).hexdigest()
-
-def get_crc32(data):
-    """Return unsigned CRC32 hash as hex string."""
-    return format(zlib.crc32(data) & 0xffffffff, "08x")
 
 def load_previous_hash():
     if os.path.exists(HASH_FILE):
@@ -71,16 +64,14 @@ def process_csv(raw_csv_bytes):
         for row in reader:
             ip_value = row.get("#ip") or row.get("ip")
             if ip_value:
-                processed_rows.append({
-                    "hash": get_crc32(ip_value.encode("utf-8")),
-                    "ip": ip_value.strip()
-                })
+                processed_rows.append({"ip": ip_value.strip()})
 
-        # Sort by hash for binary search
-        processed_rows.sort(key=lambda x: x["hash"])
+        # remove duplicates and sort IPs
+        unique_ips = sorted({r["ip"] for r in processed_rows})
+        processed_rows = [{"ip": ip} for ip in unique_ips]
 
-        with open(SAVE_AS, "w", newline="") as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=["hash", "ip"])
+        with open(SAVE_AS, "w", newline="", encoding="utf-8") as outfile:
+            writer = csv.DictWriter(outfile, fieldnames=["ip"])
             writer.writeheader()
             writer.writerows(processed_rows)
 
@@ -89,7 +80,12 @@ def process_csv(raw_csv_bytes):
     except Exception as e:
         print(f"[!] Error processing CSV: {e}")
 
-# ==== Main Runner ====
+# ==== Step 3: Run ====
+def run():
+    updated, content = fetch_file()
+    if updated and content:
+        process_csv(content)
+
 if __name__ == "__main__":
     updated, content = fetch_file()
     if updated and content:

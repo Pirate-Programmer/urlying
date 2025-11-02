@@ -1,0 +1,17 @@
+{
+    "domain_name": "SECURE1STBANK.COM",
+    "creation_date": "2023-07-19T21:23:17",
+    "expiration_date": "2026-07-19T21:23:17",
+    "updated_date": "2025-07-20T12:01:37",
+    "dnssec": "unsigned",
+    "status": [
+        "clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited",
+        "clientRenewProhibited https://icann.org/epp#clientRenewProhibited",
+        "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
+        "clientUpdateProhibited https://icann.org/epp#clientUpdateProhibited"
+    ],
+    "emails": "abuse@godaddy.com",
+    "registrar": "GoDaddy.com, LLC",
+    "asn": "16509",
+    "asn_country_code": "US"
+}

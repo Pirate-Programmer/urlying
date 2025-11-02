@@ -1,32 +1,94 @@
+import requests
+import hashlib
 import os
-import pandas as pd
-import zlib
+import csv
+import io
 
-# Paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # go up from /scripts/search_hashing
-EXT_FILE = os.path.join(BASE_DIR, "datasets", "harmful_file_extensions", "harmful_file_extensions.csv")
-OUTPUT_FILE = os.path.join(BASE_DIR, "datasets", "harmful_file_extensions", "harmful_file_extensions.csv")
+# ==== Configuration ====
+RAW_URL = "https://raw.githubusercontent.com/mthcht/awesome-lists/refs/heads/main/Lists/VPN/ProtonVPN/protonvpn_ip_list.csv"
+FILENAME = "proton_vpn_ip_list.csv"
+SAVE_AS = f"./datasets/vpn_ips/{FILENAME}"
+HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 
-def process_extensions():
-    if not os.path.exists(EXT_FILE):
-        print(f"[x] File not found: {EXT_FILE}")
-        return
+# ==== Utilities ====
+def get_md5(data):
+    """Return MD5 hash (hex) for whole file."""
+    return hashlib.md5(data).hexdigest()
 
-    # Read CSV (assuming single-column file with no header)
-    df = pd.read_csv(EXT_FILE, header=None)
-    extensions = df.iloc[:, 0].dropna().astype(str).str.strip().str.lower().unique()
+def load_previous_hash():
+    if os.path.exists(HASH_FILE):
+        with open(HASH_FILE, "r", encoding="utf-8") as f:
+            return f.read().strip()
+    return ""
 
-    # Calculate CRC32 for each extension
-    hashed_ext_list = [(ext, zlib.crc32(ext.encode('utf-8')) & 0xffffffff) for ext in extensions]
+def save_new_hash(hash_val):
+    os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
+    with open(HASH_FILE, "w", encoding="utf-8") as f:
+        f.write(hash_val)
 
-    # Sort by CRC32 value
-    hashed_ext_list.sort(key=lambda x: x[1])
+def ensure_dirs():
+    os.makedirs(os.path.dirname(SAVE_AS), exist_ok=True)
+    os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
 
-    # Save to CSV
-    output_df = pd.DataFrame(hashed_ext_list, columns=["extension", "crc32_hash"])
-    output_df.to_csv(OUTPUT_FILE, index=False)
+# ==== Step 1: Fetch File ====
+def fetch_file():
+    try:
+        ensure_dirs()
 
-    print(f"[✓] Saved sorted CSV with CRC32 hashes to {OUTPUT_FILE}")
+        response = requests.get(RAW_URL)
+        if response.status_code != 200:
+            print(f"[x] Failed to fetch. Status: {response.status_code}")
+            return False, None
 
+        new_content = response.content
+        new_hash = get_md5(new_content)
+        old_hash = load_previous_hash()
+
+        if new_hash == old_hash:
+            print("[=] File unchanged. No update needed.")
+            return False, None
+
+        save_new_hash(new_hash)
+        print("[✓] File downloaded successfully.")
+        return True, new_content
+
+    except Exception as e:
+        print(f"[!] Error: {e}")
+        return False, None
+
+# ==== Step 2: Process CSV ====
+def process_csv(raw_csv_bytes):
+    try:
+        csv_data = io.StringIO(raw_csv_bytes.decode("utf-8", errors="ignore"))
+        reader = csv.DictReader(csv_data)
+
+        processed_rows = []
+        for row in reader:
+            ip_value = row.get("src_ip_exit") or row.get("ip")
+            if ip_value:
+                processed_rows.append({"ip": ip_value.strip()})
+
+        # dedupe and sort IPs
+        unique_ips = sorted({r["ip"] for r in processed_rows})
+        processed_rows = [{"ip": ip} for ip in unique_ips]
+
+        with open(SAVE_AS, "w", newline="", encoding="utf-8") as outfile:
+            writer = csv.DictWriter(outfile, fieldnames=["ip"])
+            writer.writeheader()
+            writer.writerows(processed_rows)
+
+        print(f"[✓] Processed & saved: {SAVE_AS} (count: {len(processed_rows)})")
+
+    except Exception as e:
+        print(f"[!] Error processing CSV: {e}")
+
+def run():
+    updated, content = fetch_file()
+    if updated and content:
+        process_csv(content)
+        
+# ==== Main Runner ====
 if __name__ == "__main__":
-    process_extensions()
+    updated, content = fetch_file()
+    if updated and content:
+        process_csv(content)

@@ -22,7 +22,7 @@ def get_ssl_info(hostname, port=443):
     def parse_date(date_str):
         return datetime.strptime(date_str, "%b %d %H:%M:%S %Y %Z").isoformat()
 
-    return {
+    info = {
         "hostname": hostname,
         "tls_version": tls_version,
         "cipher": cipher[0],
@@ -36,12 +36,17 @@ def get_ssl_info(hostname, port=443):
         "subjectAltName": [name for _, name in cert.get("subjectAltName", [])],
     }
 
-def save_ssl_info(hostname, filename="ssl.json"):
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    json_dir = os.path.join(project_root, "json")
-    os.makedirs(json_dir, exist_ok=True)
-    file_path = os.path.join(json_dir, filename)
+    # 🔑 Add: Certificate Algorithm
+    try:
+        info["signature_algorithm"] = x509_cert.signature_algorithm_oid._name
+    except Exception:
+        info["signature_algorithm"] = None
 
+    return info
+
+def save_ssl_info(hostname, filename="ssl.json"):
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, filename)
     info = get_ssl_info(hostname)
     with open(file_path, "w") as f:
         json.dump(info, f, indent=4)

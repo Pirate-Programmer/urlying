@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   function renderList(listName, ulId, filter = "") {
-    chrome.storage.local.get([listName], (result) => {
+    chrome.storage.local.get([listName, "whitelist", "blacklist"], (result) => {
       const ul = document.getElementById(ulId);
       ul.innerHTML = "";
 
@@ -21,30 +21,85 @@ document.addEventListener("DOMContentLoaded", () => {
         : list;
 
       displayList
-        .filter(domain => domain.toLowerCase().includes(filter.toLowerCase()))
-        .forEach(domain => {
-          const li = document.createElement("li");
-          li.textContent = domain;
+  .filter(domain => domain.toLowerCase().includes(filter.toLowerCase()))
+  .forEach(domain => {
+    const li = document.createElement("li");
 
-          const delBtn = document.createElement("button");
-          delBtn.textContent = "Remove";
-          delBtn.onclick = () => {
-            chrome.storage.local.get([listName], (res) => {
-              let updatedList = res[listName] || [];
-              if (listName === "whitelist") {
-                updatedList = updatedList.filter(e => e.domain !== domain);
-              } else {
-                updatedList = updatedList.filter(d => d !== domain);
-              }
-              chrome.storage.local.set({ [listName]: updatedList }, () => {
-                renderList(listName, ulId, filter);
-              });
-            });
-          };
+    // Make li a flex container
+    li.style.display = "flex";
+    li.style.alignItems = "center";
+    li.style.justifyContent = "space-between";
+    li.style.padding = "4px 8px";
+    li.style.boxSizing = "border-box";
+    li.style.width = "17cm";  // make li full width of ul
 
-          li.appendChild(delBtn);
-          ul.appendChild(li);
+    // Domain text container
+    const textSpan = document.createElement("span");
+    textSpan.textContent = domain;
+
+    // Make text scrollable horizontally
+    textSpan.style.flex = "1";
+    textSpan.style.overflowX = "auto";
+    textSpan.style.whiteSpace = "nowrap";
+    textSpan.style.marginRight = "5px"; // small gap before buttons
+    textSpan.style.textOverflow = "clip";
+    textSpan.style.scrollbarColor = "wheat #1e1e1e";
+
+    // Button container
+    const btnGroup = document.createElement("div");
+    btnGroup.style.display = "inline-flex";
+
+    // Arrow button
+    const arrowBtn = document.createElement("button");
+    arrowBtn.textContent = listName === "whitelist" ? "\u2192" : "\u2190";
+    arrowBtn.title = listName === "whitelist" ? "Move to blacklist" : "Move to whitelist";
+    arrowBtn.style.marginLeft = "15px";
+    arrowBtn.onclick = () => {
+      chrome.storage.local.get(["whitelist", "blacklist"], (res) => {
+        let whitelist = res.whitelist || [];
+        let blacklist = res.blacklist || [];
+
+        if(listName === "whitelist"){
+          whitelist = whitelist.filter(e => e.domain !== domain);
+          if(!blacklist.includes(domain)) blacklist.push(domain);
+        } else {
+          blacklist = blacklist.filter(d => d !== domain);
+          const expiry = Date.now() + 30*24*60*60*1000;
+          if(!whitelist.some(e => e.domain === domain)) whitelist.push({domain, expiry});
+        }
+
+        chrome.storage.local.set({whitelist, blacklist}, () => {
+          renderList("whitelist", "whitelist-list");
+          renderList("blacklist", "blacklist-list");
         });
+      });
+    };
+
+    // Remove button
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "Remove";
+    delBtn.style.marginLeft = "10px"; // keep arrow 10px left
+    delBtn.onclick = () => {
+      chrome.storage.local.get([listName], (res) => {
+        let updated = res[listName] || [];
+        if(listName === "whitelist") updated = updated.filter(e => e.domain !== domain);
+        else updated = updated.filter(d => d !== domain);
+        chrome.storage.local.set({[listName]: updated}, () => {
+          renderList(listName, li.parentElement.id);
+        });
+      });
+    };
+
+    // Append buttons and text
+    btnGroup.appendChild(arrowBtn);
+    btnGroup.appendChild(delBtn);
+
+    li.appendChild(textSpan);
+    li.appendChild(btnGroup);
+
+    ul.appendChild(li);
+  });
+
     });
   }
 
@@ -72,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.storage.local.set({ whitelist, blacklist }, () => {
         input.value = "";
         renderList("whitelist", "whitelist-list");
-        renderList("blacklist", "blacklist-list"); // refresh both
+        renderList("blacklist", "blacklist-list");
       });
     });
   };
@@ -97,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.storage.local.set({ whitelist, blacklist }, () => {
         input.value = "";
         renderList("blacklist", "blacklist-list");
-        renderList("whitelist", "whitelist-list"); // refresh both
+        renderList("whitelist", "whitelist-list");
       });
     });
   };

@@ -6,3 +6,13 @@ env/
 /datasets/training_dataset/*
 /datasets/dataset_with_features/*
 **/__pycache__/
+env
+# environment / secrets
+.env
+.env.*
+env/
+scripts/apis/env
+scripts/apis/*.env
+*.key
+*.pem
+*.license

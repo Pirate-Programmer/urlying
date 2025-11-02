@@ -2,42 +2,69 @@ import whois
 import json
 import os
 from datetime import datetime
+import socket
+from ipwhois import IPWhois
 
 def serialize(obj):
-    """Convert non-serializable objects like datetime to string."""
     if isinstance(obj, (datetime, )):
         return obj.isoformat()
     if isinstance(obj, set):
         return list(obj)
     return str(obj)
 
+def get_asn(domain):
+    try:
+        # Resolve domain to IP
+        ip = socket.gethostbyname(domain)
+        
+        # Lookup ASN info
+        obj = IPWhois(ip)
+        results = obj.lookup_rdap(asn_methods=["whois", "http"])
+        
+        return {
+            "asn": results.get("asn"),
+            "asn_country_code": results.get("asn_country_code"),
+        }
+    except Exception as e:
+        return {"ip": None, "asn": None, "error": str(e)}
+
+
 def get_whois_info(domain):
-    """Fetch WHOIS info for a given domain."""
     try:
         w = whois.whois(domain)
-        return {
-            "domain_name": w.domain_name,
-            "registrar": w.registrar,
+
+        # Normalize domain name
+        domain_name = w.domain_name[0] if isinstance(w.domain_name, list) else w.domain_name
+
+        # Base WHOIS data
+        whois_data = {
+            "domain_name": domain_name,
             "creation_date": w.creation_date,
             "expiration_date": w.expiration_date,
             "updated_date": w.updated_date,
-            "name_servers": w.name_servers,
+            "dnssec": w.dnssec,
+            "status": w.status,
             "emails": w.emails,
-            "status": w.status
+            "registrar": w.registrar
         }
+
+        # Add ASN info
+        asn_info = get_asn(domain_name)
+        whois_data.update(asn_info)
+
+        return whois_data
+
     except Exception as e:
         return {"error": str(e)}
 
 def save_whois_info(domain, filename="whois.json"):
-    """Save WHOIS info into project json folder."""
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    json_dir = os.path.join(project_root, "json")
-    os.makedirs(json_dir, exist_ok=True)
-
-    file_path = os.path.join(json_dir, filename)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, filename)
     info = get_whois_info(domain)
-
     with open(file_path, "w") as f:
-        json.dump({domain: info}, f, indent=4, default=serialize)
+        json.dump(info, f, indent=4, default=serialize)  # <-- use default=serialize
 
     return file_path
+
+# https://pam2024.cs.northwestern.edu/pdfs/paper-89.pdf
+# https://bpb-us-e2.wpmucdn.com/faculty.sites.uci.edu/dist/5/764/files/2021/02/ndss21.pdf

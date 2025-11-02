@@ -2,8 +2,7 @@ let lastSelectedText = "";
 let lastLinkUrl = "";
 const risk_score_threshold = 70;
 
-
-// --- Safe defaults ---
+// default state if blacklist and whitelist are empty
 const DEFAULT_STATE = {
   blacklist: [],
   whitelist: [], // now stores {domain, expiry}
@@ -33,7 +32,7 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// ✅ On startup, rebuild rules from current lists
+// On startup, rebuild rules from current lists
 chrome.runtime.onStartup.addListener(async () => {
   await cleanExpiredWhitelist();
   await rebuildRules();
@@ -70,7 +69,6 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
     await rebuildRules();
   }
 });
-
 
 // ---------------------------
 // Fast flag + backend processing

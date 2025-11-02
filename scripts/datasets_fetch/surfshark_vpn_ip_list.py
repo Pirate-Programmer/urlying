@@ -2,7 +2,6 @@ import requests
 import hashlib
 import os
 import csv
-import zlib
 from io import StringIO
 
 # SurfsharkVPN IP list
@@ -16,52 +15,42 @@ HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 def get_md5(data):
     return hashlib.md5(data).hexdigest()
 
-def get_crc32(data):
-    return format(zlib.crc32(data) & 0xffffffff, "08x")
-
 def load_previous_hash():
     if os.path.exists(HASH_FILE):
-        with open(HASH_FILE, "r") as f:
+        with open(HASH_FILE, "r", encoding="utf-8") as f:
             return f.read().strip()
     return ""
 
 def save_new_hash(hash_val):
     os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
-    with open(HASH_FILE, "w") as f:
+    with open(HASH_FILE, "w", encoding="utf-8") as f:
         f.write(hash_val)
 
 def ensure_dirs():
     os.makedirs(os.path.dirname(SAVE_AS), exist_ok=True)
+    os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
 
 # === Processing ===
 def process_csv(content):
     decoded = content.decode("utf-8", errors="replace")
     reader = csv.DictReader(StringIO(decoded))
 
-    processed_rows = []
+    processed_ips = []
     for row in reader:
-        ip = row.get("dest_ip", "").strip()
+        ip = (row.get("dest_ip") or row.get("ip") or "").strip()
         if ip:
-            processed_rows.append({
-                "ip": ip,
-                "hash": get_crc32(ip.encode("utf-8"))
-            })
+            processed_ips.append(ip)
 
-    # Remove duplicates
-    seen = {}
-    for entry in processed_rows:
-        seen[entry["ip"]] = entry
-    unique_rows = list(seen.values())
+    # dedupe and sort
+    unique_sorted_ips = sorted(set(processed_ips))
 
-    # Sort by hash for binary search
-    unique_rows.sort(key=lambda x: x["hash"])
-
-    with open(SAVE_AS, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["ip", "hash"])
+    with open(SAVE_AS, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["ip"])
         writer.writeheader()
-        writer.writerows(unique_rows)
+        for ip in unique_sorted_ips:
+            writer.writerow({"ip": ip})
 
-    print(f"[✓] Processed & saved: {SAVE_AS}")
+    print(f"[✓] Processed & saved: {SAVE_AS} (count: {len(unique_sorted_ips)})")
 
 # === Fetching ===
 def fetch_file():

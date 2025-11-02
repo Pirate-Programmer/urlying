@@ -1,148 +1,148 @@
-tld,metadata,metadata_comment
-icu,Critical,Often abused by malicious actors  particularly for phishing and malware distribution.
-ml,Critical,Frequently abused TLD
-py,Critical,Country code TLD for Paraguay - can also be associated with Python scripts - used for phishing and abused by attackers
-tk,Critical,Notorious for being used in phishing campaigns because of free registration.
-xn--2scrj9c,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--5tzm5g,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--6frz82g,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--czrs0t,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--fjq720a,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--s9brj9c,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--unup4y,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--vhquv,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xn--xhq521b,Critical,Non-Latin script TLD - potential for phishing and targeted scams
-xyz,Critical,Historically abused due to its inexpensive registration costs.
-am,High,Abused by attackers
-bd,High,Abused by attackers
-best,High,Abused by attackers
-bid,High,Frequently used in auction frauds.
-cd,High,Abused by attackers
-cfd,High,Abused by attackers
-cf,High,Abused by attackers
-click,High,Abused by attackers
-cyou,High,Abused by attackers
-date,High,Often associated with spam and phishing.
-download,High,Commonly used for distributing malware.
-faith,High,Often used in religious scams.
-ga,High,Abused by attackers
-gq,High,Abused by attackers
-help,High,Abused by attackers
-info,High,Frequently abused TLD - High volume
-ke,High,Abused by attackers
-loan,High,Often associated with financial scams.
-men,High,Associated with spam and malicious sites.
-porn,High,Adult content TLD -  legal and reputational risks.
-pw,High,Country code TLD for Palau - can also be associated with the word 'password' - has been abused by attackers.
-quest,High,Abused by attackers
-rest,High,Abused by attackers
-review,High,Often used for fake review sites and scams.
-sbs,High,Abused by attackers
-sex,High,Adult content TLD -  legal and reputational risks.
-su,High,Old USSR country code -  still in use with a mixed risk profile.
-support,High,Abused by attackers
-win,High,Frequently used for gambling and scamming.
-ws,High,Abused by attackers
-xn--*,High,All Non-Latin script TLD - potential for phishing and targeted scams (optional)
-xxx,High,Adult content TLD high reputational risks.
-zip,HIgh,High potential for phishing attempts
-zw,High,Country code TLD - abused by malwares
-asia,Low,Abused by attackers
-autos,Low,Abused by attackers
-bar,Low,Abused by attackers
-bio,Low,Abused by attackers
-blue,Low,Abused by attackers
-buzz,Low,Abused by attackers
-casa,Low,Abused by attackers
-cc,Low,Abused by attackers
-cfd,Low,Abused by attackers
-charity,Low,Abused by attackers
-club,Low,Abused by attackers
-country,Low,Abused by attackers
-dad,Low,Abused by attackers
-degree,Low,Abused by attackers
-earth,Low,Abused by attackers
-email,Low,Abused by attackers
-fit,Low,Abused by attackers
-fund,Low,Abused by attackers
-futbol,Low,Abused by attackers
-fyi,Low,Abused by attackers
-gdn,Low,Abused by attackers
-gives,Low,Abused by attackers
-gold,Low,Abused by attackers
-guru,Low,Abused by attackers
-haus,Low,Abused by attackers
-homes,Low,Abused by attackers
-id,Low,Abused by attackers
-in,Low,Abused by attackers
-ink,Low,Abused by attackers
-jetzt,Low,Abused by attackers
-kim,Low,Abused by attackers
-lat,Low,Abused by attackers
-life,Low,Abused by attackers
-live,Low,Abused by attackers
-lol,Low,Abused by attackers
-ltd,Low,Abused by attackers
-makeup,Low,Abused by attackers
-mom,Low,Abused by attackers
-monster,Low,Abused by attackers
-mov,Low,Abused by attackers
-ninja,Low,Abused by attackers
-online,Low,Abused by attackers
-pics,Low,Potential misuse for adult content or phishing.
-plus,Low,Abused by attackers
-pro,Low,Abused by attackers
-pub,Low,Abused by attackers
-racing,Low,Abused by attackers
-realtor,Low,Abused by attackers
-ren,Low,Abused by attackers
-rip,High,Abused by attackers
-rocks,Low,Abused by attackers
-rodeo,Low,Abused by attackers
-run,Low,Abused by attackers
-shop,Low,Abused by attackers
-skin,Low,Abused by attackers
-space,Low,Abused by attackers
-support,Low,Abused by attackers
-tokyo,Low,Abused by attackers
-uno,Low,Abused by attackers
-vip,Low,Abused by attackers
-wang,Low,Abused by attackers
-wiki,Low,Abused by attackers
-work,Low,Abused by attackers
-world,Low,Abused by attackers
-xin,Low,Abused by attackers
-zone,Low,Abused by attackers
-accountant,Medium,misused for financial scams.
-accountants,Medium,misused for financial scams.
-adult,Medium,Adult content TLD high reputational risks.
-adult,Medium,TLD associated with adult content but has been used for deceptive malicious content distribution.
-bet,Medium,Abused by attackers
-cam,Medium,Adult content TLD high reputational risks.
-casino,Medium,Higher risk due to association with gambling.
-cm,Medium,Abused by attackers
-cn,Medium,Abused by attackers
-cricket,Medium,Abused by attackers
-ge,Medium,Abused by attackers
-il,Medium,Abused by attackers
-link,Medium,Abused by attackers
-lk,Medium,Abused by attackers
-me,Medium,Abused by attackers
-ng,Medium,Abused by attackers
-party,Medium,Often used for adult content and malware distribution.
-pk,Medium,Abused by attackers
-poker,Medium,Gambling related TLD -  legal implications.
-ru,Medium,Frequently abused TLD - huge volume - false positives expected
-sa,Medium,Abused by attackers
-science,Medium,Has been used for academic frauds.
-sexy,Medium,Adult content TLD -  legal and reputational risks.
-site,Medium,Abused by attackers
-stream,Medium,Often misused for pirated streaming.
-th,Medium,Abused by attackers
-tn,Medium,Abused by attackers
-top,Medium,Abused by attackers
-trade,Medium,Commonly used for trade scams.
-tube,Medium,Adult content TLD high reputational risks.
-webcam,Medium,Adult content TLD high reputational risks.
-webcam,Medium,Potential misuse for adult content or phishing.
-wtf,Medium,Abused by attackers
+tld,metadata,metadata_comment,hash
+makeup,Low,Abused by attackers,25978524
+skin,Low,Abused by attackers,41510942
+help,High,Abused by attackers,143088812
+haus,Low,Abused by attackers,226954450
+men,High,Associated with spam and malicious sites.,231625436
+am,High,Abused by attackers,238835196
+racing,Low,Abused by attackers,356993284
+lol,Low,Abused by attackers,418230605
+gdn,Low,Abused by attackers,423814731
+life,Low,Abused by attackers,432881406
+adult,Medium,TLD associated with adult content but has been used for deceptive malicious content distribution.,439284353
+adult,Medium,Adult content TLD high reputational risks.,439284353
+ren,Low,Abused by attackers,448050833
+xxx,High,Adult content TLD high reputational risks.,479980042
+faith,High,Often used in religious scams.,485900449
+top,Medium,Abused by attackers,517545930
+xn--*,High,All Non-Latin script TLD - potential for phishing and targeted scams (optional),528325289
+wiki,Low,Abused by attackers,583916550
+rocks,Low,Abused by attackers,601965684
+monster,Low,Abused by attackers,610191092
+space,Low,Abused by attackers,695386426
+gives,Low,Abused by attackers,719605583
+xn--5tzm5g,Critical,Non-Latin script TLD - potential for phishing and targeted scams,857941536
+link,Medium,Abused by attackers,917281265
+sbs,High,Abused by attackers,925968056
+world,Low,Abused by attackers,980881731
+cm,Medium,Abused by attackers,1007302526
+kim,Low,Abused by attackers,1023357144
+wtf,Medium,Abused by attackers,1098768216
+ninja,Low,Abused by attackers,1105244785
+zip,HIgh,High potential for phishing attempts,1109235014
+quest,High,Abused by attackers,1125644311
+cd,High,Abused by attackers,1171689434
+autos,Low,Abused by attackers,1174433324
+py,Critical,Country code TLD for Paraguay - can also be associated with Python scripts - used for phishing and abused by attackers,1195352721
+gold,Low,Abused by attackers,1202265425
+th,Medium,Abused by attackers,1239631719
+bid,High,Frequently used in auction frauds.,1257419763
+vip,Low,Abused by attackers,1258777634
+earth,Low,Abused by attackers,1260746464
+xn--vhquv,Critical,Non-Latin script TLD - potential for phishing and targeted scams,1263933440
+rip,High,Abused by attackers,1276036350
+gq,High,Abused by attackers,1281863221
+fit,Low,Abused by attackers,1347160907
+run,Low,Abused by attackers,1349952704
+ga,High,Abused by attackers,1372634705
+lk,Medium,Abused by attackers,1391562372
+live,Low,Abused by attackers,1393503407
+work,Low,Abused by attackers,1397647488
+country,Low,Abused by attackers,1400097126
+ge,Medium,Abused by attackers,1455258184
+futbol,Low,Abused by attackers,1462915269
+pub,Low,Abused by attackers,1514421381
+zw,High,Country code TLD - abused by malwares,1516791580
+bd,High,Abused by attackers,1556987547
+in,Low,Abused by attackers,1609338446
+webcam,Medium,Adult content TLD high reputational risks.,1651271957
+webcam,Medium,Potential misuse for adult content or phishing.,1651271957
+realtor,Low,Abused by attackers,1687564583
+su,High,Old USSR country code -  still in use with a mixed risk profile.,1705295225
+science,Medium,Has been used for academic frauds.,1729573288
+site,Medium,Abused by attackers,1766001124
+ng,Medium,Abused by attackers,1769054253
+pro,Low,Abused by attackers,1807013631
+mom,Low,Abused by attackers,1848175596
+accountants,Medium,misused for financial scams.,1868068224
+bar,Low,Abused by attackers,1996459178
+xn--6frz82g,Critical,Non-Latin script TLD - potential for phishing and targeted scams,2010496816
+download,High,Commonly used for distributing malware.,2015003248
+review,High,Often used for fake review sites and scams.,2034467270
+fyi,Low,Abused by attackers,2038986179
+asia,Low,Abused by attackers,2061703251
+xn--czrs0t,Critical,Non-Latin script TLD - potential for phishing and targeted scams,2080465061
+ru,Medium,Frequently abused TLD - huge volume - false positives expected,2092928056
+trade,Medium,Commonly used for trade scams.,2115650406
+casa,Low,Abused by attackers,2137349405
+sa,Medium,Abused by attackers,2138990852
+support,High,Abused by attackers,2147806117
+support,Low,Abused by attackers,2147806117
+casino,Medium,Higher risk due to association with gambling.,2198816663
+charity,Low,Abused by attackers,2206054174
+dad,Low,Abused by attackers,2259043657
+buzz,Low,Abused by attackers,2270249841
+party,Medium,Often used for adult content and malware distribution.,2308263648
+pics,Low,Potential misuse for adult content or phishing.,2325845965
+uno,Low,Abused by attackers,2332576073
+xn--xhq521b,Critical,Non-Latin script TLD - potential for phishing and targeted scams,2347548741
+plus,Low,Abused by attackers,2431836401
+cyou,High,Abused by attackers,2449286901
+lat,Low,Abused by attackers,2499937429
+ink,Low,Abused by attackers,2572801860
+homes,Low,Abused by attackers,2645347283
+online,Low,Abused by attackers,2654125802
+blue,Low,Abused by attackers,2654390964
+tn,Medium,Abused by attackers,2692801106
+pw,High,Country code TLD for Palau - can also be associated with the word 'password' - has been abused by attackers.,2693238678
+zone,Low,Abused by attackers,2699804679
+cn,Medium,Abused by attackers,2768463556
+degree,Low,Abused by attackers,2812505443
+date,High,Often associated with spam and phishing.,2862495610
+cf,High,Abused by attackers,2883120886
+rodeo,Low,Abused by attackers,2888573744
+me,Medium,Abused by attackers,2891092674
+shop,Low,Abused by attackers,2892647586
+best,High,Abused by attackers,2903340623
+win,High,Frequently used for gambling and scamming.,2966043510
+il,Medium,Abused by attackers,2984439650
+xn--s9brj9c,Critical,Non-Latin script TLD - potential for phishing and targeted scams,2999650221
+pk,Medium,Abused by attackers,3028734937
+wang,Low,Abused by attackers,3054589180
+club,Low,Abused by attackers,3102619762
+xn--unup4y,Critical,Non-Latin script TLD - potential for phishing and targeted scams,3114438456
+click,High,Abused by attackers,3136733728
+xin,Low,Abused by attackers,3147201611
+poker,Medium,Gambling related TLD -  legal implications.,3199622068
+porn,High,Adult content TLD -  legal and reputational risks.,3203638454
+ltd,Low,Abused by attackers,3204510437
+id,Low,Abused by attackers,3208210256
+xn--2scrj9c,Critical,Non-Latin script TLD - potential for phishing and targeted scams,3272899034
+loan,High,Often associated with financial scams.,3318942979
+jetzt,Low,Abused by attackers,3357047573
+info,High,Frequently abused TLD - High volume,3414765911
+cfd,Low,Abused by attackers,3433612555
+cfd,High,Abused by attackers,3433612555
+tokyo,Low,Abused by attackers,3460812016
+tk,Critical,Notorious for being used in phishing campaigns because of free registration.,3505002205
+ml,Critical,Frequently abused TLD,3582863974
+icu,Critical,Often abused by malicious actors  particularly for phishing and malware distribution.,3606615146
+cricket,Medium,Abused by attackers,3607717403
+sexy,Medium,Adult content TLD -  legal and reputational risks.,3639468995
+cc,Low,Abused by attackers,3685882489
+xn--fjq720a,Critical,Non-Latin script TLD - potential for phishing and targeted scams,3688771245
+fund,Low,Abused by attackers,3700571664
+bio,Low,Abused by attackers,3709889147
+mov,Low,Abused by attackers,3830260224
+accountant,Medium,misused for financial scams.,3882357123
+email,Low,Abused by attackers,3885137012
+ws,High,Abused by attackers,3903577416
+guru,Low,Abused by attackers,3907593434
+xyz,Critical,Historically abused due to its inexpensive registration costs.,3951999591
+sex,High,Adult content TLD -  legal and reputational risks.,4020398583
+stream,Medium,Often misused for pirated streaming.,4041850396
+ke,High,Abused by attackers,4194841924
+cam,Medium,Adult content TLD high reputational risks.,4197837672
+bet,Medium,Abused by attackers,4226870427
+rest,High,Abused by attackers,4245955024
+tube,Medium,Adult content TLD high reputational risks.,4247838366
