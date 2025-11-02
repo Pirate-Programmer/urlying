@@ -7,8 +7,6 @@ class GSB:
         self.source="GSB"
         self.GSB_URL = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={self.API_KEY}"
         
-
-
     """return -> dict
         if success == true, unsafe : bool, source : str
         if success == false , error : str, source : str
