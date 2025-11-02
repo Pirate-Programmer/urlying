@@ -1,42 +1,44 @@
 {
+    "domain": "hanime.tv",
     "A": {
         "records": [
-            "91.204.226.44"
+            "188.114.96.4",
+            "188.114.97.4"
         ],
-        "ttl": 58
+        "ttl": 300
     },
     "AAAA": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "2606:4700:3030::ac43:b591",
+            "2606:4700:3037::6815:1264"
+        ],
+        "ttl": 300
     },
     "CNAME": {
         "records": [],
         "ttl": null
     },
     "MX": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "20 mailsec.protonmail.ch.",
+            "10 mail.protonmail.ch."
+        ],
+        "ttl": 300
     },
     "NS": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "kallie.ns.cloudflare.com.",
+            "casey.ns.cloudflare.com."
+        ],
+        "ttl": 86400
     },
     "TXT": {
         "records": [
-            "\"\""
+            "\"protonmail-verification=dca68bae2b6938bc3550b92290b1c3167fe01c81\"",
+            "\"v=spf1 include:_spf.protonmail.ch mx ~all\"",
+            "\"verify_1ff6388bc3911c9feb81e53182150b0d\"",
+            "\"google-site-verification=yyybx20oGIrkCb8-mkek0JqoLHiVQV7IQ5pYmnsb3Rc\""
         ],
-        "ttl": 60
-    },
-    "SOA": {
-        "records": [],
-        "ttl": null
-    },
-    "PTR": {
-        "records": [],
-        "ttl": null
-    },
-    "SRV": {
-        "records": [],
-        "ttl": null
+        "ttl": 300
     }
 }

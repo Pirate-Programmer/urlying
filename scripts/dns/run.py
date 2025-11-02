@@ -6,5 +6,5 @@ def run(domain):
     print(f"DNS info for {domain} saved in {output_file}")
 
 if __name__ == "__main__":
-    host = sys.argv[1] if len(sys.argv) > 1 else "4d4oszoxj.duckdns.org"
+    host = sys.argv[1] if len(sys.argv) > 1 else "hanime.tv"
     run(host)

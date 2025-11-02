@@ -1,10 +1,27 @@
 import re
 import socket
 import os
-import json
+import json, pandas as pd
+
+def tld_score(domain) :
+    parts = domain.split('.')
+    if len(parts) < 2:
+        return 0
+    tld = parts[-1]
+    base_path = os.path.dirname(__file__) 
+    csv_path = os.path.join(base_path, "..", "..", "datasets", "tlds", "suspicious_tlds.csv")
+    csv_path = os.path.abspath(csv_path)  
+
+    sus_tlds = pd.read_csv(csv_path)
+    sus_tlds = set(sus_tlds)
+
+    if tld in sus_tlds:
+        return 10
+    
+    return 0
 
 def ttl_a(ttl):
-    if ttl is None:
+    if ttl is None: # https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/
         return 5
     if ttl <= 60:
         return 20
@@ -15,7 +32,7 @@ def ttl_a(ttl):
     else:
         return 5
 
-def ttl_aaaa(ttl):
+def ttl_aaaa(ttl): # https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/
     if ttl is None:
         return 5
     if ttl <= 60:
@@ -73,7 +90,7 @@ def ttl_txt(ttl):
 def aaaa_score(records):
     if not records:
         return 0
-    if len(records) > 1:
+    if len(records) > 2:
         return 10  # suspicious: multiple IPv6 addresses
     return 0
 
@@ -213,7 +230,8 @@ def txt_score(records):
         "apple-domain-verification", "ms=", "facebook-domain-verification",
         "yandex-verification", "onetrust-domain-verification",
         "cisco-ci-domain-verification", "docusign", "globalsign-smime-dv",
-        "_amazonses", "v=bimi1", "sendgrid", "mailchimp", "mailgun"
+        "_amazonses", "v=bimi1", "sendgrid", "mailchimp", "mailgun",
+        "protonmail-verification"
     ]
 
     for txt in records:
@@ -245,6 +263,7 @@ def score_computer():
     except Exception as e:
         return {"error": "failed to load dns.json", "exception": str(e)}
 
+    domain = data.get("domain")
     a_records, a_records_ttl       = (data.get("A") or {}).get("records") or [], (data.get("A") or {}).get("ttl")
     aaaa_records, aaaa_records_ttl = (data.get("AAAA") or {}).get("records") or [], (data.get("AAAA") or {}).get("ttl")
     cname_records, cname_records_ttl = (data.get("CNAME") or {}).get("records") or [], (data.get("CNAME") or {}).get("ttl")
@@ -254,6 +273,7 @@ def score_computer():
 
     score = 0
 
+    score += tld_score(domain)
     if a_records:
         score += ttl_a(a_records_ttl)
 
