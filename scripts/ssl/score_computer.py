@@ -2,20 +2,9 @@ import os, pandas as pd, zlib, json
 from datetime import datetime, timezone
 
 def cipher_suite(cipher_suite) : 
+    cipher_suite = cipher_suite.replace("-", "_")
     df = pd.read_csv("./../../datasets/cipher_suites/cipher_suites_iana.csv", dtype={"hash": int})
-    target_hash = zlib.crc32(cipher_suite.encode("utf-8")) & 0xffffffff
-    left, right = 0, len(df) - 1
-
-    while left <= right:
-        mid = (left + right) // 2
-        mid_hash = df.loc[mid, "hash"]
-        if mid_hash == target_hash:
-            return df.loc[mid, "Recommended"]
-        elif mid_hash < target_hash:
-            left = mid + 1
-        else:
-            right = mid - 1
-
+    
     return None
 
 def cipher_suite_score(cipher):

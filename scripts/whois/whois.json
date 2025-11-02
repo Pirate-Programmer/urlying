@@ -1,12 +1,17 @@
 {
-    "domain_name": "hianime.to",
-    "creation_date": "2023-08-26T05:44:12",
-    "expiration_date": "2027-08-26T05:44:12",
-    "updated_date": "2025-07-01T03:11:27",
+    "domain_name": "SECURE1STBANK.COM",
+    "creation_date": "2023-07-19T21:23:17",
+    "expiration_date": "2026-07-19T21:23:17",
+    "updated_date": "2025-07-20T12:01:37",
     "dnssec": "unsigned",
-    "status": "ok https://icann.org/epp#ok",
-    "emails": "info@tonicregistry.to",
-    "registrar": "Government of Kingdom of Tonga",
-    "asn": "13335",
+    "status": [
+        "clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited",
+        "clientRenewProhibited https://icann.org/epp#clientRenewProhibited",
+        "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
+        "clientUpdateProhibited https://icann.org/epp#clientUpdateProhibited"
+    ],
+    "emails": "abuse@godaddy.com",
+    "registrar": "GoDaddy.com, LLC",
+    "asn": "16509",
     "asn_country_code": "US"
 }

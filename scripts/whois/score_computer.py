@@ -1,4 +1,4 @@
-import os
+import os, re
 import json
 from datetime import datetime, timezone
 import pandas as pd
@@ -62,18 +62,26 @@ def expiry_score(expiration_date):
 
 def registrar_score(registrar):
     if not registrar:
-        return  0
-    
-    registrars = pd.read_csv("./../../datasets/icann_registrars/icann_registrars.csv")
+        return 0
+
+    base_path = os.path.dirname(__file__) 
+    csv_path = os.path.join(base_path, "..", "..", "datasets", "icann_registrars", "icann_registrars.csv")
+    csv_path = os.path.abspath(csv_path)  
+
+    registrars = pd.read_csv(csv_path)
     reg = set(registrars["registrars"])
     if registrar in reg:
         return -5
     return 20
 
 def status_score(status):
-    if len(status) == 0:
+    if not status:
         return 0
-    
+
+    # Ensure status is a list
+    if isinstance(status, str):
+        status = [status]
+
     score = 0
     
     safe = ["ok", "clientTransferProhibited", "clientDeleteProhibited", "clientUpdateProhibited",
@@ -83,7 +91,9 @@ def status_score(status):
                   "pendingTransfer", "clientRenewProhibited", "serverRenewProhibited"]
 
     for x in status:
-        cleaned_status = x.strip().split()[0] 
+        if not x or len(x.strip()) == 0:
+            continue
+        cleaned_status = x.strip().split()[0]
         if cleaned_status in safe:
             score -= 5
         elif cleaned_status in malicious:
@@ -91,38 +101,98 @@ def status_score(status):
         elif cleaned_status in suspicious:
             score += 5
         else:
-            score = score
+            score += 10
 
     return score
 
-def email_score(emails, registrar):
+def email_score(emails, registrar, hostname=None):
     if not emails:
         return 5
-    
-    registrar_word = ""
+
+    # Normalize and split registrar into meaningful parts
+    registrar_parts = set()
     if registrar:
-        registrar_word = registrar.split()[0].lower().strip()  # first word, lowercase
+        reg = registrar.lower()
+        # Replace punctuation except dot and dash with space (commas, parentheses, slashes, etc.)
+        reg = re.sub(r"[^a-z0-9\.\-\s]", " ", reg)
+        # Replace multiple spaces with single space, then split
+        for part in re.split(r"\s+", reg.strip()):
+            if part:
+                registrar_parts.add(part)
+
+    # Normalize hostname similarly (store as string)
+    hostname_norm = None
+    if hostname:
+        hn = hostname.lower().strip()
+        hn = re.sub(r"[^a-z0-9\.\-]", "", hn)
+        if hn:
+            hostname_norm = hn
 
     score = 0
 
+    # regex to extract domain part after '@' (handles <Name> formats too)
+    email_domain_re = re.compile(r"@([A-Za-z0-9\.\-]+)")
+
     for email in emails:
         try:
-            # Extract domain after '@'
-            parts = email.split("@")
-            if len(parts) == 2:
-                domain_part = parts[1].lower()
+            if not email or not isinstance(email, str):
+                score += 5
+                continue
 
-                # Check substring match (not exact)
-                if registrar_word and registrar_word in domain_part:
-                    score -= 5
-                else:
-                    score += 5
+            m = email_domain_re.search(email)
+            if not m:
+                # no domain found -> treat as suspicious/invalid
+                score += 5
+                continue
+
+            domain_part = m.group(1).lower().strip()
+
+            # Clean domain (strip trailing punctuation)
+            domain_part = domain_part.strip(" .,-_")
+
+            matched = False
+
+            # Check registrar parts as substrings in the domain
+            for part in registrar_parts:
+                # skip trivial parts
+                if len(part) < 2:
+                    continue
+                if part in domain_part:
+                    matched = True
+                    break
+
+            # Check hostname if not matched yet
+            if not matched and hostname_norm:
+                if hostname_norm in domain_part:
+                    matched = True
+
+            if matched:
+                score -= 5
             else:
-                score += 5  # invalid email format
+                score += 5
+
         except Exception:
             score += 5
-    
+
     return score
+
+def updated_date_score(updated_date):
+    now = datetime.now(timezone.utc)
+    dt = parse_iso(updated_date)
+    if not dt:
+        return 0   # No penalty because some WHOIS hides this
+
+    days = (now - dt).days
+
+    # Recently updated (< 90 days) often legit
+    if days <= 90:
+        return -5  
+    
+    # Updated a long time back (> 2 years) suspicious
+    if days > 730:
+        return 10  
+    
+    return 2  # Slight neutral suspicion otherwise
 
 def dnssec_score(dnssec):
     if dnssec == "signed":
@@ -133,7 +203,11 @@ def asn_score(asn):
     if asn is None:
         return 0
     
-    asns = pd.read_csv("./../../datasets/asns/bad_asns.csv")
+    base_path = os.path.dirname(__file__) 
+    csv_path = os.path.join(base_path, "..", "..", "datasets", "bad_asns", "bad_asns.csv")
+    csv_path = os.path.abspath(csv_path)  
+
+    asns = pd.read_csv(csv_path)
     asns = set(asns)
 
     if asn in asns:
@@ -141,56 +215,52 @@ def asn_score(asn):
     
     return 0
 
-def whois_score_computer(whois_json_path):
+def whois_score_computer():
+    base_path = os.path.dirname(__file__)
+    json_path = os.path.join(base_path, "whois.json")
 
-    with open(whois_json_path, "r", encoding="utf-8") as f:
-        all_domains = json.load(f)
+    # Load json
+    try:
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)  
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Could not find {json_path}. Put whois.json next to this script.")
+    except Exception as e:
+        return {"error": "failed to load whois.json", "exception": str(e)}
 
-    output = {}
-    for domain, data in all_domains.items():
-        baseline = 50
-        breakdown = {}
-
-        d_age = domain_age_score(data.get("creation_date"))
-        breakdown["age"] = d_age
-
-        d_exp = expiry_score(data.get("expiration_date"))
-        breakdown["expiry"] = d_exp
-
-        d_reg = registrar_score(data.get("registrar"))
-        breakdown["registrar"] = d_reg
-
-        d_stat = status_score(data.get("status"))
-        breakdown["status"] = d_stat
-
-        d_dns = dnssec_score(data.get("dnssec"))
-        breakdown["dnssec"] = d_dns
-
-        d_email = email_score(data.get("emails"), data.get("registrar"))
-        breakdown["emails"] = d_email
-
-        d_asn = asn_score(data.get("asn"))
-        breakdown["asn"] = d_asn
-
-        raw_sum = d_age + d_exp + d_reg + d_stat + d_dns + d_email + d_asn
-        score = baseline + raw_sum
-
-        if score >= 75:
-            label = "malicious"
-        elif score >= 50:
-            label = "suspicious"
-        elif score >= 25:
-            label = "neutral"
+    score = 0
+    domain = data.get("domain_name")
+    creation_date = data.get("creation_date")
+    expiration_date = data.get("expiration_date")
+    updated_date = data.get("updated_date")
+    dnssec = data.get("dnssec")
+    status = data.get("status") or []
+    emails = data.get("emails") or []
+    registrar = data.get("registrar")
+    asn = data.get("asn")
+ 
+    if creation_date:
+        score += domain_age_score(creation_date)
+    if expiration_date:
+        score += expiry_score(expiration_date)
+    if updated_date:
+        score += updated_date_score(updated_date)
+    if registrar:
+        score += registrar_score(registrar)
+        if emails:
+            score += email_score(emails, registrar, domain)
         else:
-            label = "safe"
+            score += 10
+    if dnssec:
+        score += dnssec_score(dnssec)
+    if status:
+        score += status_score(status)
+    if asn:
+        score += asn_score(asn)
 
-        output[domain] = {
-            "score": int(score),
-            "label": label,
-            "breakdown": breakdown,
-            **data
-        }
+    return score
 
-    return output
+if __name__ == "__main__":
+    result = whois_score_computer()
+    print(json.dumps(result, indent=4))
 
-whois_score_computer("whois.json")

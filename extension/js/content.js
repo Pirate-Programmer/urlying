@@ -28,16 +28,23 @@ if (!window.__analyzeInjected) {
       // Update background
       chrome.runtime.sendMessage({ type: "updateSelection", text: currentSelection });
 
-      // Position Analyze button
-      if (currentSelection) {
-          let rect = range.getBoundingClientRect();
-          analyzeBtn.style.top = (window.scrollY + rect.bottom + 5) + "px";
-          analyzeBtn.style.left = (window.scrollX + rect.left) + "px";
-          analyzeBtn.style.position = "absolute";
-          analyzeBtn.style.display = "block";
-      } else {
-          analyzeBtn.style.display = "none";
-      }
+    // Position Analyze button only if extension is enabled
+    if (currentSelection) {
+        chrome.storage.local.get({ enableBlocking: true }, (data) => {
+            if (!data.enableBlocking) {
+                analyzeBtn.style.display = "none"; // Hide if extension off
+                return;
+            }
+
+            let rect = range.getBoundingClientRect();
+            analyzeBtn.style.top = (window.scrollY + rect.bottom + 5) + "px";
+            analyzeBtn.style.left = (window.scrollX + rect.left) + "px";
+            analyzeBtn.style.position = "absolute";
+            analyzeBtn.style.display = "block";
+        });
+    } else {
+        analyzeBtn.style.display = "none";
+    }
   });
 
 

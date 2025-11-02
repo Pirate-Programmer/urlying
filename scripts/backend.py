@@ -4,6 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 from apis.api_manager import ApiManager
 from urllib.parse import urlparse
 
+import subprocess
+
+
 app = Flask(__name__)
 api_manager = ApiManager()
 
@@ -38,6 +41,7 @@ async def run_apis(url, hostname, level):
     results_list = await asyncio.gather(*(call_api_async(api, url, hostname) for api in apis_to_call))
     return {api: res for api, res in zip(apis_to_call, results_list)}
 
+#this process the url to compture threat score
 @app.route("/check_url", methods=["POST"])
 def check_url():
     data = request.get_json()
@@ -45,6 +49,8 @@ def check_url():
     config = data.get("config", {})
     level = int(config.get("securityLevel", 3))
     print("Received URL:", url, "Security level:", level)
+    
+            
 
     parsed_url = urlparse(url)
     hostname = parsed_url.hostname
@@ -74,6 +80,21 @@ def check_url():
        # "api_results": api_results
     }
     return jsonify(result)
+
+
+#run the da run.py script on chrome launch
+@app.route("/update_dataset", methods=["POST"])
+def update_dataset():
+    print("\n\nYOO chrome just lauched less go!!\n\n")
+    return "IT WORKS"
+    # import subprocess, sys, os
+
+    # script_path = os.path.join(os.path.dirname(__file__), "run.py")
+    # try:
+    #     subprocess.Popen([sys.executable, script_path])
+    #     return {"status": "ok", "message": "Dataset update started"}, 200
+    # except Exception as e:
+    #     return {"status": "error", "message": str(e)}, 500
 
 
 if __name__ == "__main__":

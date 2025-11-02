@@ -1,15 +1,10 @@
-import dns.resolver
-import json
-import os
 
 import dns.resolver
-import dns.name
 import dns.query
 import dns.message
 import dns.flags
 import json
 import os
-import socket
 
 def _get_authoritative_ns_names(domain):
     """Return list of authoritative NS hostnames (may be empty)."""
@@ -36,19 +31,15 @@ def _ns_names_to_ips(ns_names):
     return ips
 
 def _query_authoritative_ttl(domain, rtype, ns_ip):
-    """
-    Query an authoritative server IP directly (recursion off) and return rrset ttl if present.
-    Returns None on failure / no answer.
-    """
+    """Query authoritative server and return TTL if found."""
     try:
         q = dns.message.make_query(domain, rtype, use_edns=True)
-        q.flags &= ~dns.flags.RD  # clear recursion desired
-        # try UDP first
+        q.flags &= ~dns.flags.RD
         try:
             resp = dns.query.udp(q, ns_ip, timeout=2.0)
         except (OSError, dns.exception.Timeout):
-            # fallback to TCP
             resp = dns.query.tcp(q, ns_ip, timeout=2.0)
+
         if resp and resp.answer:
             for rrset in resp.answer:
                 if rrset.rdtype == dns.rdatatype.from_text(rtype):
@@ -58,10 +49,10 @@ def _query_authoritative_ttl(domain, rtype, ns_ip):
     return None
 
 def get_dns_records(domain):
-    record_types = ["A", "AAAA", "CNAME", "MX", "NS", "TXT", "SOA", "PTR", "SRV"]
-    all_records = {}
+    # Removed SOA, PTR, SRV as requested
+    record_types = ["A", "AAAA", "CNAME", "MX", "NS", "TXT"]
+    all_records = {"domain": domain}  # Save domain in JSON
 
-    # get authoritative NS names once (used for TTL lookups)
     ns_names = _get_authoritative_ns_names(domain)
     ns_ips = _ns_names_to_ips(ns_names) if ns_names else []
 
@@ -70,7 +61,6 @@ def get_dns_records(domain):
             answers = dns.resolver.resolve(domain, rtype)
             records = [str(rdata) for rdata in answers]
 
-            # Try to obtain the original (configured) TTL from an authoritative server.
             ttl = None
             for ns_ip in ns_ips:
                 auth_ttl = _query_authoritative_ttl(domain, rtype, ns_ip)
@@ -78,7 +68,6 @@ def get_dns_records(domain):
                     ttl = auth_ttl
                     break
 
-            # Fallback: use resolver-provided rrset TTL (may be remaining TTL)
             if ttl is None:
                 ttl = getattr(answers.rrset, 'ttl', None)
 
@@ -86,7 +75,7 @@ def get_dns_records(domain):
                 "records": records,
                 "ttl": ttl
             }
-        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.NoNameservers, dns.exception.Timeout):
+        except:
             all_records[rtype] = {
                 "records": [],
                 "ttl": None
@@ -98,6 +87,7 @@ def save_dns_records(domain, filename="dns.json"):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, filename)
     info = get_dns_records(domain)
+
     with open(file_path, "w") as f:
         json.dump(info, f, indent=4)
 

@@ -6,3 +6,4 @@ env/
 /datasets/training_dataset/*
 /datasets/dataset_with_features/*
 **/__pycache__/
+env

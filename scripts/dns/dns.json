@@ -1,42 +1,41 @@
 {
+    "domain": "secure1stbank.com",
     "A": {
         "records": [
-            "49.44.79.236"
+            "15.197.225.128",
+            "3.33.251.168"
         ],
-        "ttl": 60
+        "ttl": 3600
     },
     "AAAA": {
         "records": [
-            "2405:200:1607:2820:41::36"
+            "64:ff9b::321:fba8",
+            "64:ff9b::fc5:e180"
         ],
-        "ttl": 60
+        "ttl": 3544
     },
     "CNAME": {
         "records": [],
         "ttl": null
     },
     "MX": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "0 secure1stbank-com.mail.protection.outlook.com."
+        ],
+        "ttl": 3600
     },
     "NS": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "ns65.domaincontrol.com.",
+            "ns66.domaincontrol.com."
+        ],
+        "ttl": 3600
     },
     "TXT": {
-        "records": [],
-        "ttl": null
-    },
-    "SOA": {
-        "records": [],
-        "ttl": null
-    },
-    "PTR": {
-        "records": [],
-        "ttl": null
-    },
-    "SRV": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "\"NETORGFT14078264.onmicrosoft.com\"",
+            "\"v=spf1 include:secureserver.net -all\""
+        ],
+        "ttl": 3600
     }
 }
