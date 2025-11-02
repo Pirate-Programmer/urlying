@@ -160,7 +160,7 @@ def whois_score_computer():
     # Load json
     try:
         with open(json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)  # single dict
+            data = json.load(f)  
     except FileNotFoundError:
         raise FileNotFoundError(f"Could not find {json_path}. Put whois.json next to this script.")
     except Exception as e:
