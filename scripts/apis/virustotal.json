@@ -1,0 +1,17 @@
+{
+    "success": true,
+    "unsafe": true,
+    "target": "veza-otp.com",
+    "source": "VirusTotal",
+    "extra": {
+        "stats": {
+            "malicious": 15,
+            "suspicious": 0,
+            "undetected": 29,
+            "harmless": 54,
+            "timeout": 0
+        },
+        "reputation": 0,
+        "scan_date": 1761081984
+    }
+}

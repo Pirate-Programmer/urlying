@@ -1,24 +1,30 @@
 import requests
 import socket
+import json
+import os
 
 class AbuseIPDBScanner:
     def __init__(self, api_key):
         self.api_key = api_key
         self.API_URL = "https://api.abuseipdb.com/api/v2/check"
         self.source = "AbuseIPDB"
+        self.log_file = os.path.join(os.path.dirname(__file__), "abuseipdb_logs.json")
 
     """return -> dict
-        if success == true, unsafe : bool (based on abuse score), source : str, extra : dict (abuse details)
+        if success == true, unsafe : bool (based on abuse score), source : str
         if success == false , error : str, source : str
     """
     def fetch_result(self, target_url):
         ip = self.resolve_to_ip(target_url)
         if not ip:
-            return {
+            result = {
                 "success": False,
                 "error": "Could not resolve domain or invalid IP",
-                "source": self.source
+                "source": self.source,
+                "target": target_url
             }
+            self.save_result_to_file(result)
+            return result
 
         headers = {
             "Key": self.api_key,
@@ -27,7 +33,7 @@ class AbuseIPDBScanner:
 
         params = {
             "ipAddress": ip,
-            "maxAgeInDays": 60, #adjust value to get info from how long back 
+            "maxAgeInDays": 60,
             "verbose": True
         }
 
@@ -37,25 +43,46 @@ class AbuseIPDBScanner:
 
             data = response.json().get("data", {})
             abuse_score = data.get("abuseConfidenceScore", 0)
-            is_unsafe = abuse_score >= 50  #  You can adjust the threshold
+            is_unsafe = abuse_score >= 50
 
-            return {
+            result = {
                 "success": True,
                 "unsafe": is_unsafe,
-                "source": self.source,
-                #"extra": data  # include full abuse info
-            }
-
-        except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
+                "abuse_score": abuse_score,
+                "ip": ip,
+                "target": target_url,
                 "source": self.source
             }
 
+            self.save_result_to_file(result)
+            return result
+
+        except Exception as e:
+            result = {
+                "success": False,
+                "error": str(e),
+                "source": self.source,
+                "target": target_url
+            }
+            self.save_result_to_file(result)
+            return result
 
     def resolve_to_ip(self, input_value):
         try:
             return socket.gethostbyname(input_value)
         except socket.gaierror:
             return None
+
+    def save_result_to_file(self, result):
+        """Store ONLY the latest scan result in geoipAndApis.json"""
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            file_path = os.path.join(script_dir, "abuseIPDB.json")
+
+            with open(file_path, "w") as f:
+                # Save ONLY latest result (single object, not list)
+                json.dump(result, f, indent=4)
+
+        except Exception as e:
+            print(f"[ERROR] Could not write log: {e}")
+
