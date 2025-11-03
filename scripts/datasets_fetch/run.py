@@ -1,11 +1,11 @@
-from cyberghost_vpn_ip_fetch import run as cyberghost_run
-from cipher_suite_fetch import run as cipher_suite_run
-from mullvad_vpn_ip_fetch import fetch_file as mullvad_run
-from nord_vpn_ip_fetch import fetch_file as nord_run
-from proton_vpn_ip_fetch import run as proton_run
-from surfshark_vpn_ip_list import fetch_file as surfshark_run
-from tlds_fetch import run as tlds_run
-from tor_guard_and_exit_nodes_ip_fetch import fetch_tor_lists as tor_run
+from .cyberghost_vpn_ip_fetch import run as cyberghost_run
+from .cipher_suite_fetch import run as cipher_suite_run
+from .mullvad_vpn_ip_fetch import fetch_file as mullvad_run
+from .nord_vpn_ip_fetch import fetch_file as nord_run
+from .proton_vpn_ip_fetch import run as proton_run
+from .surfshark_vpn_ip_list import fetch_file as surfshark_run
+from .tlds_fetch import run as tlds_run
+from .tor_guard_and_exit_nodes_ip_fetch import fetch_tor_lists as tor_run
 import concurrent.futures
 import time
 from datetime import datetime, UTC

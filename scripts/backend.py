@@ -3,6 +3,7 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 # from apis.api_manager import ApiManager
 from urllib.parse import urlparse
+from datasets_fetch.run import run_all_parallel
 
 import subprocess
 
@@ -85,8 +86,8 @@ def check_url():
 #run the da run.py script on chrome launch
 @app.route("/update_dataset", methods=["POST"])
 def update_dataset():
-    print("\n\nYOO chrome just lauched less go!!\n\n")
-    return "IT WORKS"
+    run_all_parallel()
+    return "datasets_fetched"
     # import subprocess, sys, os
 
     # script_path = os.path.join(os.path.dirname(__file__), "run.py")

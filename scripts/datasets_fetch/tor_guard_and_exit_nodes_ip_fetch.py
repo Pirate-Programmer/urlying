@@ -62,7 +62,7 @@ def fetch_tor_lists():
         filename = source["name"]
         raw_url = source["url"]
 
-        save_as = f"./datasets/tor_nodes_ips/{filename}"
+        save_as = f"./datasets/vpn_ips/{filename}"
         hash_file = f"./hashed_files/{filename}.md5"
 
         ensure_dirs(os.path.dirname(save_as))
