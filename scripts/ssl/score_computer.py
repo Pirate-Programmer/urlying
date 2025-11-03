@@ -231,10 +231,100 @@ def san_count_score(san_list):
 def version_score(version) : # https://learn.microsoft.com/en-us/azure/iot-hub/reference-x509-certificates
     if not version: return 0
 
-    if version == 2 or version == 1:
+    if version == 2 or version == 1 or version == "v2" or version == "v1":
         return 10
     
     return -5
+
+def issuer_score(issuer_name: str, is_root: bool = False) -> int:
+    """
+    Score an issuer name.
+    - Trusted issuer -> return -5 (good)
+    - Suspicious issuer -> +10
+    - Known-problem / malicious issuer -> +20 (bad)
+    If is_root is True, apply an extra penalty to suspicious/malicious cases
+    because compromises at root level are more severe.
+
+    issuer_name: raw issuer string (may be None)
+    is_root: whether this issuer is a root certificate in the chain
+    """
+    if not issuer_name:
+        return 0
+
+    n = issuer_name.strip().lower()
+
+    # ---- Curated trusted set (common widely-trusted CAs) ----
+    trusted_keywords = (
+        "digicert", "globalsign", "entrust", "sectigo", "comodor", "comodo",
+        "godaddy", "google trust", "microsoft corporation", "amazon trust services",
+        "identrust", "quovadis", "d-trust", "dtrust", "buypass", "netlock",
+        "trustis", "trustcor", "certipost", "certigna", "gov", "government",
+        "post", "kisa", "isrg root x1"  # note: ISRG Root X1 is the root that signs Let's Encrypt intermediates
+    )
+
+    # ---- Suspicious / caution list (lower severity) ----
+    suspicious_keywords = (
+        "let's encrypt", "lets encrypt", "let's encrypt", "letsencrypt",
+        "let's encrypt authority", "let's encrypt r", "let's encrypt r12",
+        "cnnic", "china internet network information center", "cnn ic",
+        "certum", "startcom", "start commercial", "startcom ltd", "startcom",
+        "wo sign", "wosign", "wo sign ca", "wo sign ca limited",
+        "certum", "e-town", "some lesser-known regional ca"
+    )
+
+    # ---- Known problematic / high-risk list (history of incidents) ----
+    malicious_keywords = (
+        "wo sign", "wosign", "startcom", "start commercial (startcom) ltd",
+        "chunghwa telecom"  # include only if you want stricter checks (example)
+    )
+
+    score = 0
+
+    # trusted check (exact/contains)
+    for kw in trusted_keywords:
+        if kw in n:
+            # special-case: user wanted Let's Encrypt treated as suspicious,
+            # so we do NOT include any variants of Let's Encrypt here.
+            score += -5
+            break
+
+    # suspicious check (only if not already marked trusted)
+    if score == 0:
+        for kw in suspicious_keywords:
+            if kw in n:
+                score += 10
+                break
+
+    # malicious check (stronger penalty)
+    for kw in malicious_keywords:
+        if kw in n:
+            # raise to malicious if matched
+            # if suspicious matched earlier, replace with stronger penalty
+            score = max(score, 20)
+            break
+
+    # If nothing matched, keep score 0 (unknown)
+    # Apply extra penalty if this issuer is a root and it's suspicious/malicious
+    if is_root and score > 0:
+        # amplify root-level problems
+        if score >= 20:
+            score += 15   # malicious root -> very bad
+        else:
+            score += 5    # suspicious root -> worse than intermediate
+
+    return score
+
+
+def extract_cert_info(cert):
+    subject = cert.get("subject") or {}
+    issuer = cert.get("issuer") or {}
+    return {
+        "subject_cn": subject.get("commonName") or subject.get("CN"),
+        "issuer_cn": issuer.get("commonName") or issuer.get("CN"),
+        "notBefore": cert.get("notBefore"),
+        "notAfter": cert.get("notAfter"),
+        "serial": cert.get("serialNumber") or cert.get("serial"),
+    }
 
 def score_computer():
     base_path = os.path.dirname(__file__)
@@ -264,7 +354,17 @@ def score_computer():
     notAfter = data.get("notAfter")
     san = data.get("subjectAltName") or []
     sig_alg = data.get("signature_algorithm")
-
+    chain = data.get("chain") or []
+    chain = chain[1:] if len(chain) > 1 else []
+    intermediate_certs = []
+    root_cert = None
+    if chain:
+        # Last one = root cert
+        root_cert = chain[-1]
+        # Everything before last = intermediates
+        if len(chain) > 1:
+            intermediate_certs = chain[:-1]
+ 
     score = 0
     
     if hostname:
@@ -275,7 +375,7 @@ def score_computer():
         if has_digit and any(ch.isalpha() for ch in host):
             # treat digit-substitution as high suspicion
             score += 30
-        elif any(x in host for x in ["free-", "login", "secure", "update", "verify", "account", "stream", "crack"]):
+        elif any(x in host for x in ["free-", "login", "secure", "update", "verify", "account", "stream", "crack", "otp", "bank"]):
             score += 10
     else:
         score += 5
@@ -298,6 +398,42 @@ def score_computer():
         score += serial_score(serial)
     if version:
         score += version_score(version) 
+    if issuer_cn:
+        score += issuer_score(issuer_cn, is_root=False)
+
+
+    if intermediate_certs:
+        for cert in intermediate_certs:
+            info = extract_cert_info(cert)
+
+            inter_score = 0
+            if info.get("signature_algorithm"):
+                inter_score += signature_alg_score(info["signature_algorithm"])
+            if info.get("key_size"):
+                inter_score += key_size_score(info["key_size"], info.get("cipher"))
+            if info.get("notBefore") and info.get("notAfter"):
+                inter_score += validity_score(info["notBefore"], info["notAfter"])
+            if info.get("version"):
+                inter_score += version_score(info["version"])
+            if(info.get("serial")):
+                score += serial_score("serial")
+    
+            score += inter_score
+
+    # ---- Add score for root cert ----
+    if root_cert:
+        info = extract_cert_info(root_cert)
+
+        root_score = 0
+        if info.get("signature_algorithm"):
+            root_score += signature_alg_score(info["signature_algorithm"])
+        if info.get("key_size"):
+            root_score += key_size_score(info["key_size"], info.get("cipher"))
+        if info.get("notBefore") and info.get("notAfter"):
+            root_score += validity_score(info["notBefore"], info["notAfter"])
+        if(info.get("serial")):
+            score += serial_score("serial")
+
     return score
 
 
