@@ -3,9 +3,17 @@ from datetime import datetime, timezone
 
 def cipher_suite(cipher_suite) : 
     cipher_suite = cipher_suite.replace("-", "_")
-    df = pd.read_csv("./../../datasets/cipher_suites/cipher_suites_iana.csv", dtype={"hash": int})
+    base_path = os.path.dirname(__file__) 
+    csv_path = os.path.join(base_path, "..", "..", "datasets", "cipher_suites", "cipher_suites_iana.csv")
+    csv_path = os.path.abspath(csv_path)  
+    df = pd.read_csv(csv_path)
+
+    row = df[df["Cipher_Suite"] == cipher_suite]
+
+    if row.empty:
+        return "U"
     
-    return None
+    return row["Recommended"].values[0].strip()
 
 def cipher_suite_score(cipher):
     isRecommended = cipher_suite(cipher)
@@ -16,12 +24,10 @@ def cipher_suite_score(cipher):
         return 5
     elif isRecommended == 'D':
         return 15
+    elif isRecommended == 'U':
+        return 20
     
     return 0
-
-# ---------- Helpers ----------
-def clamp(v, lo=0, hi=100):
-    return max(lo, min(hi, v))
 
 def is_wildcard_in_san(san):
     if not san:
@@ -222,6 +228,14 @@ def san_count_score(san_list):
 
     return 0
 
+def version_score(version) : # https://learn.microsoft.com/en-us/azure/iot-hub/reference-x509-certificates
+    if not version: return 0
+
+    if version == 2 or version == 1:
+        return 10
+    
+    return -5
+
 def score_computer():
     base_path = os.path.dirname(__file__)
     json_path = os.path.join(base_path, "ssl.json")
@@ -251,12 +265,8 @@ def score_computer():
     san = data.get("subjectAltName") or []
     sig_alg = data.get("signature_algorithm")
 
-    # breakdown dictionary
-    breakdown = {}
-
-    # 1. Hostname heuristics
-    # Inline simple digit-substitution heuristic (no external fn)
-    h_delta = 0
+    score = 0
+    
     if hostname:
         host = hostname.lower()
         has_digit = any(ch.isdigit() for ch in host)
@@ -264,146 +274,32 @@ def score_computer():
         # (this is intentionally simple to avoid adding new helper funcs)
         if has_digit and any(ch.isalpha() for ch in host):
             # treat digit-substitution as high suspicion
-            h_delta += 30
-            breakdown["hostname_reason"] = "digit-substitution-typosquat"
+            score += 30
         elif any(x in host for x in ["free-", "login", "secure", "update", "verify", "account", "stream", "crack"]):
-            h_delta += 10
-            breakdown["hostname_reason"] = "suspicious-keyword"
-        else:
-            breakdown["hostname_reason"] = "neutral"
+            score += 10
     else:
-        h_delta += 5
-        breakdown["hostname_reason"] = "missing-hostname"
-    breakdown["hostname_delta"] = h_delta
+        score += 5
 
-    # 2. TLS version
-    tv_delta = tls_version_score(tls_version)
-    breakdown["tls_version_delta"] = tv_delta
-
-    # 3. Cipher
-    # use your defined cipher_suite_score (not an undefined cipher_score)
-    try:
-        c_delta = cipher_suite_score(cipher)
-    except Exception:
-        # fallback if cipher is None or something unexpected
-        c_delta = 0
-    breakdown["cipher_delta"] = c_delta
-
-    # 4. Key size
-    # key_size_score accepts (key_size, cipher)
-    k_delta = key_size_score(key_size, cipher)
-    breakdown["key_size_delta"] = k_delta
-
-    # 5. CN / SAN / hostname matching
-    cn_delta = cn_san_match_score(cn, san, hostname)
-    breakdown["cn_san_delta"] = cn_delta
-
-    # 6. Issuer trust
-    issuer_delta = issuer_trust_score(issuer_cn)
-    breakdown["issuer_delta"] = issuer_delta
-
-    # 7. Serial
-    s_delta = serial_score(serial)
-    breakdown["serial_delta"] = s_delta
-
-    # 8. X.509 version
-    ver_delta = 0
-    if version is None:
-        ver_delta = 2
-    else:
-        try:
-            if int(version) == 3:
-                ver_delta = 0
-            else:
-                ver_delta = 10
-        except Exception:
-            ver_delta = 2
-    breakdown["x509_version_delta"] = ver_delta
-
-    # 9. Validity dates
-    val_delta = validity_score(notBefore, notAfter)
-    breakdown["validity_delta"] = val_delta
-
-    # 10. SAN count / wildcard
-    san_delta = san_count_score(san)
-    breakdown["san_delta"] = san_delta
-
-    # 11. Signature algorithm
-    sig_delta = signature_alg_score(sig_alg)
-    breakdown["signature_alg_delta"] = sig_delta
-
-
-    # Sum deltas
-    deltas = [
-        h_delta, tv_delta, c_delta, k_delta, cn_delta,
-        issuer_delta, s_delta, ver_delta, val_delta,
-        san_delta, sig_delta
-    ]
-    raw_sum = sum(deltas)
-    breakdown["raw_sum"] = raw_sum
-    breakdown["deltas_detail"] = {
-        "hostname": h_delta,
-        "tls_version": tv_delta,
-        "cipher": c_delta,
-        "key_size": k_delta,
-        "cn_san": cn_delta,
-        "issuer": issuer_delta,
-        "serial": s_delta,
-        "x509_version": ver_delta,
-        "validity": val_delta,
-        "san_count": san_delta,
-        "signature_alg": sig_delta,
-    }
-
-    # Baseline normalization: baseline 50 (neutral) + raw_sum
-    score = clamp(50 + raw_sum, 0, 100)
-
-    if issuer_delta >= 40:
-        score = max(score, 85)
-    if cn_delta >= 25:
-        score = max(score, 75)
-    if val_delta >= 20:
-        score = max(score, 70)
-
-    # Label assignment
-    if score >= 75:
-        label = "malicious"
-    elif score >= 50:
-        label = "suspicious"
-    elif score >= 25:
-        label = "neutral"
-    else:
-        label = "safe"
-
-    result = {
-        "score": int(score),
-        "label": label,
-        "breakdown": breakdown,
-        "hostname": hostname,
-        "cn": cn,
-        "san": san,
-        "issuer": issuer_cn,
-        "notBefore": notBefore,
-        "notAfter": notAfter,
-        "raw_data": data
-    }
-
-    # Print concise summary
-    try:
-        print(json.dumps({
-            "score": result["score"],
-            "label": result["label"],
-            "deltas_sum": raw_sum,
-            "breakdown": breakdown
-        }, indent=2, default=str))
-    except Exception:
-        print("Score computed:", result["score"], "Label:", result["label"])
-
-    return result
+    if cipher:
+        score += cipher_suite_score(cipher)
+    if tls_version:
+        score += tls_version_score(tls_version)
+    if sig_alg:
+        score += signature_alg_score(sig_alg)
+    if key_size:
+        score += key_size_score(key_size,cipher)
+    if notBefore and notAfter:
+        score += validity_score(notBefore, notAfter)
+    if cn:
+        if san:
+            score += cn_san_match_score(cn, san, hostname)
+            score += san_count_score(san)
+    if serial:
+        score += serial_score(serial)
+    if version:
+        score += version_score(version) 
+    return score
 
 
 if __name__ == "__main__":
-    output = score_computer()
-    print("\nSummary:")
-    print("Score:", output.get("score"))
-    print("Label:", output.get("label"))
+    print(score_computer())
