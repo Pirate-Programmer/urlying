@@ -1,4 +1,5 @@
 from whois_details import save_whois_info
+from score_computer import whois_score_computer
 import os, json
 
 def run():
@@ -24,7 +25,9 @@ def run():
 
     output_file = save_whois_info(domain, "whois.json")
     print(f"DNS info for {domain} saved in {output_file}")
-    return output_file
+
+    score = whois_score_computer()
+    return score
 
 if __name__ == "__main__":
-    run()
+    print(run())

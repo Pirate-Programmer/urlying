@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os, json
 from api_manager import ApiManager
-
+from score_computer import score_computer
 
 def run():
     manager = ApiManager()
@@ -46,6 +46,8 @@ def run():
 
     print("\n✅ Scan completed\n")
 
+    score = score_computer()
+    return score
 
 if __name__ == "__main__":
-    run()
+    print(run())

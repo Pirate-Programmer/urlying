@@ -5,13 +5,13 @@
     "source": "VirusTotal",
     "extra": {
         "stats": {
-            "malicious": 15,
+            "malicious": 19,
             "suspicious": 0,
-            "undetected": 28,
-            "harmless": 55,
+            "undetected": 26,
+            "harmless": 53,
             "timeout": 0
         },
         "reputation": 0,
-        "scan_date": 1762051391
+        "scan_date": 1762137801
     }
 }
