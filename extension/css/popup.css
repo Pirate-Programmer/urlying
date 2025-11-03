@@ -332,8 +332,8 @@ body {
 }
 
 .knob-base .control label {
-  z-index: 2;
-  position: absolute;
+  z-index: 6;                     /* higher than hr.divider's z-index */
+  position: absolute;             /* keeps existing behavior */
   top: 50%;
   left: 50%;
   width: 50%;
@@ -343,7 +343,9 @@ body {
   cursor: pointer;
 }
 
+/* keep the number rotation rule for span as before */
 .knob-base .control label span {
+  z-index: 7;                     /* ensures the glyph itself is on top */
   position: absolute;
   top: 0;
   right: 0;
@@ -357,42 +359,22 @@ body {
   text-shadow: 0 0 5px #0f0;
 }
 
-.knob-base .control label:nth-child(1) {
-  transform: rotate(-90deg);
-}
-.knob-base .control label:nth-child(1) span {
-  transform: rotate(90deg);
-}
-.knob-base .control label:nth-child(2) {
-  transform: rotate(-30deg);
-}
-.knob-base .control label:nth-child(2) span {
-  transform: rotate(30deg);
-}
-.knob-base .control label:nth-child(3) {
-  transform: rotate(30deg);
-}
-.knob-base .control label:nth-child(3) span {
-  transform: rotate(-30deg);
-}
-.knob-base .control label:nth-child(4) {
-  transform: rotate(90deg);
-}
-.knob-base .control label:nth-child(4) span {
-  transform: rotate(-90deg);
-}
-.knob-base .control label:nth-child(5) {
-  transform: rotate(150deg);
-}
-.knob-base .control label:nth-child(5) span {
-  transform: rotate(-150deg);
-}
-.knob-base .control label:nth-child(6) {
-  transform: rotate(210deg);
-}
-.knob-base .control label:nth-child(6) span {
-  transform: rotate(-210deg);
-}
+/* label angles for 5 positions (these match what we used before) */
+.knob-base .control label:nth-of-type(1) { transform: rotate(-90deg); }
+.knob-base .control label:nth-of-type(1) span { transform: rotate(90deg); }
+
+.knob-base .control label:nth-of-type(2) { transform: rotate(-18deg); }
+.knob-base .control label:nth-of-type(2) span { transform: rotate(18deg); }
+
+.knob-base .control label:nth-of-type(3) { transform: rotate(54deg); }
+.knob-base .control label:nth-of-type(3) span { transform: rotate(-54deg); }
+
+.knob-base .control label:nth-of-type(4) { transform: rotate(126deg); }
+.knob-base .control label:nth-of-type(4) span { transform: rotate(-126deg); }
+
+.knob-base .control label:nth-of-type(5) { transform: rotate(198deg); }
+.knob-base .control label:nth-of-type(5) span { transform: rotate(-198deg); }
+
 
 .knob-base .control input {
   position: absolute;
@@ -488,13 +470,8 @@ body {
 }
 
 /* Rotations and Indicator States */
-#fan_1:checked ~ .pointer {
-  transform: rotate(-90deg);
-}
-#fan_1:checked ~ .off {
-  color: #50fa7b;
-  text-shadow: 0 0 5px #50fa7b;
-}
+#fan_1:checked ~ .pointer,
+#fan_1:checked ~ .marker { transform: rotate(-90deg); }
 #fan_1:checked ~ .pointer span {
   background: radial-gradient(
     ellipse at center,
@@ -503,10 +480,13 @@ body {
     rgba(255, 72, 0, 0) 72%
   );
 }
-#fan_2:checked ~ .pointer {
-  transform: rotate(-30deg);
+
+/* Fan 2 */
+#fan_2:checked ~ .pointer,
+#fan_2:checked ~ .marker { 
+  transform: rotate(-18deg); 
 }
-#fan_2:checked ~ .pointer span{
+#fan_2:checked ~ .pointer span {
   background: radial-gradient(
     ellipse at center,
     #a8f77b 0%,
@@ -514,8 +494,11 @@ body {
     rgba(255, 72, 0, 0) 72%
   );
 }
-#fan_3:checked ~ .pointer {
-  transform: rotate(30deg);
+
+/* Fan 3 */
+#fan_3:checked ~ .pointer,
+#fan_3:checked ~ .marker { 
+  transform: rotate(54deg); 
 }
 #fan_3:checked ~ .pointer span {
   background: radial-gradient(
@@ -525,10 +508,13 @@ body {
     rgba(255, 72, 0, 0) 72%
   );
 }
-#fan_4:checked ~ .pointer {
-  transform: rotate(90deg);
+
+/* Fan 4 */
+#fan_4:checked ~ .pointer,
+#fan_4:checked ~ .marker { 
+  transform: rotate(126deg); 
 }
-#fan_4:checked ~ .pointer span{
+#fan_4:checked ~ .pointer span {
   background: radial-gradient(
     ellipse at center,
     #f1fa8c 0%,
@@ -536,10 +522,13 @@ body {
     rgba(255, 72, 0, 0) 72%
   );
 }
-#fan_5:checked ~ .pointer {
-  transform: rotate(150deg);
+
+/* Fan 5 */
+#fan_5:checked ~ .pointer,
+#fan_5:checked ~ .marker { 
+  transform: rotate(198deg); 
 }
-#fan_5:checked ~ .pointer span{
+#fan_5:checked ~ .pointer span {
   background: radial-gradient(
     ellipse at center,
     #ff9f5f 0%,
@@ -547,60 +536,33 @@ body {
     rgba(255, 72, 0, 0) 72%
   );
 }
-#fan_6:checked ~ .pointer {
-  transform: rotate(210deg);
-}
-#fan_6:checked ~ .pointer span{
-  background: radial-gradient(
-    ellipse at center,
-    #ff5555 0%,
-    #f80606 5%,
-    rgba(255, 72, 0, 0) 72%
-  );
-}
 
-#fan_1:checked ~ .marker {
-  transform: rotate(-90deg);
-}
+
 #fan_1:checked ~ .marker span {
   background: #50fa7b;
   box-shadow: 0 0 10px #50fa7b;
 }
-#fan_2:checked ~ .marker {
-  transform: rotate(-30deg);
-}
+
 #fan_2:checked ~ .marker span{
   background: #a8f77b;
   box-shadow: 0 0 10px #a8f77b;
 }
-#fan_3:checked ~ .marker {
-  transform: rotate(30deg);
-}
+
 #fan_3:checked ~ .marker span{
   background: #d8f77b;
   box-shadow: 0 0 10px #d8f77b;
 }
-#fan_4:checked ~ .marker {
-  transform: rotate(90deg);
-}
+
 #fan_4:checked ~ .marker span{
   background: #f1fa8c;
   box-shadow: 0 0 10px #f1fa8c;
 }
-#fan_5:checked ~ .marker {
-  transform: rotate(150deg);
-}
+
 #fan_5:checked ~ .marker span{
   background: #ff9f5f;
   box-shadow: 0 0 10px #ff9f5f;
 }
-#fan_6:checked ~ .marker {
-  transform: rotate(210deg);
-}
-#fan_6:checked ~ .marker span{
-  background: #ff5555;
-  box-shadow: 0 0 10px #ff5555;
-}
+
 
 #fan_1:checked ~ .knob-middle .status .speed-lights .speed-light {
   opacity: 0;
@@ -612,23 +574,29 @@ body {
 }
 
 /* Lines for visual separation */
+/* visible dividers that stop before outer labels + sit behind labels */
 .knob-base hr.divider {
-  z-index: 1;
+  z-index: 2;                 /* behind labels (labels use z-index:6) */
   position: absolute;
   top: 50%;
-  width: 100%;
+  /* long enough to show across the ring, but not reach the outer border */
+  width: 72%;
+  /* center the shortened line inside the circle */
+  left: 14%;
   height: 0;
   margin-top: -1px;
-  border-width: 1px 0;
+  border-width: 2px 0;        /* slightly thicker so they're visible */
   border-style: solid;
-  border-top-color: #3c3d3f;
-  border-bottom-color: #666769;
+  border-top-color: rgba(60, 61, 63, 0.9);   /* darker inner stroke */
+  border-bottom-color: rgba(102, 103, 105, 0.8); /* highlight underside */
+  transform-origin: 50% 50%;
+  pointer-events: none;       /* avoid accidental clicks */
 }
 
-.knob-base hr.divider:nth-child(1) {
-  transform: rotate(-60deg);
-}
-.knob-base hr.divider:nth-child(2) {
-  transform: rotate(60deg);
-}
+/* divider rotation angles (5 dividers) */
+.knob-base hr.divider:nth-of-type(1) { transform: rotate(-54deg); }
+.knob-base hr.divider:nth-of-type(2) { transform: rotate(18deg);  }
+.knob-base hr.divider:nth-of-type(3) { transform: rotate(90deg);  }
+.knob-base hr.divider:nth-of-type(4) { transform: rotate(162deg); }
+.knob-base hr.divider:nth-of-type(5) { transform: rotate(234deg); }
 
