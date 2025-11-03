@@ -1,4 +1,5 @@
 from dns_records import save_dns_records
+from score_computer import score_computer
 import sys, os, json
 
 def run():
@@ -24,8 +25,10 @@ def run():
 
     output_file = save_dns_records(domain, "dns.json")
     print(f"DNS info for {domain} saved in {output_file}")
-    return output_file
+
+    score = score_computer()
+    return score
 
 
 if __name__ == "__main__":
-    run()
+    print(run())

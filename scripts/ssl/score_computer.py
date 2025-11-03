@@ -3,9 +3,17 @@ from datetime import datetime, timezone
 
 def cipher_suite(cipher_suite) : 
     cipher_suite = cipher_suite.replace("-", "_")
-    df = pd.read_csv("./../../datasets/cipher_suites/cipher_suites_iana.csv", dtype={"hash": int})
+    base_path = os.path.dirname(__file__) 
+    csv_path = os.path.join(base_path, "..", "..", "datasets", "cipher_suites", "cipher_suites_iana.csv")
+    csv_path = os.path.abspath(csv_path)  
+    df = pd.read_csv(csv_path)
+
+    row = df[df["Cipher_Suite"] == cipher_suite]
+
+    if row.empty:
+        return "U"
     
-    return None
+    return row["Recommended"].values[0].strip()
 
 def cipher_suite_score(cipher):
     isRecommended = cipher_suite(cipher)
@@ -16,12 +24,10 @@ def cipher_suite_score(cipher):
         return 5
     elif isRecommended == 'D':
         return 15
+    elif isRecommended == 'U':
+        return 20
     
     return 0
-
-# ---------- Helpers ----------
-def clamp(v, lo=0, hi=100):
-    return max(lo, min(hi, v))
 
 def is_wildcard_in_san(san):
     if not san:
@@ -222,6 +228,104 @@ def san_count_score(san_list):
 
     return 0
 
+def version_score(version) : # https://learn.microsoft.com/en-us/azure/iot-hub/reference-x509-certificates
+    if not version: return 0
+
+    if version == 2 or version == 1 or version == "v2" or version == "v1":
+        return 10
+    
+    return -5
+
+def issuer_score(issuer_name: str, is_root: bool = False) -> int:
+    """
+    Score an issuer name.
+    - Trusted issuer -> return -5 (good)
+    - Suspicious issuer -> +10
+    - Known-problem / malicious issuer -> +20 (bad)
+    If is_root is True, apply an extra penalty to suspicious/malicious cases
+    because compromises at root level are more severe.
+
+    issuer_name: raw issuer string (may be None)
+    is_root: whether this issuer is a root certificate in the chain
+    """
+    if not issuer_name:
+        return 0
+
+    n = issuer_name.strip().lower()
+
+    # ---- Curated trusted set (common widely-trusted CAs) ----
+    trusted_keywords = (
+        "digicert", "globalsign", "entrust", "sectigo", "comodor", "comodo",
+        "godaddy", "google trust", "microsoft corporation", "amazon trust services",
+        "identrust", "quovadis", "d-trust", "dtrust", "buypass", "netlock",
+        "trustis", "trustcor", "certipost", "certigna", "gov", "government",
+        "post", "kisa", "isrg root x1"  # note: ISRG Root X1 is the root that signs Let's Encrypt intermediates
+    )
+
+    # ---- Suspicious / caution list (lower severity) ----
+    suspicious_keywords = (
+        "let's encrypt", "lets encrypt", "let's encrypt", "letsencrypt",
+        "let's encrypt authority", "let's encrypt r", "let's encrypt r12",
+        "cnnic", "china internet network information center", "cnn ic",
+        "certum", "startcom", "start commercial", "startcom ltd", "startcom",
+        "wo sign", "wosign", "wo sign ca", "wo sign ca limited",
+        "certum", "e-town", "some lesser-known regional ca"
+    )
+
+    # ---- Known problematic / high-risk list (history of incidents) ----
+    malicious_keywords = (
+        "wo sign", "wosign", "startcom", "start commercial (startcom) ltd",
+        "chunghwa telecom"  # include only if you want stricter checks (example)
+    )
+
+    score = 0
+
+    # trusted check (exact/contains)
+    for kw in trusted_keywords:
+        if kw in n:
+            # special-case: user wanted Let's Encrypt treated as suspicious,
+            # so we do NOT include any variants of Let's Encrypt here.
+            score += -5
+            break
+
+    # suspicious check (only if not already marked trusted)
+    if score == 0:
+        for kw in suspicious_keywords:
+            if kw in n:
+                score += 10
+                break
+
+    # malicious check (stronger penalty)
+    for kw in malicious_keywords:
+        if kw in n:
+            # raise to malicious if matched
+            # if suspicious matched earlier, replace with stronger penalty
+            score = max(score, 20)
+            break
+
+    # If nothing matched, keep score 0 (unknown)
+    # Apply extra penalty if this issuer is a root and it's suspicious/malicious
+    if is_root and score > 0:
+        # amplify root-level problems
+        if score >= 20:
+            score += 15   # malicious root -> very bad
+        else:
+            score += 5    # suspicious root -> worse than intermediate
+
+    return score
+
+
+def extract_cert_info(cert):
+    subject = cert.get("subject") or {}
+    issuer = cert.get("issuer") or {}
+    return {
+        "subject_cn": subject.get("commonName") or subject.get("CN"),
+        "issuer_cn": issuer.get("commonName") or issuer.get("CN"),
+        "notBefore": cert.get("notBefore"),
+        "notAfter": cert.get("notAfter"),
+        "serial": cert.get("serialNumber") or cert.get("serial"),
+    }
+
 def score_computer():
     base_path = os.path.dirname(__file__)
     json_path = os.path.join(base_path, "ssl.json")
@@ -250,13 +354,19 @@ def score_computer():
     notAfter = data.get("notAfter")
     san = data.get("subjectAltName") or []
     sig_alg = data.get("signature_algorithm")
-
-    # breakdown dictionary
-    breakdown = {}
-
-    # 1. Hostname heuristics
-    # Inline simple digit-substitution heuristic (no external fn)
-    h_delta = 0
+    chain = data.get("chain") or []
+    chain = chain[1:] if len(chain) > 1 else []
+    intermediate_certs = []
+    root_cert = None
+    if chain:
+        # Last one = root cert
+        root_cert = chain[-1]
+        # Everything before last = intermediates
+        if len(chain) > 1:
+            intermediate_certs = chain[:-1]
+ 
+    score = 0
+    
     if hostname:
         host = hostname.lower()
         has_digit = any(ch.isdigit() for ch in host)
@@ -264,146 +374,68 @@ def score_computer():
         # (this is intentionally simple to avoid adding new helper funcs)
         if has_digit and any(ch.isalpha() for ch in host):
             # treat digit-substitution as high suspicion
-            h_delta += 30
-            breakdown["hostname_reason"] = "digit-substitution-typosquat"
-        elif any(x in host for x in ["free-", "login", "secure", "update", "verify", "account", "stream", "crack"]):
-            h_delta += 10
-            breakdown["hostname_reason"] = "suspicious-keyword"
-        else:
-            breakdown["hostname_reason"] = "neutral"
+            score += 30
+        elif any(x in host for x in ["free-", "login", "secure", "update", "verify", "account", "stream", "crack", "otp", "bank"]):
+            score += 10
     else:
-        h_delta += 5
-        breakdown["hostname_reason"] = "missing-hostname"
-    breakdown["hostname_delta"] = h_delta
+        score += 5
 
-    # 2. TLS version
-    tv_delta = tls_version_score(tls_version)
-    breakdown["tls_version_delta"] = tv_delta
-
-    # 3. Cipher
-    # use your defined cipher_suite_score (not an undefined cipher_score)
-    try:
-        c_delta = cipher_suite_score(cipher)
-    except Exception:
-        # fallback if cipher is None or something unexpected
-        c_delta = 0
-    breakdown["cipher_delta"] = c_delta
-
-    # 4. Key size
-    # key_size_score accepts (key_size, cipher)
-    k_delta = key_size_score(key_size, cipher)
-    breakdown["key_size_delta"] = k_delta
-
-    # 5. CN / SAN / hostname matching
-    cn_delta = cn_san_match_score(cn, san, hostname)
-    breakdown["cn_san_delta"] = cn_delta
-
-    # 6. Issuer trust
-    issuer_delta = issuer_trust_score(issuer_cn)
-    breakdown["issuer_delta"] = issuer_delta
-
-    # 7. Serial
-    s_delta = serial_score(serial)
-    breakdown["serial_delta"] = s_delta
-
-    # 8. X.509 version
-    ver_delta = 0
-    if version is None:
-        ver_delta = 2
-    else:
-        try:
-            if int(version) == 3:
-                ver_delta = 0
-            else:
-                ver_delta = 10
-        except Exception:
-            ver_delta = 2
-    breakdown["x509_version_delta"] = ver_delta
-
-    # 9. Validity dates
-    val_delta = validity_score(notBefore, notAfter)
-    breakdown["validity_delta"] = val_delta
-
-    # 10. SAN count / wildcard
-    san_delta = san_count_score(san)
-    breakdown["san_delta"] = san_delta
-
-    # 11. Signature algorithm
-    sig_delta = signature_alg_score(sig_alg)
-    breakdown["signature_alg_delta"] = sig_delta
+    if cipher:
+        score += cipher_suite_score(cipher)
+    if tls_version:
+        score += tls_version_score(tls_version)
+    if sig_alg:
+        score += signature_alg_score(sig_alg)
+    if key_size:
+        score += key_size_score(key_size,cipher)
+    if notBefore and notAfter:
+        score += validity_score(notBefore, notAfter)
+    if cn:
+        if san:
+            score += cn_san_match_score(cn, san, hostname)
+            score += san_count_score(san)
+    if serial:
+        score += serial_score(serial)
+    if version:
+        score += version_score(version) 
+    if issuer_cn:
+        score += issuer_score(issuer_cn, is_root=False)
 
 
-    # Sum deltas
-    deltas = [
-        h_delta, tv_delta, c_delta, k_delta, cn_delta,
-        issuer_delta, s_delta, ver_delta, val_delta,
-        san_delta, sig_delta
-    ]
-    raw_sum = sum(deltas)
-    breakdown["raw_sum"] = raw_sum
-    breakdown["deltas_detail"] = {
-        "hostname": h_delta,
-        "tls_version": tv_delta,
-        "cipher": c_delta,
-        "key_size": k_delta,
-        "cn_san": cn_delta,
-        "issuer": issuer_delta,
-        "serial": s_delta,
-        "x509_version": ver_delta,
-        "validity": val_delta,
-        "san_count": san_delta,
-        "signature_alg": sig_delta,
-    }
+    if intermediate_certs:
+        for cert in intermediate_certs:
+            info = extract_cert_info(cert)
 
-    # Baseline normalization: baseline 50 (neutral) + raw_sum
-    score = clamp(50 + raw_sum, 0, 100)
+            inter_score = 0
+            if info.get("signature_algorithm"):
+                inter_score += signature_alg_score(info["signature_algorithm"])
+            if info.get("key_size"):
+                inter_score += key_size_score(info["key_size"], info.get("cipher"))
+            if info.get("notBefore") and info.get("notAfter"):
+                inter_score += validity_score(info["notBefore"], info["notAfter"])
+            if info.get("version"):
+                inter_score += version_score(info["version"])
+            if(info.get("serial")):
+                score += serial_score("serial")
+    
+            score += inter_score
 
-    if issuer_delta >= 40:
-        score = max(score, 85)
-    if cn_delta >= 25:
-        score = max(score, 75)
-    if val_delta >= 20:
-        score = max(score, 70)
+    # ---- Add score for root cert ----
+    if root_cert:
+        info = extract_cert_info(root_cert)
 
-    # Label assignment
-    if score >= 75:
-        label = "malicious"
-    elif score >= 50:
-        label = "suspicious"
-    elif score >= 25:
-        label = "neutral"
-    else:
-        label = "safe"
+        root_score = 0
+        if info.get("signature_algorithm"):
+            root_score += signature_alg_score(info["signature_algorithm"])
+        if info.get("key_size"):
+            root_score += key_size_score(info["key_size"], info.get("cipher"))
+        if info.get("notBefore") and info.get("notAfter"):
+            root_score += validity_score(info["notBefore"], info["notAfter"])
+        if(info.get("serial")):
+            score += serial_score("serial")
 
-    result = {
-        "score": int(score),
-        "label": label,
-        "breakdown": breakdown,
-        "hostname": hostname,
-        "cn": cn,
-        "san": san,
-        "issuer": issuer_cn,
-        "notBefore": notBefore,
-        "notAfter": notAfter,
-        "raw_data": data
-    }
-
-    # Print concise summary
-    try:
-        print(json.dumps({
-            "score": result["score"],
-            "label": result["label"],
-            "deltas_sum": raw_sum,
-            "breakdown": breakdown
-        }, indent=2, default=str))
-    except Exception:
-        print("Score computed:", result["score"], "Label:", result["label"])
-
-    return result
+    return score
 
 
 if __name__ == "__main__":
-    output = score_computer()
-    print("\nSummary:")
-    print("Score:", output.get("score"))
-    print("Label:", output.get("label"))
+    print(score_computer())

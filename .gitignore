@@ -16,3 +16,6 @@ scripts/apis/*.env
 *.key
 *.pem
 *.license
+**/.env
+**/.env.*
+

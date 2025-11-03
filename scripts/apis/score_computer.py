@@ -43,7 +43,11 @@ def abuseIPDB(unsafe, abuse_score):
         score += 10
     else:
         score -= 5
-    score += abuse_score * 0.5
+    if isinstance(abuse_score, (int, float)):
+        score += abuse_score * 0.5
+    else:
+        # score += 0  # optional, do nothing
+        pass
 
     return score
 
@@ -114,3 +118,4 @@ def score_computer():
     score += virustotal(unsafe_virustotal, reputation)
 
     return score
+
