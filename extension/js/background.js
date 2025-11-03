@@ -155,15 +155,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   // Move domain to whitelist
   if (msg.action === "moveToWhitelist" && msg.domain) {
-    const domain = msg.domain;
-
+    const domain = normalizeDomain(msg.domain);
 
     chrome.storage.local.get(["blacklist", "whitelist"], (data) => {
       let blacklist = data.blacklist || [];
       let whitelist = data.whitelist || [];
 
       // Remove from blacklist
-      blacklist = blacklist.filter(d => d !== domain);
+      blacklist = blacklist.filter(d => normalizeDomain(d) !== normalizeDomain(domain));
 
       // Add to whitelist if not already
       if (!whitelist.some(e => e.domain === domain)) {
@@ -192,6 +191,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse({ ok: true });
     })();
     return true; // async
+  }
+  if (msg.action === "redirectAfterUnblock") {
+    const target = msg.blockedUrl || `https://${msg.domain}`;
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) chrome.tabs.update(tabs[0].id, { url: target });
+    });
   }
 });
 
@@ -297,14 +302,14 @@ async function rebuildRules() {
 function normalizeDomain(input) {
   if (!input) return "";
   try {
-    // Try to parse full URLs like "https://apple.com/in"
-    const url = new URL(
-      input.startsWith("http") ? input : "https://" + input
-    );
-    return url.hostname.toLowerCase();
+    const url = new URL(input.startsWith("http") ? input : "https://" + input);
+    let host = url.hostname.toLowerCase();
+    if (host.startsWith("www.")) host = host.slice(4);  // <-- strip www
+      return host;
   } catch {
-    // Fallback if it's already just a domain
-    return input.trim().toLowerCase().replace(/\/+$/, "");
+    let host = input.trim().toLowerCase().replace(/\/+$/, "");
+    if (host.startsWith("www.")) host = host.slice(4);
+    return host;
   }
 }
 
