@@ -13,6 +13,18 @@ app = Flask(__name__)
 
 executor = ThreadPoolExecutor(max_workers=5)  # concurrent API calls
 
+def domain(url) :
+    try:
+        if url.startswith("https://"):
+            return url[8:]
+        elif url.startswith("http://"):
+            return url[7:]
+        else:
+            raise ValueError("Invalid URL: must start with http:// or https://")
+    except Exception as e:
+        print(f"Error: {e}")
+        return "" 
+    
 #this process the url to compture threat score
 @app.route("/check_url", methods=["POST"])
 def check_url():
@@ -57,6 +69,7 @@ def check_url():
     # Step 5: Prepare response
     return jsonify({
         "url": url,
+        "domain": domain(url),
         "risk_score": total_score,
         "verdict": f"suspicious ({level})"
     })

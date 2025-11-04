@@ -1,16 +1,15 @@
 {
-    "domain": "www.google.com",
+    "domain": "www.spit.ac.in",
     "A": {
         "records": [
-            "142.250.207.164"
+            "49.249.218.26",
+            "43.252.193.19"
         ],
-        "ttl": 4
+        "ttl": 73646
     },
     "AAAA": {
-        "records": [
-            "2404:6800:4002:822::2004"
-        ],
-        "ttl": 128
+        "records": [],
+        "ttl": null
     },
     "CNAME": {
         "records": [],

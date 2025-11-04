@@ -94,17 +94,27 @@ async function processUrl(url, tabId = null) {
     // TODO: additional fast flags can be added here
 
     // Send to backend only if not blacklisted/whitelisted
-  const lvl = await chrome.storage.local.get("securityLevel");
-  const securityLevel = lvl.securityLevel || 3;
+    const lvl = await chrome.storage.local.get("securityLevel");
+    const securityLevel = lvl.securityLevel || 3;
 
-    
+
     const res = await fetch("http://127.0.0.1:5000/check_url", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url, config: { securityLevel } }),
     });
 
+    if (!res.ok) {
+      console.error("Backend HTTP error", res.status, await res.text());
+      return;
+    }
+
     const data = await res.json();
+    if (!data) {
+      console.error("No data from backend");
+      return;
+    }
+
     console.log("Backend scan result:", data);
 
     // Notify content script (speedometer) if tabId exists
@@ -116,20 +126,49 @@ async function processUrl(url, tabId = null) {
       });
     }
 
-    // // Optional: notify user
-    // chrome.notifications.create({
-    //   type: "basic",
-    //   iconUrl: "icons/icon128.png",
-    //   title: "URL Scan Result",
-    //   message: `${url}\nRisk Score: ${data.risk_score} (${data.verdict})`,
-    // });
+    // Normalize domain using backend-provided domain (if any), otherwise fall back to URL
+    const backendDomain = data?.domain;
+    const domainToBlacklist = normalizeDomain(backendDomain ?? url);
 
-    // Block if high-risk
-    if (tabId && data.risk_score > risk_score_threshold) {
-      chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
+    // Only auto-blacklist & redirect when score exceeds threshold and we have a tabId
+    const score = Number(data.risk_score);
+    if (tabId && !Number.isNaN(score) && score > risk_score_threshold) {
+
+      chrome.storage.local.get(["blacklist"], (items) => {
+        const blacklist = items.blacklist || [];
+
+        blacklist.push(domainToBlacklist);
+        chrome.storage.local.set({ blacklist }, () => {
+          console.log("Added to blacklist:", domainToBlacklist);
+        });
+
+      });
+
+      const reasonObj = {
+        lastBlockedDomain: domainToBlacklist,
+        lastBlockedUrl: url,
+        lastBlockedReason: "auto_blacklist",
+        lastBlockedScore: score,
+        timestamp: Date.now()
+      };
+
+      // Save reason so blocked.html can show tailored message, then rebuild rules and redirect
+      chrome.storage.local.set(reasonObj, () => {
+        console.log("Saved lastBlocked info:", reasonObj);
+
+        (async () => {
+          try {
+            await rebuildRules();
+          } catch (err) {
+            console.warn("rebuildRules failed:", err);
+          } finally {
+            // Redirect current tab to blocked page (blocked page will read lastBlocked info)
+            chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
+          }
+        })();
+      });
     }
 
-    return data;  //returning result from backend to extention
 
   } catch (err) {
     console.error("processUrl error:", err);
@@ -305,7 +344,7 @@ function normalizeDomain(input) {
     const url = new URL(input.startsWith("http") ? input : "https://" + input);
     let host = url.hostname.toLowerCase();
     if (host.startsWith("www.")) host = host.slice(4);  // <-- strip www
-      return host;
+    return host;
   } catch {
     let host = input.trim().toLowerCase().replace(/\/+$/, "");
     if (host.startsWith("www.")) host = host.slice(4);
