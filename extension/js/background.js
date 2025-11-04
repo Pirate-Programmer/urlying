@@ -1,6 +1,6 @@
 let lastSelectedText = "";
 let lastLinkUrl = "";
-const risk_score_threshold = 70;
+const risk_score_threshold = 10;
 
 // default state if blacklist and whitelist are empty
 const DEFAULT_STATE = {

@@ -13,11 +13,6 @@ app = Flask(__name__)
 
 executor = ThreadPoolExecutor(max_workers=5)  # concurrent API calls
 
-# async def run_apis(url, hostname, level):
-#     apis_to_call = LEVEL_API_MAPPING.get(level, ["gsb", "abuseipdb"])
-#     results_list = await asyncio.gather(*(call_api_async(api, url, hostname) for api in apis_to_call))
-#     return {api: res for api, res in zip(apis_to_call, results_list)}
-
 #this process the url to compture threat score
 @app.route("/check_url", methods=["POST"])
 def check_url():
