@@ -4,28 +4,14 @@ from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlparse
 from datasets_fetch.run import run_all_parallel
 from apis_geoip.run import run as run_apis
-from dns.run import run as run_dns
-from ssl.run import run as run_ssl
-from whois.run import run as run_whois
+from dns_check.run import run as run_dns
+from ssl_check.run import run as run_ssl
+from whois_check.run import run as run_whois
 from feature_extraction import process_urls
 
 app = Flask(__name__)
 
 executor = ThreadPoolExecutor(max_workers=5)  # concurrent API calls
-
-# async def call_api_async(api_name, target_url, hostname):
-#     loop = asyncio.get_event_loop()
-#     try:
-#         if api_name == "abuseipdb":
-#             return await loop.run_in_executor(executor, api_manager.abuseipdb.fetch_result, hostname)
-#         elif api_name == "gsb":
-#             return await loop.run_in_executor(executor, api_manager.gsb.fetch_result, target_url)
-#         elif api_name == "virustotal":
-#             return await loop.run_in_executor(executor, api_manager.virustotal.fetch_result, target_url)
-#         elif api_name == "maxmind":
-#             return await loop.run_in_executor(executor, api_manager.maxmind.fetch_result, hostname)
-#     except Exception as e:
-#         return {"success": False, "unsafe": False, "source": api_name, "error": str(e)}
 
 # async def run_apis(url, hostname, level):
 #     apis_to_call = LEVEL_API_MAPPING.get(level, ["gsb", "abuseipdb"])
@@ -72,6 +58,7 @@ def check_url():
         except Exception as e:
             print("Error running task:", e)
 
+    print(total_score)
     # Step 5: Prepare response
     return jsonify({
         "url": url,

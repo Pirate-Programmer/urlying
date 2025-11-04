@@ -1,6 +1,6 @@
-from whois_details import save_whois_info
-from score_computer import whois_score_computer
-import os, json
+from .dns_records import save_dns_records
+from .score_computer import score_computer
+import sys, os, json
 
 def run():
     base_path = os.path.dirname(__file__)
@@ -23,11 +23,12 @@ def run():
     if not domain:
         raise ValueError("First feature does not contain a 'domain' key.")
 
-    output_file = save_whois_info(domain, "whois.json")
+    output_file = save_dns_records(domain, "dns.json")
     print(f"DNS info for {domain} saved in {output_file}")
 
-    score = whois_score_computer()
+    score = score_computer()
     return score
+
 
 if __name__ == "__main__":
     print(run())

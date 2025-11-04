@@ -1,0 +1,30 @@
+{
+    "domain": "www.spit.ac.in",
+    "A": {
+        "records": [
+            "49.249.218.26",
+            "43.252.193.19"
+        ],
+        "ttl": 84887
+    },
+    "AAAA": {
+        "records": [],
+        "ttl": null
+    },
+    "CNAME": {
+        "records": [],
+        "ttl": null
+    },
+    "MX": {
+        "records": [],
+        "ttl": null
+    },
+    "NS": {
+        "records": [],
+        "ttl": null
+    },
+    "TXT": {
+        "records": [],
+        "ttl": null
+    }
+}

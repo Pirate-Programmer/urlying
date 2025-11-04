@@ -1,6 +1,6 @@
-from sslcerts import save_ssl_info
-from score_computer import score_computer
-import sys, os, json
+from .whois_details import save_whois_info
+from .score_computer import whois_score_computer
+import os, json
 
 def run():
     base_path = os.path.dirname(__file__)
@@ -23,10 +23,10 @@ def run():
     if not domain:
         raise ValueError("First feature does not contain a 'domain' key.")
 
-    output_file = save_ssl_info(domain, "ssl.json")
+    output_file = save_whois_info(domain, "whois.json")
     print(f"DNS info for {domain} saved in {output_file}")
 
-    score = score_computer()
+    score = whois_score_computer()
     return score
 
 if __name__ == "__main__":

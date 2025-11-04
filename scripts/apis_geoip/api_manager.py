@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
-from AbuseIPDB import AbuseIPDBScanner
-from VirusTotal import VirusTotalScanner
-from GSB import GSB
+from .AbuseIPDB import AbuseIPDBScanner
+from .VirusTotal import VirusTotalScanner
+from .GSB import GSB
 load_dotenv()  # Load environment variables from .env
 
 class ApiManager:

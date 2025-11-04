@@ -1,5 +1,5 @@
-from dns_records import save_dns_records
-from score_computer import score_computer
+from .sslcerts import save_ssl_info
+from .score_computer import score_computer
 import sys, os, json
 
 def run():
@@ -23,12 +23,11 @@ def run():
     if not domain:
         raise ValueError("First feature does not contain a 'domain' key.")
 
-    output_file = save_dns_records(domain, "dns.json")
+    output_file = save_ssl_info(domain, "ssl.json")
     print(f"DNS info for {domain} saved in {output_file}")
 
     score = score_computer()
     return score
-
 
 if __name__ == "__main__":
     print(run())
