@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os, json
-from api_manager import ApiManager
+from .api_manager import ApiManager
 from score_computer import score_computer
 
 def run():

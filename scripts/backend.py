@@ -1,25 +1,15 @@
 from flask import Flask, request, jsonify
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-# from apis.api_manager import ApiManager
 from urllib.parse import urlparse
 from datasets_fetch.run import run_all_parallel
-
-import subprocess
-
+from apis_geoip.run import run as run_apis
+from dns.run import run as run_dns
+from ssl.run import run as run_ssl
+from whois.run import run as run_whois
+from feature_extraction import process_urls
 
 app = Flask(__name__)
-# api_manager = ApiManager()
-
-# Mapping security levels to APIs (updated, ipinfo removed)
-LEVEL_API_MAPPING = {
-    1: ["gsb"],                                # light / fast check
-    2: ["gsb"],                                # level 2 still only GSB
-    3: ["gsb", "abuseipdb"],                   # include AbuseIPDB
-    4: ["gsb", "abuseipdb", "virustotal"],    # include VirusTotal
-    5: ["gsb", "abuseipdb", "virustotal", "maxmind"],  # include MaxMind
-    6: ["gsb", "abuseipdb", "virustotal", "maxmind"],  # max scrutiny
-}
 
 executor = ThreadPoolExecutor(max_workers=5)  # concurrent API calls
 
@@ -50,37 +40,44 @@ def check_url():
     config = data.get("config", {})
     level = int(config.get("securityLevel", 3))
     print("Received URL:", url, "Security level:", level)
-    
-            
 
-    parsed_url = urlparse(url)
-    hostname = parsed_url.hostname
-    print(f"hostname: {hostname}")
-    # # Run all API calls asynchronously
-    # loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(loop)
-    # api_results = loop.run_until_complete(run_apis(url, hostname, level))
+    # Step 1: process URLs (no threading, as requested)
+    process_urls([url], max_workers=4)
 
-    # # Compute simple risk score for now
-    # risk_score = 0
-    # for res in api_results.values():
-    #     print(res)
-    #     if res.get("success") and res.get("unsafe"):
-    #         risk_score += 25  # each unsafe API contributes to risk score
-    # risk_score = min(risk_score, 100)
-    risk_score = 60
-    # Placeholder for ML model integration per security level
-    # ML_MODEL_RESULT = ml_model.predict(url)  # to be implemented later
-    
-    print(risk_score)
+    # Step 2: Define tasks based on level
+    tasks = []
+    if level >= 1:
+        tasks.append(run_dns)
+    if level >= 2:
+        tasks.append(run_ssl)
+    if level >= 3:
+        tasks.append(run_whois)
+    if level >= 4:
+        tasks.append(run_apis)
 
-    result = {
+    # Step 3: Run selected functions in thread pool
+    futures = []
+    for fn in tasks:
+        futures.append(executor.submit(fn))
+
+    # Step 4: Collect numeric results
+    total_score = 0
+    for fut in futures:
+        try:
+            result = fut.result()
+            if isinstance(result, (int, float)):
+                total_score += result
+            else:
+                print(f"Non-numeric output from {fn.__name__}: {result}")
+        except Exception as e:
+            print("Error running task:", e)
+
+    # Step 5: Prepare response
+    return jsonify({
         "url": url,
-        "risk_score": risk_score,
-        "verdict": f"suspicious ({level})",
-       # "api_results": api_results
-    }
-    return jsonify(result)
+        "risk_score": total_score,
+        "verdict": f"suspicious ({level})"
+    })
 
 
 #run the da run.py script on chrome launch
@@ -88,15 +85,6 @@ def check_url():
 def update_dataset():
     run_all_parallel()
     return "datasets_fetched"
-    # import subprocess, sys, os
-
-    # script_path = os.path.join(os.path.dirname(__file__), "run.py")
-    # try:
-    #     subprocess.Popen([sys.executable, script_path])
-    #     return {"status": "ok", "message": "Dataset update started"}, 200
-    # except Exception as e:
-    #     return {"status": "error", "message": str(e)}, 500
-
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
