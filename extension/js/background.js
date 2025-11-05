@@ -133,7 +133,19 @@ async function processUrl(url, tabId = null) {
     // Only auto-blacklist & redirect when score exceeds threshold and we have a tabId
     const score = Number(data.risk_score);
     if (tabId && !Number.isNaN(score) && score > risk_score_threshold) {
+      if (whitelist.includes(domain)) {
+        console.log("✅ Domain is whitelisted, skipping scan:", domain);
 
+        // also clear lastBlocked data so block page doesn't show again
+        chrome.storage.local.set({
+          lastBlockedDomain: null,
+          lastBlockedUrl: null,
+          lastBlockedReason: null,
+          lastBlockedScore: null
+        });
+
+        return; // <-- do NOT call backend
+      }
       chrome.storage.local.get(["blacklist"], (items) => {
         const blacklist = items.blacklist || [];
 
