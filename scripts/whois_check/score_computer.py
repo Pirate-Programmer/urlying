@@ -39,26 +39,26 @@ def domain_age_score(creation_date):
     now = datetime.now(timezone.utc)
     dt = parse_iso(creation_date)
     if not dt:
-        return 15
+        return 5
     years = (now - dt).days / 365.0
     if years <= 1:
-        return 20
-    if years <= 3:
         return 5
-    return -5
+    if years <= 3:
+        return 0
+    return -10
 
 def expiry_score(expiration_date):
     now = datetime.now(timezone.utc)
     dt = parse_iso(expiration_date)
     if not dt:
-        return 10
+        return 0
     days = (dt - now).days
     if days < 1:
-        return 30
+        return 15
     if days <= 30:
-        return 20
+        return 5
 
-    return -5
+    return -10
 
 def registrar_score(registrar):
     if not registrar:
@@ -71,8 +71,8 @@ def registrar_score(registrar):
     registrars = pd.read_csv(csv_path)
     reg = set(registrars["registrars"])
     if registrar in reg:
-        return -5
-    return 20
+        return -10
+    return 5
 
 def status_score(status):
     if not status:
@@ -97,9 +97,9 @@ def status_score(status):
         if cleaned_status in safe:
             score -= 5
         elif cleaned_status in malicious:
-            score += 10
-        elif cleaned_status in suspicious:
             score += 5
+        elif cleaned_status in suspicious:
+            score += 2
         else:
             score += 10
 
@@ -167,7 +167,7 @@ def email_score(emails, registrar, hostname=None):
                     matched = True
 
             if matched:
-                score -= 5
+                score -= 10
             else:
                 score += 5
 
@@ -186,17 +186,17 @@ def updated_date_score(updated_date):
 
     # Recently updated (< 90 days) often legit
     if days <= 90:
-        return -5  
+        return -10 
     
     # Updated a long time back (> 2 years) suspicious
     if days > 730:
-        return 10  
+        return 5
     
-    return 2  # Slight neutral suspicion otherwise
+    return 0  # Slight neutral suspicion otherwise
 
 def dnssec_score(dnssec):
     if dnssec == "signed":
-        return -5
+        return -10
     return 0
 
 def asn_score(asn):

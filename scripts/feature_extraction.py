@@ -33,6 +33,8 @@ def domain_length(url):
             raise ValueError("Invalid URL: must start with http:// or https://")
         
         domain = url.split('/')[0].split(':')[0]
+        if domain.startswith("www."):
+            domain = domain[4:]
         return domain, len(domain)
     except Exception as e:
         print(f"Error: {e}")

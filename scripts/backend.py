@@ -37,6 +37,7 @@ def check_url():
     # Step 1: process URLs (no threading, as requested) 
     # this is feature extraction
     process_urls([url], max_workers=4)
+    print("Feature Extraction Done !!!")
 
     # Step 2: Define tasks based on level
     tasks = []

@@ -1,15 +1,12 @@
 {
-    "domain_name": "FITGIRLREPACKS.CO",
-    "creation_date": "2019-08-26T07:19:45",
-    "expiration_date": "2026-08-26T23:59:59",
-    "updated_date": "2025-08-24T16:51:59",
+    "domain_name": "PHISHTANK.COM",
+    "creation_date": "2006-03-24T00:26:15",
+    "expiration_date": "2026-03-23T23:26:15",
+    "updated_date": "2025-02-07T22:21:49",
     "dnssec": "unsigned",
     "status": "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
-    "emails": [
-        "abuse@namecheap.com",
-        "f0238e884e454a0d985b52ac10111871.protect@withheldforprivacy.com"
-    ],
-    "registrar": "NAMECHEAP INC",
+    "emails": "abuse-contact@publicdomainregistry.com",
+    "registrar": "PDR Ltd. d/b/a PublicDomainRegistry.com",
     "asn": "13335",
     "asn_country_code": "US"
 }

@@ -24,9 +24,10 @@ def run():
         raise ValueError("First feature does not contain a 'domain' key.")
 
     output_file = save_ssl_info(domain, "ssl.json")
-    print(f"DNS info for {domain} saved in {output_file}")
+    print(f"SSL info for {domain} saved in {output_file}")
 
     score = score_computer()
+    print("SSL score: ", score)
     return score
 
 if __name__ == "__main__":

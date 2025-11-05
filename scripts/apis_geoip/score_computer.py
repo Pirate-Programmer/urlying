@@ -40,7 +40,7 @@ def tor_entry(ip):
 def abuseIPDB(unsafe, abuse_score):
     score = 0
     if unsafe:
-        score += 10
+        score += 5
     else:
         score -= 5
     if isinstance(abuse_score, (int, float)):
@@ -54,7 +54,7 @@ def abuseIPDB(unsafe, abuse_score):
 def gsb(unsafe):
     score = 0
     if unsafe:
-        score += 10
+        score += 5
     else:
         score -= 5
 
@@ -63,7 +63,7 @@ def gsb(unsafe):
 def virustotal(unsafe, reputation):
     score = 0
     if unsafe:
-        score += 10
+        score += 5
     else:
         score -= 5
 
@@ -99,19 +99,19 @@ def score_computer():
     reputation = data3.get("reputation")
 
     if cyberghost(ip) : 
-        score += 20
+        score += 10
     elif mullvad(ip) :
-        score += 20
+        score += 10
     elif nord(ip) :
-        score += 20
+        score += 10
     elif proton(ip) : 
-        score += 20
+        score += 10
     elif surfshark(ip) :
-        score += 20
+        score += 10
     elif tor_entry(ip) : 
         score -= 10
     elif tor_exit(ip) :
-        score += 20
+        score += 10
 
     score += abuseIPDB(unsafe_abuseipdb, abuse_score)
     score += gsb(unsafe_gsb)

@@ -24,9 +24,10 @@ def run():
         raise ValueError("First feature does not contain a 'domain' key.")
 
     output_file = save_whois_info(domain, "whois.json")
-    print(f"DNS info for {domain} saved in {output_file}")
+    print(f"WHOIS info for {domain} saved in {output_file}")
 
     score = whois_score_computer()
+    print("WHOIS score: ", score)
     return score
 
 if __name__ == "__main__":

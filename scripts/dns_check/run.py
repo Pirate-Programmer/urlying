@@ -27,6 +27,7 @@ def run():
     print(f"DNS info for {domain} saved in {output_file}")
 
     score = score_computer()
+    print("DNS Score: ", score)
     return score
 
 
