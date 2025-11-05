@@ -19,7 +19,7 @@ chrome.storage.local.get(
     if (reason === "auto_blacklist") {
       messageEl.textContent = blockedDomain
         ? `This domain (${blockedDomain}) has been flagged as malicious or harmful.`
-        : "This site has been flagged as malicious or harmful.";
+        : "This site has been blacklisted.";
     } else if (reason === "dnr_rule") {
       messageEl.textContent = blockedDomain
         ? `This domain (${blockedDomain}) is blocked by your blacklist rules.`

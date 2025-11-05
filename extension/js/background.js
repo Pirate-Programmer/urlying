@@ -75,28 +75,43 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
 // ---------------------------
 async function processUrl(url, tabId = null) {
   try {
-    const domain = new URL(url).hostname.toLowerCase();
+    const normDomain = normalizeDomain(url); // canonical domain for all checks
+
+    // read lists (chrome.storage.local.get returns a promise in MV3)
     const { blacklist = [], whitelist = [] } = await chrome.storage.local.get(["blacklist", "whitelist"]);
 
-    // Fast flag: blacklist → block immediately
-    if (blacklist.map(normalizeDomain).includes(domain)) {
+    // Fast flag: blacklist → block immediately (compare normalized)
+    const normalizedBlacklist = (blacklist || []).map(d => normalizeDomain(d));
+    if (normalizedBlacklist.includes(normDomain)) {
       if (tabId) chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
       return;
     }
 
-    // Fast flag: whitelist (remove expired entries)
+    // Fast flag: whitelist (remove expired entries and compare normalized)
     const now = Date.now();
-    const validWhitelist = (whitelist || []).filter(e => e.expiry > now);
-    if (validWhitelist.some(e => normalizeDomain(e.domain) === domain)) {
+    const validWhitelist = (whitelist || []).filter(e => e && e.expiry > now);
+    // persist cleanup if some expired
+    if (validWhitelist.length !== (whitelist || []).length) {
+      chrome.storage.local.set({ whitelist: validWhitelist });
+    }
+    const whitelistSet = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
+    if (whitelistSet.has(normDomain)) {
+      // whitelisted — skip scanning and do not block
+      console.log("✅ Domain is whitelisted, skipping scan:", normDomain);
+
+      // clear lastBlocked info so blocked page won't erroneously show
+      chrome.storage.local.set({
+        lastBlockedDomain: null,
+        lastBlockedUrl: null,
+        lastBlockedReason: null,
+        lastBlockedScore: null
+      });
       return;
     }
 
-    // TODO: additional fast flags can be added here
-
-    // Send to backend only if not blacklisted/whitelisted
-    const lvl = await chrome.storage.local.get("securityLevel");
-    const securityLevel = lvl.securityLevel || 3;
-
+    // Not blacklisted or whitelisted → call backend
+    const lvlObj = await chrome.storage.local.get("securityLevel");
+    const securityLevel = lvlObj.securityLevel || 3;
 
     const res = await fetch("http://127.0.0.1:5000/check_url", {
       method: "POST",
@@ -117,7 +132,6 @@ async function processUrl(url, tabId = null) {
 
     console.log("Backend scan result:", data);
 
-    // Notify content script (speedometer) if tabId exists
     if (tabId) {
       chrome.tabs.sendMessage(tabId, {
         type: "updateRisk",
@@ -126,66 +140,51 @@ async function processUrl(url, tabId = null) {
       });
     }
 
-    // Normalize domain using backend-provided domain (if any), otherwise fall back to URL
+    // Use backend-provided domain if present, otherwise our normalized domain
     const backendDomain = data?.domain;
     const domainToBlacklist = normalizeDomain(backendDomain ?? url);
-
-    // Only auto-blacklist & redirect when score exceeds threshold and we have a tabId
     const score = Number(data.risk_score);
+
+    // only auto-blacklist when threshold exceeded
     if (tabId && !Number.isNaN(score) && score > risk_score_threshold) {
-      if (whitelist.includes(domain)) {
-        console.log("✅ Domain is whitelisted, skipping scan:", domain);
-
-        // also clear lastBlocked data so block page doesn't show again
-        chrome.storage.local.set({
-          lastBlockedDomain: null,
-          lastBlockedUrl: null,
-          lastBlockedReason: null,
-          lastBlockedScore: null
-        });
-
-        return; // <-- do NOT call backend
-      }
+      // add to persistent blacklist (avoid duplicates)
       chrome.storage.local.get(["blacklist"], (items) => {
-        const blacklist = items.blacklist || [];
-
-        blacklist.push(domainToBlacklist);
-        chrome.storage.local.set({ blacklist }, () => {
-          console.log("Added to blacklist:", domainToBlacklist);
-        });
-
+        const bl = items.blacklist || [];
+        const already = bl.some(d => normalizeDomain(d) === domainToBlacklist);
+        if (!already) {
+          bl.push(domainToBlacklist);
+          chrome.storage.local.set({ blacklist: bl }, () => {
+            console.log("Added to blacklist:", domainToBlacklist);
+          });
+        }
       });
 
-      const reasonObj = {
+      // save lastBlocked info for blocked page
+      chrome.storage.local.set({
         lastBlockedDomain: domainToBlacklist,
         lastBlockedUrl: url,
         lastBlockedReason: "auto_blacklist",
         lastBlockedScore: score,
         timestamp: Date.now()
-      };
-
-      // Save reason so blocked.html can show tailored message, then rebuild rules and redirect
-      chrome.storage.local.set(reasonObj, () => {
-        console.log("Saved lastBlocked info:", reasonObj);
-
+      }, () => {
+        // rebuild rules then redirect
         (async () => {
           try {
             await rebuildRules();
           } catch (err) {
             console.warn("rebuildRules failed:", err);
           } finally {
-            // Redirect current tab to blocked page (blocked page will read lastBlocked info)
             chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
           }
         })();
       });
     }
 
-
   } catch (err) {
     console.error("processUrl error:", err);
   }
 }
+
 
 // ---------------------------
 // Handle messages from content.js or popup
