@@ -34,7 +34,8 @@ def check_url():
     level = int(config.get("securityLevel", 3))
     print("Received URL:", url, "Security level:", level)
 
-    # Step 1: process URLs (no threading, as requested)
+    # Step 1: process URLs (no threading, as requested) 
+    # this is feature extraction
     process_urls([url], max_workers=4)
 
     # Step 2: Define tasks based on level

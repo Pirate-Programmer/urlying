@@ -1,30 +1,43 @@
 {
-    "domain": "www.spit.ac.in",
+    "domain": "fitgirlrepacks.co",
     "A": {
         "records": [
-            "43.252.193.19",
-            "49.249.218.26"
+            "172.67.190.162",
+            "104.21.51.232"
         ],
-        "ttl": 40478
+        "ttl": 300
     },
     "AAAA": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "2606:4700:3035::6815:33e8",
+            "2606:4700:3034::ac43:bea2"
+        ],
+        "ttl": 300
     },
     "CNAME": {
         "records": [],
         "ttl": null
     },
     "MX": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "10 mx.yandex.net."
+        ],
+        "ttl": 300
     },
     "NS": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "aida.ns.cloudflare.com.",
+            "darl.ns.cloudflare.com."
+        ],
+        "ttl": 86400
     },
     "TXT": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "\"yandex-verification: 3a37b88338664d44\"",
+            "\"02301b826d9f7b749bed9eed86bc980b\"",
+            "\"ahrefs-site-verification_2318e488da5a88aa940d6724e45866d9ba417eadc6e1d41e0887fa73a84135d3\"",
+            "\"google-site-verification=Gk3_wCvN9RWP5SDQk3_63jMbv0WwRrYvlANOwsS_MJ4\""
+        ],
+        "ttl": 300
     }
 }

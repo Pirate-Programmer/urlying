@@ -178,6 +178,38 @@ async function processUrl(url, tabId = null) {
           }
         })();
       });
+    } else {
+      const wlDomain = domainToBlacklist; // already normalized above
+
+      chrome.storage.local.get(["blacklist", "whitelist"], (items) => {
+        let blacklist = items.blacklist || [];
+        let whitelist = items.whitelist || [];
+
+        // remove from blacklist if present
+        blacklist = blacklist.filter(d => normalizeDomain(d) !== wlDomain);
+
+        // add to whitelist if not already present (compare normalized)
+        const alreadyWhitelisted = whitelist.some(e => normalizeDomain(e.domain) === wlDomain);
+        if (!alreadyWhitelisted) {
+          const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
+          whitelist.push({ domain: wlDomain, expiry });
+          console.log("Added to whitelist:", wlDomain);
+        } else {
+          console.log("Domain already whitelisted:", wlDomain);
+        }
+
+        // save updated lists and rebuild rules
+        chrome.storage.local.set({ blacklist, whitelist }, () => {
+          // rebuild rules so DNR reflects the updated lists
+          (async () => {
+            try {
+              await rebuildRules();
+            } catch (err) {
+              console.warn("rebuildRules failed after whitelist update:", err);
+            }
+          })();
+        });
+      });
     }
 
   } catch (err) {
