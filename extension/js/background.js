@@ -84,6 +84,9 @@ async function processUrl(url, tabId = null) {
     const normalizedBlacklist = (blacklist || []).map(d => normalizeDomain(d));
     if (normalizedBlacklist.includes(normDomain)) {
       if (tabId) chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
+      chrome.storage.local.set({
+        lastBlockedReason: "dnr_rule",
+      });
       return;
     }
 

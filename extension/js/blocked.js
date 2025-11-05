@@ -18,11 +18,11 @@ chrome.storage.local.get(
     // ===== MESSAGE LOGIC =====
     if (reason === "auto_blacklist") {
       messageEl.textContent = blockedDomain
-        ? `This domain (${blockedDomain}) has been flagged as malicious or harmful.`
+        ? `This domain "${blockedDomain}" has been flagged as malicious or harmful.`
         : "This site has been blacklisted.";
     } else if (reason === "dnr_rule") {
       messageEl.textContent = blockedDomain
-        ? `This domain (${blockedDomain}) is blocked by your blacklist rules.`
+        ? `This domain "${blockedDomain}" is blocked by your blacklist rules.`
         : "This site is blocked by your blacklist rules.";
     } else {
       messageEl.textContent = blockedDomain
