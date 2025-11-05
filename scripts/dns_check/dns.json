@@ -1,39 +1,33 @@
 {
-    "domain": "phishtank.com",
+    "domain": "ww25.fitgirlrepack.co",
     "A": {
         "records": [
-            "104.18.162.237",
-            "104.18.161.237"
+            "199.59.243.228"
         ],
-        "ttl": 300
+        "ttl": 9165
     },
     "AAAA": {
         "records": [
-            "2606:4700:8d72:2ee:d0d7:dfd:6812:a1ed"
+            "64:ff9b::c73b:f3e4"
         ],
-        "ttl": 60
+        "ttl": 7927
     },
     "CNAME": {
+        "records": [
+            "77026.bodis.com."
+        ],
+        "ttl": 3599
+    },
+    "MX": {
         "records": [],
         "ttl": null
     },
-    "MX": {
-        "records": [
-            "100 inbound-smtp.us-east-1.amazonaws.com."
-        ],
-        "ttl": 300
-    },
     "NS": {
-        "records": [
-            "lakas.ns.cloudflare.com.",
-            "fiona.ns.cloudflare.com."
-        ],
-        "ttl": 86400
+        "records": [],
+        "ttl": null
     },
     "TXT": {
-        "records": [
-            "\"v=spf1 ip4:34.237.97.135/32 a mx include:mailgun.org include:amazonses.com ?all\""
-        ],
-        "ttl": 300
+        "records": [],
+        "ttl": null
     }
 }

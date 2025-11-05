@@ -8,6 +8,7 @@ from dns_check.run import run as run_dns
 from ssl_check.run import run as run_ssl
 from whois_check.run import run as run_whois
 from feature_extraction import process_urls
+from run_ml import run as run_ml
 
 app = Flask(__name__)
 
@@ -42,12 +43,14 @@ def check_url():
     # Step 2: Define tasks based on level
     tasks = []
     if level >= 1:
-        tasks.append(run_dns)
+        tasks.append(run_ml)
     if level >= 2:
-        tasks.append(run_ssl)
+        tasks.append(run_dns)
     if level >= 3:
-        tasks.append(run_whois)
+        tasks.append(run_ssl)
     if level >= 4:
+        tasks.append(run_whois)
+    if level >= 5:
         tasks.append(run_apis)
 
     # Step 3: Run selected functions in thread pool

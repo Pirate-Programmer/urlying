@@ -291,7 +291,7 @@ def character_transition_entropy(text):
             p = count / total
             entropy -= p * math.log2(p)
 
-        return entropy
+        return round(entropy, 2)
 
     except Exception as e:
         print(f"Error: {e}")
@@ -323,8 +323,40 @@ def specialchar_to_length_ratio(special_count, url_length):
     except Exception as e:
         print(f"Error: {e}")
         return 0.0
+
+def extract_tld(domain, is_ip):
+    try:
+        if is_ip == 1:
+            return "Absent"
+
+        parts = domain.split('.')
+        if len(parts) < 2:
+            return "Invalid"
+
+        return parts[-1].lower()
+    except Exception as e:
+        print(f"Error: {e}")
+        return ""
+    
+def check_tld_and_mtld(domain, tld_set):
+    try:
+        domain = domain.strip().lower()
+        parts = domain.split('.')
+
+        if len(parts) < 2:
+            return 0, 0 
+
+        tld = parts[-1]
+        mtld = parts[-2]
+
+        return int(tld in tld_set), int(mtld in tld_set)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return 0, 0
     
 def extract_features_for_url(url: str) -> Dict[str, Any]:
+    tlds = pd.read_csv("../datasets/tlds/tlds.csv")
     # basic parts
     https_flag = is_https(url)
     u_len = url_length(url)
@@ -365,50 +397,50 @@ def extract_features_for_url(url: str) -> Dict[str, Any]:
     digit_len_ratio = digit_to_length_ratio(digits, u_len)
     char_len_ratio = char_to_length_ratio(al_count, u_len)
     special_len_ratio = specialchar_to_length_ratio(special_chars, u_len)
-
+    tld, mtld = check_tld_and_mtld(domain, tlds)
     features = {
+        "dots": dots, # ok
+        "at": at_symbols, # ok
+        "equals": equals, # ok
+        "slashes": slashes, # ok
+        "hyphens": hyphens, # ok
+        "colons": colons, # ok
+        "question_marks": qm, # ok
+        "digits": digits, # ok
+        "and": ands, # ok
+        "underscore": underscores, # ok
+        "tilde": tildes, # ok
+        "percent": percents, # ok
+        "lowercase": lower, # ok
+        "uppercase": upper, # ok
+        "upper_to_lower_ratio": upper_lower_ratio, # ok
+        "is_https": https_flag,# ok
+        "url_length": u_len,# ok
+        "domain_length": domain_len,# ok
+        "path_length": path_len,# ok
+        "path_depth": path_dep,# ok
+        "query_length": query_len,# ok
+        "query_count": query_count,# ok
+        "fragment_length": fragment_len,# ok
+        "se_url": url_entropy, # ok
+        "se_domain": domain_entropy,# ok
+        "se_path": path_entropy,# ok
+        "se_query": query_entropy,# ok
+        "se_fragment": fragment_entropy,# ok
+        "cte_domain": char_trans_entropy, # ok
+        "is_domain_ip": domain_is_ip,# ok
+        "is_tld_iana_reg" : tld,# ok
+        "is_mtld" : mtld,# ok
+        "subdomains": subdomains, # ok
+        "special_chars": special_chars,# ok
+        "digit_to_length_ratio": digit_len_ratio, # ok
+        "char_to_length_ratio": char_len_ratio,# ok
+        "specialchar_to_length_ratio": special_len_ratio, # ok
         "url": url,
-        "https": https_flag,
-        "url_length": u_len,
         "domain": domain,
-        "domain_length": domain_len,
         "path": path,
-        "path_length": path_len,
-        "path_depth": path_dep,
         "query": query,
-        "query_length": query_len,
-        "query_count": query_count,
         "fragment": fragment,
-        "fragment_length": fragment_len,
-        # counts
-        "dots": dots,
-        "at_symbols": at_symbols,
-        "equals": equals,
-        "special_chars_count": special_chars,
-        "slashes": slashes,
-        "hyphens": hyphens,
-        "digits_count": digits,
-        "colons": colons,
-        "question_marks": qm,
-        "ands": ands,
-        "underscores": underscores,
-        "tildes": tildes,
-        "percents": percents,
-        "lowercase_count": lower,
-        "uppercase_count": upper,
-        # derived
-        "upper_to_lower_ratio": upper_lower_ratio,
-        "is_domain_ip": domain_is_ip,
-        "subdomain_count": subdomains,
-        "shannon_entropy_url": url_entropy,
-        "shannon_entropy_domain": domain_entropy,
-        "shannon_entropy_path": path_entropy,
-        "shannon_entropy_query": query_entropy,
-        "shannon_entropy_fragment": fragment_entropy,
-        "char_transition_entropy_domain": char_trans_entropy,
-        "digit_to_length_ratio": digit_len_ratio,
-        "char_to_length_ratio": char_len_ratio,
-        "specialchar_to_length_ratio": special_len_ratio,
     }
 
     return features
@@ -433,7 +465,6 @@ def process_urls(urls: List[str],
     
     # Save results and optionally errors into a JSON object
     output = {
-        "count": len(results),
         "features": results,
         "errors": errors
     }
@@ -452,7 +483,7 @@ def process_urls(urls: List[str],
 
 if __name__ == "__main__":
     urls = [
-        "https://www.google.com/search?q=gkfndj&oq=gkfndj&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTINCAEQABiDARixAxiABDITCAIQLhiDARjHARixAxjRAxiABDINCAMQABiDARixAxiABDIKCAQQABixAxiABDINCAUQABiDARixAxiABDITCAYQLhiDARjHARixAxjRAxiABDINCAcQABiDARixAxiABDINCAgQABiDARixAxiABDIKCAkQABixAxiABNIBCDIwMTlqMGo3qAIAsAIA&sourceid=chrome&ie=UTF-8"
+        "https://wise.com/es/swift-codes/BACUSVSSXXX"
     ]
     feats = process_urls(urls, max_workers=4)
     print(f"Processed {len(feats)} URLs, saved to features.json")
