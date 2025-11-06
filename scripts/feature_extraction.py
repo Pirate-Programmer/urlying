@@ -354,7 +354,10 @@ def check_tld_and_mtld(domain, tld_set):
         return 0, 0
     
 def extract_features_for_url(url: str) -> Dict[str, Any]:
-    tlds = pd.read_csv("../datasets/tlds/tlds.csv")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, "../datasets/tlds/tlds.csv")
+
+    tlds = pd.read_csv(file_path)
     # basic parts
     https_flag = is_https(url)
     u_len = url_length(url)
@@ -481,7 +484,7 @@ def process_urls(urls: List[str],
 
 if __name__ == "__main__":
     urls = [
-        "https://www.google.com"
+        "https://www.google.com/search?q=sigma&oq=sigma&gs_lcrp=EgZjaHJvbWUyDAgAEEUYORixAxiABDITCAEQLhiDARjHARixAxjRAxiABDINCAIQABiDARixAxiABDINCAMQLhivARjHARiABDIKCAQQABixAxiABDIJCAUQLhgDGOUEMgcIBhAAGIAEMhAIBxAAGIMBGLEDGIAEGIoFMgcICBAAGIAEMgcICRAAGI8C0gEHNjYwajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
     ]
     feats = process_urls(urls, max_workers=4)
     print(f"Processed {len(feats)} URLs, saved to features.json")

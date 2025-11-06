@@ -1,9 +1,49 @@
 {
-  "features": [],
-  "errors": [
+  "features": [
     {
-      "url": "https://www.google.com",
-      "error": "[Errno 2] No such file or directory: '../datasets/tlds/tlds.csv'"
+      "dots": 2,
+      "at": 0,
+      "equals": 5,
+      "slashes": 3,
+      "hyphens": 1,
+      "colons": 1,
+      "question_marks": 1,
+      "digits": 4,
+      "and": 4,
+      "underscore": 1,
+      "tilde": 0,
+      "percent": 0,
+      "lowercase": 111,
+      "uppercase": 157,
+      "upper_to_lower_ratio": 1.41,
+      "is_https": 1,
+      "url_length": 290,
+      "domain_length": 14,
+      "path_length": 7,
+      "path_depth": 1,
+      "query_length": 260,
+      "query_count": 5,
+      "fragment_length": 0,
+      "se_url": 5.14,
+      "se_domain": 2.84,
+      "se_path": 2.81,
+      "se_query": 4.96,
+      "se_fragment": 0.0,
+      "cte_domain": 3.55,
+      "is_domain_ip": 0,
+      "is_tld_iana_reg": 0,
+      "is_mtld": 0,
+      "subdomains": 1,
+      "special_chars": 0,
+      "digit_to_length_ratio": 0.01,
+      "char_to_length_ratio": 0.92,
+      "specialchar_to_length_ratio": 0.0,
+      "url": "https://www.google.com/search?q=sigma&oq=sigma&gs_lcrp=EgZjaHJvbWUyDAgAEEUYORixAxiABDITCAEQLhiDARjHARixAxjRAxiABDINCAIQABiDARixAxiABDINCAMQLhivARjHARiABDIKCAQQABixAxiABDIJCAUQLhgDGOUEMgcIBhAAGIAEMhAIBxAAGIMBGLEDGIAEGIoFMgcICBAAGIAEMgcICRAAGI8C0gEHNjYwajBqN6gCALACAA&sourceid=chrome&ie=UTF-8",
+      "domain": "www.google.com",
+      "path": "/search",
+      "query": "q=sigma&oq=sigma&gs_lcrp=EgZjaHJvbWUyDAgAEEUYORixAxiABDITCAEQLhiDARjHARixAxjRAxiABDINCAIQABiDARixAxiABDINCAMQLhivARjHARiABDIKCAQQABixAxiABDIJCAUQLhgDGOUEMgcIBhAAGIAEMhAIBxAAGIMBGLEDGIAEGIoFMgcICBAAGIAEMgcICRAAGI8C0gEHNjYwajBqN6gCALACAA&sourceid=chrome&ie=UTF-8",
+      "fragment": "#"
     }
-  ]
+  ],
+  "errors": []
 }
