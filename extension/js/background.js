@@ -75,6 +75,9 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
 // ---------------------------
 async function processUrl(url, tabId = null) {
   try {
+    if(url.startsWith("chrome", 0)) {
+      return;
+    }
     const normDomain = normalizeDomain(url); // canonical domain for all checks
 
     // read lists (chrome.storage.local.get returns a promise in MV3)
