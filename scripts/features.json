@@ -1,49 +1,9 @@
 {
-  "features": [
+  "features": [],
+  "errors": [
     {
-      "dots": 2,
-      "at": 0,
-      "equals": 1,
-      "slashes": 3,
-      "hyphens": 4,
-      "colons": 1,
-      "question_marks": 1,
-      "digits": 30,
-      "and": 0,
-      "underscore": 0,
-      "tilde": 0,
-      "percent": 0,
-      "lowercase": 31,
-      "uppercase": 0,
-      "upper_to_lower_ratio": 0.0,
-      "is_https": 0,
-      "url_length": 73,
-      "domain_length": 21,
-      "path_length": 0,
-      "path_depth": 0,
-      "query_length": 43,
-      "query_count": 1,
-      "fragment_length": 0,
-      "se_url": 4.73,
-      "se_domain": 3.92,
-      "se_path": 0.0,
-      "se_query": 3.85,
-      "se_fragment": 0.0,
-      "cte_domain": 4.32,
-      "is_domain_ip": 0,
-      "is_tld_iana_reg": 0,
-      "is_mtld": 0,
-      "subdomains": 1,
-      "special_chars": 0,
-      "digit_to_length_ratio": 0.41,
-      "char_to_length_ratio": 0.42,
-      "specialchar_to_length_ratio": 0.0,
-      "url": "http://ww25.fitgirlrepack.co/?subid1=20251106-0132-3251-9e20-35ceda750080",
-      "domain": "ww25.fitgirlrepack.co",
-      "path": "/",
-      "query": "subid1=20251106-0132-3251-9e20-35ceda750080",
-      "fragment": "#"
+      "url": "https://www.google.com",
+      "error": "[Errno 2] No such file or directory: '../datasets/tlds/tlds.csv'"
     }
-  ],
-  "errors": []
+  ]
 }

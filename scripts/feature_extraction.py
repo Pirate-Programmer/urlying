@@ -33,8 +33,6 @@ def domain_length(url):
             raise ValueError("Invalid URL: must start with http:// or https://")
         
         domain = url.split('/')[0].split(':')[0]
-        if domain.startswith("www."):
-            domain = domain[4:]
         return domain, len(domain)
     except Exception as e:
         print(f"Error: {e}")
@@ -483,7 +481,7 @@ def process_urls(urls: List[str],
 
 if __name__ == "__main__":
     urls = [
-        "https://wise.com/es/swift-codes/BACUSVSSXXX"
+        "https://www.google.com"
     ]
     feats = process_urls(urls, max_workers=4)
     print(f"Processed {len(feats)} URLs, saved to features.json")
