@@ -358,6 +358,10 @@ def extract_features_for_url(url: str) -> Dict[str, Any]:
     file_path = os.path.join(script_dir, "../datasets/tlds/tlds.csv")
 
     tlds = pd.read_csv(file_path)
+
+    if url.endswith("/"):
+        url = url[:-1]
+
     # basic parts
     https_flag = is_https(url)
     u_len = url_length(url)
@@ -486,7 +490,7 @@ def process_urls(urls: List[str],
 
 if __name__ == "__main__":
     urls = [
-        "https://www.google.com/search?q=sigma&oq=sigma&gs_lcrp=EgZjaHJvbWUyDAgAEEUYORixAxiABDITCAEQLhiDARjHARixAxjRAxiABDINCAIQABiDARixAxiABDINCAMQLhivARjHARiABDIKCAQQABixAxiABDIJCAUQLhgDGOUEMgcIBhAAGIAEMhAIBxAAGIMBGLEDGIAEGIoFMgcICBAAGIAEMgcICRAAGI8C0gEHNjYwajBqN6gCALACAA&sourceid=chrome&ie=UTF-8"
+        "https://www.google.com/"
     ]
     feats = process_urls(urls, max_workers=4)
     print(f"Processed {len(feats)} URLs, saved to features.json")
