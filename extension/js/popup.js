@@ -56,47 +56,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-chrome.storage.local.get({ enableBlocking: false }, (data) => {
-  toggle.checked = data.enableBlocking;
-  updateToggleUI(data.enableBlocking);
-});
-
-
-// --- Security level (1-6) ---
-const fanRadios = document.querySelectorAll('input[name="fan"]');
-
-// Load saved security level
-chrome.storage.local.get({ securityLevel: 3 }, (data) => {
-  const level = data.securityLevel;
-  const radio = document.getElementById(`fan_${level}`);
-  if (radio) radio.checked = true;
-});
-
-// Save when user changes level
-fanRadios.forEach(radio => {
-  radio.addEventListener('change', () => {
-    if (radio.checked) {
-      const level = parseInt(radio.id.split('_')[1], 10);
-      chrome.storage.local.set({ securityLevel: level });
-    }
+  chrome.storage.local.get({ enableBlocking: false }, (data) => {
+    toggle.checked = data.enableBlocking;
+    updateToggleUI(data.enableBlocking);
   });
-});
 
-  // Fan level knob
+
+  // Load saved security level
+  // --- Security level (1-5) — simplified and consistent ---
+  const fanRadios = document.querySelectorAll('input[name="fan"]');
+
+  // Load saved security level (default 3)
+  chrome.storage.local.get({ securityLevel: 3 }, (data) => {
+    const level = parseInt(data.securityLevel, 10) || 3;
+    const radio = document.getElementById(`fan_${level}`);
+    if (radio) radio.checked = true;
+  });
+
+  // Save when user changes level (one source of truth)
   fanRadios.forEach(radio => {
-    radio.addEventListener("change", () => {
-      if (radio.checked) {
-        chrome.storage.local.set({ fanLevel: radio.id }, () => {
-          console.log("Fan level saved:", radio.id);
+    radio.addEventListener('change', () => {
+      if (!radio.checked) return;
+      const level = parseInt(radio.id.split('_')[1], 10);
+      if (Number.isFinite(level)) {
+        chrome.storage.local.set({ securityLevel: level }, () => {
+          console.log('securityLevel saved:', level);
         });
       }
     });
   });
 
-  chrome.storage.local.get({ fanLevel: "fan_1" }, (data) => {
-    const saved = document.getElementById(data.fanLevel);
-    if (saved) {
-      saved.checked = true;
-    }
-  });
 });
