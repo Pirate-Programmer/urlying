@@ -39,7 +39,7 @@
       "char_to_length_ratio": 0.92,
       "specialchar_to_length_ratio": 0.0,
       "url": "https://www.google.com/search?q=sigma&oq=sigma&gs_lcrp=EgZjaHJvbWUyDAgAEEUYORixAxiABDITCAEQLhiDARjHARixAxjRAxiABDINCAIQABiDARixAxiABDINCAMQLhivARjHARiABDIKCAQQABixAxiABDIJCAUQLhgDGOUEMgcIBhAAGIAEMhAIBxAAGIMBGLEDGIAEGIoFMgcICBAAGIAEMgcICRAAGI8C0gEHNjYwajBqN6gCALACAA&sourceid=chrome&ie=UTF-8",
-      "domain": "www.google.com",
+      "domain": "google.com",
       "path": "/search",
       "query": "q=sigma&oq=sigma&gs_lcrp=EgZjaHJvbWUyDAgAEEUYORixAxiABDITCAEQLhiDARjHARixAxjRAxiABDINCAIQABiDARixAxiABDINCAMQLhivARjHARiABDIKCAQQABixAxiABDIJCAUQLhgDGOUEMgcIBhAAGIAEMhAIBxAAGIMBGLEDGIAEGIoFMgcICBAAGIAEMgcICRAAGI8C0gEHNjYwajBqN6gCALACAA&sourceid=chrome&ie=UTF-8",
       "fragment": "#"

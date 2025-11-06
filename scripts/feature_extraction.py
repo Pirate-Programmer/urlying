@@ -399,6 +399,8 @@ def extract_features_for_url(url: str) -> Dict[str, Any]:
     char_len_ratio = char_to_length_ratio(al_count, u_len)
     special_len_ratio = specialchar_to_length_ratio(special_chars, u_len)
     tld, mtld = check_tld_and_mtld(domain, tlds)
+
+    if domain.startswith("www.") : domain = domain[4:]
     features = {
         "dots": dots, # ok
         "at": at_symbols, # ok
