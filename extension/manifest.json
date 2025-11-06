@@ -19,7 +19,8 @@
     "https://*/*"
   ],
   "background": {
-    "service_worker": "js/background.js"
+    "service_worker": "js/background.js",
+    "type": "module"
   },
   "web_accessible_resources": [
     {

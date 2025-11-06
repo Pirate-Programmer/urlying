@@ -1,3 +1,6 @@
+import { runFastFlags } from "./fastflags.js";
+
+
 let lastSelectedText = "";
 let lastLinkUrl = "";
 const risk_score_threshold = 10;
@@ -227,13 +230,29 @@ async function processUrl(url, tabId = null) {
 // ---------------------------
 // Handle messages from content.js or popup
 // ---------------------------
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   // Track selection/link messages
+
   if (msg.type === "updateSelection") lastSelectedText = msg.text;
   if (msg.type === "updateLink") lastLinkUrl = msg.url;
 
   // Analyze button clicked → process URL through fast flags + backend
-  if (msg.type === "analyzeURL" && msg.url) {
+  if (msg.type === "analyzeURL" && msg.url) {    
+    const fast = await runFastFlags(msg.url);
+
+    if (fast.status === "block") {
+      await chrome.storage.local.set({
+        lastBlockedReason: fast.reason,
+        lastBlockedUrl: msg.url,
+      });
+      chrome.tabs.update(sender.tab.id, { url: "blocked.html" });
+      return;
+    }
+
+    if (fast.status === "allow") {
+      return; // no need to analyze further
+    }
+
     processUrl(msg.url).then(async (backendResult) => {
       // backendResult = { risk_score, url, api_results }
       sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
@@ -329,6 +348,42 @@ async function navigationHandler(details) {
     console.log(" Skipping navigation scan — extension disabled");
     return;
   }
+  const url = details.url;
+
+
+  try {
+    // --- FAST FLAG CHECK LAYER ---
+    const flag = await runFastFlags(url);
+
+    if (flag.status === "block") {
+      console.warn(`[FASTFLAG BLOCK] ${url} — ${flag.reason}`);
+
+      // store reason for blocked.html
+      await chrome.storage.local.set({
+        lastBlockedReason: flag.reason,
+        lastBlockedUrl: url,
+        lastBlockedDomain: new URL(url).hostname,
+        lastBlockedScore: null
+      });
+
+      // redirect immediately, prevent backend call
+      chrome.tabs.update(details.tabId, {
+        url: chrome.runtime.getURL("html/blocked.html")
+      });
+
+      return; // ⛔ stop further processing
+    }
+
+    if (flag.status === "allow") {
+      console.log(`[FASTFLAG ALLOW] ${url} — ${flag.reason}`);
+      return; // ✅ explicitly allow; skip backend
+    }
+
+    // if flag.status === "neutral", fall through to your existing logic
+  } catch (err) {
+    console.error("FastFlag check failed:", err);
+  }
+
   processUrl(details.url, details.tabId);
 }
 

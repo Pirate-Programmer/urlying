@@ -18,4 +18,4 @@ scripts/apis/*.env
 *.license
 **/.env
 **/.env.*
-
+.venv/

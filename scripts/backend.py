@@ -70,7 +70,7 @@ def check_url():
         except Exception as e:
             print("Error running task:", e)
 
-    print(total_score)
+    print(f"computed score: {total_score}")
     # Step 5: Prepare response
     return jsonify({
         "url": url,
