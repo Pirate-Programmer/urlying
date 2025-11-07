@@ -184,29 +184,6 @@ async function processUrl(url, tabId = null) {
           }
         })();
       });
-    } 
-    else if(tabId && !Number.isNaN(score) && score <= 60 && score >= 30) {
-      const susDomain = domainToBlacklist;
-
-      chrome.storage.local.set({
-        lastBlockedDomain: domainToBlacklist,
-        lastBlockedUrl: url,
-        lastBlockedReason: "auto_blacklist",
-        lastBlockedScore: score,
-        timestamp: Date.now()
-      }, () => {
-        // rebuild rules then redirect
-        (async () => {
-          try {
-            await rebuildRules();
-          } catch (err) {
-            console.warn("rebuildRules failed:", err);
-          } finally {
-            chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/suspicious.html") });
-          }
-        })();
-      });
-
     } else {
       const wlDomain = domainToBlacklist; // already normalized above
 
