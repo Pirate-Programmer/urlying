@@ -1,6 +1,6 @@
 let lastSelectedText = "";
 let lastLinkUrl = "";
-const risk_score_threshold = 70;
+const risk_score_threshold = 10;
 
 // default state if blacklist and whitelist are empty
 const DEFAULT_STATE = {
@@ -75,39 +75,69 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
 // ---------------------------
 async function processUrl(url, tabId = null) {
   try {
-    const domain = new URL(url).hostname.toLowerCase();
+    if(url.startsWith("chrome", 0)) {
+      return;
+    }
+    const normDomain = normalizeDomain(url); // canonical domain for all checks
+
+    // read lists (chrome.storage.local.get returns a promise in MV3)
     const { blacklist = [], whitelist = [] } = await chrome.storage.local.get(["blacklist", "whitelist"]);
 
-    // Fast flag: blacklist → block immediately
-    if (blacklist.map(normalizeDomain).includes(domain)) {
+    // Fast flag: blacklist → block immediately (compare normalized)
+    const normalizedBlacklist = (blacklist || []).map(d => normalizeDomain(d));
+    if (normalizedBlacklist.includes(normDomain)) {
       if (tabId) chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
+      chrome.storage.local.set({
+        lastBlockedReason: "dnr_rule",
+      });
       return;
     }
 
-    // Fast flag: whitelist (remove expired entries)
+    // Fast flag: whitelist (remove expired entries and compare normalized)
     const now = Date.now();
-    const validWhitelist = (whitelist || []).filter(e => e.expiry > now);
-    if (validWhitelist.some(e => normalizeDomain(e.domain) === domain)) {
+    const validWhitelist = (whitelist || []).filter(e => e && e.expiry > now);
+    // persist cleanup if some expired
+    if (validWhitelist.length !== (whitelist || []).length) {
+      chrome.storage.local.set({ whitelist: validWhitelist });
+    }
+    const whitelistSet = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
+    if (whitelistSet.has(normDomain)) {
+      // whitelisted — skip scanning and do not block
+      console.log("✅ Domain is whitelisted, skipping scan:", normDomain);
+
+      // clear lastBlocked info so blocked page won't erroneously show
+      chrome.storage.local.set({
+        lastBlockedDomain: null,
+        lastBlockedUrl: null,
+        lastBlockedReason: null,
+        lastBlockedScore: null
+      });
       return;
     }
 
-    // TODO: additional fast flags can be added here
+    // Not blacklisted or whitelisted → call backend
+    const lvlObj = await chrome.storage.local.get("securityLevel");
+    const securityLevel = lvlObj.securityLevel || 3;
 
-    // Send to backend only if not blacklisted/whitelisted
-  const lvl = await chrome.storage.local.get("securityLevel");
-  const securityLevel = lvl.securityLevel || 3;
-
-    
     const res = await fetch("http://127.0.0.1:5000/check_url", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url, config: { securityLevel } }),
     });
 
+    if (!res.ok) {
+      console.error("Backend HTTP error", res.status, await res.text());
+      return;
+    }
+
     const data = await res.json();
+    if (!data) {
+      console.error("No data from backend");
+      return;
+    }
+
     console.log("Backend scan result:", data);
 
-    // Notify content script (speedometer) if tabId exists
     if (tabId) {
       chrome.tabs.sendMessage(tabId, {
         type: "updateRisk",
@@ -116,25 +146,83 @@ async function processUrl(url, tabId = null) {
       });
     }
 
-    // // Optional: notify user
-    // chrome.notifications.create({
-    //   type: "basic",
-    //   iconUrl: "icons/icon128.png",
-    //   title: "URL Scan Result",
-    //   message: `${url}\nRisk Score: ${data.risk_score} (${data.verdict})`,
-    // });
+    // Use backend-provided domain if present, otherwise our normalized domain
+    const backendDomain = data?.domain;
+    const domainToBlacklist = normalizeDomain(backendDomain ?? url);
+    const score = Number(data.risk_score);
 
-    // Block if high-risk
-    if (tabId && data.risk_score > risk_score_threshold) {
-      chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
+    // only auto-blacklist when threshold exceeded
+    if (tabId && !Number.isNaN(score) && score > risk_score_threshold) {
+      // add to persistent blacklist (avoid duplicates)
+      chrome.storage.local.get(["blacklist"], (items) => {
+        const bl = items.blacklist || [];
+        const already = bl.some(d => normalizeDomain(d) === domainToBlacklist);
+        if (!already) {
+          bl.push(domainToBlacklist);
+          chrome.storage.local.set({ blacklist: bl }, () => {
+            console.log("Added to blacklist:", domainToBlacklist);
+          });
+        }
+      });
+
+      // save lastBlocked info for blocked page
+      chrome.storage.local.set({
+        lastBlockedDomain: domainToBlacklist,
+        lastBlockedUrl: url,
+        lastBlockedReason: "auto_blacklist",
+        lastBlockedScore: score,
+        timestamp: Date.now()
+      }, () => {
+        // rebuild rules then redirect
+        (async () => {
+          try {
+            await rebuildRules();
+          } catch (err) {
+            console.warn("rebuildRules failed:", err);
+          } finally {
+            chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
+          }
+        })();
+      });
+    } else {
+      const wlDomain = domainToBlacklist; // already normalized above
+
+      chrome.storage.local.get(["blacklist", "whitelist"], (items) => {
+        let blacklist = items.blacklist || [];
+        let whitelist = items.whitelist || [];
+
+        // remove from blacklist if present
+        blacklist = blacklist.filter(d => normalizeDomain(d) !== wlDomain);
+
+        // add to whitelist if not already present (compare normalized)
+        const alreadyWhitelisted = whitelist.some(e => normalizeDomain(e.domain) === wlDomain);
+        if (!alreadyWhitelisted) {
+          const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
+          whitelist.push({ domain: wlDomain, expiry });
+          console.log("Added to whitelist:", wlDomain);
+        } else {
+          console.log("Domain already whitelisted:", wlDomain);
+        }
+
+        // save updated lists and rebuild rules
+        chrome.storage.local.set({ blacklist, whitelist }, () => {
+          // rebuild rules so DNR reflects the updated lists
+          (async () => {
+            try {
+              await rebuildRules();
+            } catch (err) {
+              console.warn("rebuildRules failed after whitelist update:", err);
+            }
+          })();
+        });
+      });
     }
-
-    return data;  //returning result from backend to extention
 
   } catch (err) {
     console.error("processUrl error:", err);
   }
 }
+
 
 // ---------------------------
 // Handle messages from content.js or popup
@@ -305,7 +393,7 @@ function normalizeDomain(input) {
     const url = new URL(input.startsWith("http") ? input : "https://" + input);
     let host = url.hostname.toLowerCase();
     if (host.startsWith("www.")) host = host.slice(4);  // <-- strip www
-      return host;
+    return host;
   } catch {
     let host = input.trim().toLowerCase().replace(/\/+$/, "");
     if (host.startsWith("www.")) host = host.slice(4);

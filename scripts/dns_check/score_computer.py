@@ -22,76 +22,77 @@ def tld_score(domain) :
 
 def ttl_a(ttl):
     if ttl is None: # https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/
-        return 5
+        return 0
     if ttl <= 60:
-        return 20
+        return 10
     elif ttl < 300:
-        return 7
-    elif ttl >= 300:
-        return -5
-    else:
         return 5
+    elif ttl >= 300:
+        return -10
+    else:
+        return 0
 
 def ttl_aaaa(ttl): # https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/
     if ttl is None:
-        return 5
+        return 0
     if ttl <= 60:
-        return 20
+        return 10
     elif ttl < 300:
-        return 7
-    elif ttl >= 300:
-        return -5
-    else:
         return 5
+    elif ttl >= 300:
+        return -10
+    else:
+        return 0
+
 
 def ttl_cname(ttl):
     if ttl is None:
-        return 5
+        return 0
     if ttl <= 60:
-        return 15
+        return 10
     elif ttl <= 3600:
-        return 7
-    elif ttl <= 86400:
-        return -5
-    else:
         return 5
+    elif ttl <= 86400:
+        return -10
+    else:
+        return 0
 
 def ttl_mx(ttl):
     if ttl is None:
-        return 5
-    if ttl <= 300:
-        return 20
-    elif ttl <= 3600:
-        return 7
-    elif ttl <= 86400:
-        return -5
-    else:
-        return 5
-
-def ttl_ns(ttl):
-    if ttl is None:
-        return 5
+        return 0
     if ttl <= 300:
         return 10
     elif ttl <= 3600:
-        return 3
-    elif ttl <= 86400:
-        return -5
-    else:
         return 5
+    elif ttl <= 86400:
+        return -10
+    else:
+        return 0
+
+def ttl_ns(ttl):
+    if ttl is None:
+        return 0
+    if ttl <= 300:
+        return 10
+    elif ttl <= 3600:
+        return 5
+    elif ttl <= 86400:
+        return -10
+    else:
+        return 0
 
 def ttl_txt(ttl):
     if ttl is None:
-        return 5
-    if ttl == 3600:
-        return -5
-    return 10
+        return 0
+    if ttl >= 3600:
+        return -10
+    return 5
 
 def aaaa_score(records):
     if not records:
         return 0
     if len(records) > 2:
-        return 10  # suspicious: multiple IPv6 addresses
+        return 5  # suspicious: multiple IPv6 addresses
     return 0
 
 def cname_score(cname_records, resolve_timeout_seconds=3):
@@ -127,7 +128,7 @@ def cname_score(cname_records, resolve_timeout_seconds=3):
         # Flag bad host patterns (DDNS / takeover surfaces)
         for bad in BAD_CNAME_HOSTS:
             if bad in cl:
-                penalty = 15 if bad in ("github.io", "herokuapp.com", "azurewebsites.net", "pages.dev") else 10
+                penalty = 5 if bad in ("github.io", "herokuapp.com", "azurewebsites.net", "pages.dev") else 10
                 score += penalty
                 # don't break; a record might match multiple tokens
 
@@ -137,18 +138,18 @@ def cname_score(cname_records, resolve_timeout_seconds=3):
             socket.setdefaulttimeout(resolve_timeout_seconds)
             try:
                 info = socket.getaddrinfo(c, None)
-                score -= 5  # reward: it resolves
+                score -= 7  # reward: it resolves
             finally:
                 socket.setdefaulttimeout(old)
 
         except socket.gaierror as e:
             # dangling/unresolvable = takeover possible
-            pen = 25
+            pen = 15
             score += pen
 
         except Exception:
             # small penalty for unexpected errors
-            score += 5
+            score += 2
 
     return score
 
@@ -157,7 +158,6 @@ def mx_score(records, a_records=None):
     has_mx = len(records) > 0
 
     if not has_mx:
-        score += 10
         return score
 
     records = [r.lower() for r in records]
@@ -173,13 +173,13 @@ def mx_score(records, a_records=None):
 
     for mx in records:
         if any(ddns in mx for ddns in DDNS_PROVIDERS):
-            score += 25
+            score += 15
 
         if any(mx.startswith(a) or a in mx for a in a_records):
-            score += 7
+            score += 5
 
         if any(x in mx for x in ["mail.local", "localhost", "example", "test", "temp"]):
-            score += 15
+            score += 10
 
         if "google" in mx or "outlook" in mx or "yahoo" in mx or "zoho" in mx:
             score -= 10
@@ -189,7 +189,7 @@ def mx_score(records, a_records=None):
 def ns_score(records, a_records=None):
     score = 0
     if not records:
-        return 15
+        return 10
 
     records = [r.lower() for r in records]
     a_records = [a.lower() for a in (a_records or [])]
@@ -202,14 +202,14 @@ def ns_score(records, a_records=None):
         "spdyn.de", "pubyun.com", "gogoip.com", "do.de", "ddnss.de"
     ]
 
-    TRUSTED_PROVIDERS = {"cloudflare", "google", "awsdns", "akamai", "azure"}
+    TRUSTED_PROVIDERS = {"cloudflare", "google", "awsdns", "akamai", "azure", "yandex"}
 
     for ns in records:
         if any(ddns in ns for ddns in DDNS_PROVIDERS):
-            score += 20
+            score += 15
 
         if any(tp in ns for tp in TRUSTED_PROVIDERS):
-            score -= 5
+            score -= 10
 
         if any(ns.startswith(a) or a in ns for a in a_records):
             score += 5
@@ -218,12 +218,12 @@ def ns_score(records, a_records=None):
 
 def txt_score(records):
     if not records:
-        return 10
+        return 5
 
     score = 0
 
     if len(records) > 50:
-        score += 10
+        score += 5
 
     safe_prefixes = [
         "v=spf1", "v=dkim1", "v=dmarc1", "google-site-verification",
@@ -241,13 +241,13 @@ def txt_score(records):
             score -= 8
 
         if re.fullmatch(r"[A-Za-z0-9+/]{20,}={0,3}", t):
-            score += 10
+            score += 5
 
         if re.fullmatch(r"[0-9a-f]{30,}", t):
-            score += 10
+            score += 5
 
         if len(t) > 200:
-            score += 30
+            score += 15
 
     return score
 
@@ -293,13 +293,13 @@ def score_computer():
         score += ttl_ns(ns_records_ttl)
         score += ns_score(ns_records, a_records)
     else:
-        score += 25
+        score += 10
 
     if txt_records:
         score += ttl_txt(txt_records_ttl)
         score += txt_score(txt_records)
     else:
-        score += 25
+        score += 10
 
     return score
 

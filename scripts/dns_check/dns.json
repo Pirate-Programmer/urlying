@@ -1,0 +1,36 @@
+{
+    "domain": "24-bestex.com",
+    "A": {
+        "records": [
+            "104.21.50.41",
+            "172.67.200.187"
+        ],
+        "ttl": 300
+    },
+    "AAAA": {
+        "records": [
+            "2606:4700:3031::ac43:c8bb",
+            "2606:4700:3032::6815:3229"
+        ],
+        "ttl": 300
+    },
+    "CNAME": {
+        "records": [],
+        "ttl": null
+    },
+    "MX": {
+        "records": [],
+        "ttl": null
+    },
+    "NS": {
+        "records": [
+            "memphis.ns.cloudflare.com.",
+            "lara.ns.cloudflare.com."
+        ],
+        "ttl": 86400
+    },
+    "TXT": {
+        "records": [],
+        "ttl": null
+    }
+}

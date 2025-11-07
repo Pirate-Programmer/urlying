@@ -63,7 +63,9 @@ if (!window.__analyzeInjected) {
       analyzeBtn.style.display = "none";
 
       if (!currentSelection) return;
-
+      risk_score = chrome.storage.local.get({
+        lastBlockedScore
+      });
       chrome.runtime.sendMessage({ type: "analyzeURL", url: currentSelection }, (response) => {
           if (response && response.risk_score !== undefined) {
               showSpeedometer(currentSelection, response.risk_score);

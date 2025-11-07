@@ -19,13 +19,13 @@ def cipher_suite_score(cipher):
     isRecommended = cipher_suite(cipher)
 
     if isRecommended == 'Y':
-        return -5
+        return -10
     elif isRecommended == 'N':
         return 5
     elif isRecommended == 'D':
         return 15
     elif isRecommended == 'U':
-        return 20
+        return 5
     
     return 0
 
@@ -39,22 +39,22 @@ def is_wildcard_in_san(san):
 
 def issuer_trust_score(issuer_name):
     if not issuer_name:
-        return 5
+        return 0
 
     n = issuer_name.lower()
 
     # self-signed detection
     if "self-signed" in n or "selfsigned" in n or ("self" in n and "signed" in n):
-        return 40
+        return 15
 
     return 0
 
 def tls_version_score(ver):
     if not ver:
-        return 2
+        return 0
     v = ver.lower()
     if "tlsv1.3" in v or "tls1.3" in v:
-        return -5
+        return -10
     if "tlsv1.2" in v or "tls1.2" in v:
         return 0
     if "tlsv1.1" in v or "tlsv1.0" in v or "tls1.1" in v or "tls1.0" in v:
@@ -82,18 +82,18 @@ def key_size_score(key_size, cipher):
     
     # Treat AES key sizes specially if they appear (128/256), otherwise RSA-like bits
     if k in (128, 256) and cipher.find("AES") != -1:
-        return -5
+        return -10
     
     if k < 2048:
-        return 15
+        return 10
     if k >= 2048:
-        return -5
+        return -10
     
-    return 10
+    return 0
 
 def cn_san_match_score(cn, san_list, hostname):
     if not hostname: # change this later to get directly from url
-        return 5
+        return 0
     host = hostname.lower()
     cn_ok = False
     san_ok = False
@@ -119,7 +119,7 @@ def cn_san_match_score(cn, san_list, hostname):
     if is_wildcard_in_san(san_list) and not (cn_ok or san_ok):
         return 5
     # mismatch heavy penalty
-    return 25
+    return 15
 
 def parse_iso(datestr):
     if not datestr:
@@ -176,12 +176,12 @@ def validity_score(not_before_s, not_after_s):
 
     # Expired certificate
     if na and na < now:
-        delta += 10
+        delta += 15
 
     # Very short-lived certificate
     if validity_days is not None:
         if validity_days < 2:
-            delta += 20
+            delta += 10
         elif validity_days <= 30:
             delta += 2
 
@@ -206,12 +206,12 @@ def validity_score(not_before_s, not_after_s):
 
 def serial_score(serial):
     if not serial:
-        return 2
+        return 0
     s = str(serial)
     if len(s) < 8:
-        return 10
+        return 5
     if all(ch in "01" for ch in s.lower()):
-        return 8
+        return 5
     return 0
 
 def san_count_score(san_list):
@@ -222,9 +222,7 @@ def san_count_score(san_list):
 
     # Excessive number of SANs may indicate over-permissive certificate
     if count > 10:
-        return 15
-    elif count > 5:
-        return 8  
+        return 5
 
     return 0
 
@@ -234,20 +232,9 @@ def version_score(version) : # https://learn.microsoft.com/en-us/azure/iot-hub/r
     if version == 2 or version == 1 or version == "v2" or version == "v1":
         return 10
     
-    return -5
+    return -10
 
 def issuer_score(issuer_name: str, is_root: bool = False) -> int:
-    """
-    Score an issuer name.
-    - Trusted issuer -> return -5 (good)
-    - Suspicious issuer -> +10
-    - Known-problem / malicious issuer -> +20 (bad)
-    If is_root is True, apply an extra penalty to suspicious/malicious cases
-    because compromises at root level are more severe.
-
-    issuer_name: raw issuer string (may be None)
-    is_root: whether this issuer is a root certificate in the chain
-    """
     if not issuer_name:
         return 0
 
@@ -285,14 +272,14 @@ def issuer_score(issuer_name: str, is_root: bool = False) -> int:
         if kw in n:
             # special-case: user wanted Let's Encrypt treated as suspicious,
             # so we do NOT include any variants of Let's Encrypt here.
-            score += -5
+            score += -10
             break
 
     # suspicious check (only if not already marked trusted)
     if score == 0:
         for kw in suspicious_keywords:
             if kw in n:
-                score += 10
+                score += 5
                 break
 
     # malicious check (stronger penalty)
@@ -300,7 +287,7 @@ def issuer_score(issuer_name: str, is_root: bool = False) -> int:
         if kw in n:
             # raise to malicious if matched
             # if suspicious matched earlier, replace with stronger penalty
-            score = max(score, 20)
+            score = max(score, 15)
             break
 
     # If nothing matched, keep score 0 (unknown)
@@ -308,7 +295,7 @@ def issuer_score(issuer_name: str, is_root: bool = False) -> int:
     if is_root and score > 0:
         # amplify root-level problems
         if score >= 20:
-            score += 15   # malicious root -> very bad
+            score += 10   # malicious root -> very bad
         else:
             score += 5    # suspicious root -> worse than intermediate
 

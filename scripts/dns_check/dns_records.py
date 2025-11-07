@@ -1,4 +1,3 @@
-
 import dns.resolver
 import dns.query
 import dns.message

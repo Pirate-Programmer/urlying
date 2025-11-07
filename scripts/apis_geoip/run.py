@@ -1,8 +1,11 @@
-from whois_details import save_whois_info
-from score_computer import whois_score_computer
+#!/usr/bin/env python3
 import os, json
+from .api_manager import ApiManager
+from .score_computer import score_computer
 
 def run():
+    manager = ApiManager()
+
     base_path = os.path.dirname(__file__)
     json_path = os.path.join(base_path, "..", "features.json")
 
@@ -22,11 +25,23 @@ def run():
     domain = first.get("domain")
     if not domain:
         raise ValueError("First feature does not contain a 'domain' key.")
+    
+    # VirusTotal
+    vt_result = manager.virustotal.fetch_result(domain)
+    manager.virustotal.save_result_to_file(vt_result)
 
-    output_file = save_whois_info(domain, "whois.json")
-    print(f"DNS info for {domain} saved in {output_file}")
+    # AbuseIPD
+    abuse_result = manager.abuseipdb.fetch_result(domain)
+    manager.abuseipdb.save_result_to_file(abuse_result)
 
-    score = whois_score_computer()
+    gsb_result = manager.gsb.fetch_result(domain)
+    manager.gsb.save_result_to_file(gsb_result)
+
+
+    print(f"APIS & GEOIP info for {domain} are saved.")
+
+    score = score_computer()
+    print("APIS & GEOIP score: ", score)
     return score
 
 if __name__ == "__main__":
