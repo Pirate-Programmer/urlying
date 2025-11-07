@@ -5,7 +5,7 @@
             "104.18.32.47",
             "172.64.155.209"
         ],
-        "ttl": 300
+        "ttl": 86400
     },
     "AAAA": {
         "records": [
@@ -18,8 +18,13 @@
         "ttl": null
     },
     "MX": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "10 c118-apb20-rz.muenchen.de.",
+            "10 c119-k30-rz.muenchen.de.",
+            "10 c118-k30-rz.muenchen.de.",
+            "10 c119-apb20-rz.muenchen.de."
+        ],
+        "ttl": 86400
     },
     "NS": {
         "records": [
