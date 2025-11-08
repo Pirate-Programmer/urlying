@@ -59,21 +59,18 @@ if (!window.__analyzeInjected) {
   });
 
 // Button click sends url to background.js to be sent to backend and also triggers speedometer
-  analyzeBtn.addEventListener("click", () => {
-      analyzeBtn.style.display = "none";
+analyzeBtn.addEventListener("click", () => {
+  analyzeBtn.style.display = "none";
+  if (!currentSelection) return;
 
-      if (!currentSelection) return;
-      risk_score = chrome.storage.local.get({
-        lastBlockedScore
-      });
-      chrome.runtime.sendMessage({ type: "analyzeURL", url: currentSelection }, (response) => {
-          if (response && response.risk_score !== undefined) {
-              showSpeedometer(currentSelection, response.risk_score);
-          } else {
-              showSpeedometer(currentSelection, 0); // fallback
-          }
-      });
+  chrome.runtime.sendMessage({ type: "analyzeURL", url: currentSelection }, (response) => {
+    if (response && response.risk_score !== undefined) {
+      showSpeedometer(currentSelection, response.risk_score);
+    } else {
+      showSpeedometer(currentSelection, 0); // fallback
+    }
   });
+});
 
 
   //  Speedometer function
@@ -235,6 +232,7 @@ chrome.runtime.onMessage.addListener((msg) => {
     let riskScore = msg.risk_score;
     let displayUrl = msg.url || "Selected URL";
 
-    updateSpeedometer(riskScore, displayUrl);
+    // use the function you actually defined
+    window.showSpeedometer(displayUrl, riskScore);
   }
 });
