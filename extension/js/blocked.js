@@ -51,16 +51,18 @@ document.getElementById("unblock-btn").addEventListener("click", () => {
 
   chrome.runtime.sendMessage({ action: "moveToWhitelist", domain: blockedDomain }, (res) => {
     if (res?.ok) {
+      console.log(`✅ ${blockedDomain} moved to whitelist. Redirecting...`);
       chrome.runtime.sendMessage({
         action: "redirectAfterUnblock",
         domain: blockedDomain,
-        blockedUrl
+        blockedUrl: blockedUrl || `https://${blockedDomain}`
       });
     } else {
       alert("Failed to unblock the domain.");
     }
   });
 });
+
 
 
 // ✅ Go back button
