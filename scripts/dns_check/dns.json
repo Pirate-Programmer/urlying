@@ -1,46 +1,33 @@
 {
-    "domain": "chatgpt.com",
+    "domain": "swayam-sso.swayam2.ac.in",
     "A": {
         "records": [
-            "104.18.32.47",
-            "172.64.155.209"
+            "142.250.207.179"
         ],
-        "ttl": 86400
+        "ttl": 298
     },
     "AAAA": {
         "records": [
-            "2606:4700:8d72:7cbc:c2d7:5d:5ff2:75c4"
+            "2404:6800:4009:82a::2013"
         ],
-        "ttl": 60
+        "ttl": 290
     },
     "CNAME": {
+        "records": [
+            "ghs.googlehosted.com."
+        ],
+        "ttl": 1096
+    },
+    "MX": {
         "records": [],
         "ttl": null
     },
-    "MX": {
-        "records": [
-            "10 c118-apb20-rz.muenchen.de.",
-            "10 c119-k30-rz.muenchen.de.",
-            "10 c118-k30-rz.muenchen.de.",
-            "10 c119-apb20-rz.muenchen.de."
-        ],
-        "ttl": 86400
-    },
     "NS": {
-        "records": [
-            "hassan.ns.cloudflare.com.",
-            "savanna.ns.cloudflare.com."
-        ],
-        "ttl": 86400
+        "records": [],
+        "ttl": null
     },
     "TXT": {
-        "records": [
-            "\"google-site-verification=rZodbEw8Hlw3gg7Z7mxkmQUNPnO_1khlohRX5D6qeUo\"",
-            "\"google-site-verification=u3JFUrrlvyiaVlGsdIRMgmuvDluR6gC-TIPBEQLbl8c\"",
-            "\"google-site-verification=vHr-4wFDXLd3wze6i0YimpiGHC1u0Hy3x1dGAiyeHWs\"",
-            "\"v=spf1 -all\"",
-            "\"google-site-verification=qz8yKZH1f2h4Dl7S-nRAo0immoInmiosRhyjUxXuUOs\""
-        ],
-        "ttl": 300
+        "records": [],
+        "ttl": null
     }
 }

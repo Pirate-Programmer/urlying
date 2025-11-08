@@ -1,12 +1,12 @@
 {
-    "domain_name": "PHISHTANK.COM",
-    "creation_date": "2006-03-24T00:26:15",
-    "expiration_date": "2026-03-23T23:26:15",
-    "updated_date": "2025-02-07T22:21:49",
+    "domain_name": "swayam2.ac.in",
+    "creation_date": "2019-03-26T06:02:01.072000",
+    "expiration_date": "2028-03-26T06:02:01.072000",
+    "updated_date": "2023-04-01T06:30:12.148000",
     "dnssec": "unsigned",
-    "status": "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
-    "emails": "abuse-contact@publicdomainregistry.com",
-    "registrar": "PDR Ltd. d/b/a PublicDomainRegistry.com",
-    "asn": "13335",
-    "asn_country_code": "US"
+    "status": "ok https://icann.org/epp#ok",
+    "emails": "tejalt@eis.ernet.in",
+    "registrar": "ERNET India",
+    "asn": "55824",
+    "asn_country_code": "IN"
 }
