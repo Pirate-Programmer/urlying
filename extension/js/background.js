@@ -76,46 +76,49 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
 // ---------------------------
 // Fast flag + backend processing
 // ---------------------------
-async function processUrl(url, tabId = null) {
+// ---------------------------
+// Fast flag + backend processing
+// ---------------------------
+/**
+ * processUrl(url, tabId = null, notifyUI = false)
+ * - url: URL to scan
+ * - tabId: optional tab id to send UI messages / redirect a tab
+ * - notifyUI: if true, send an "updateRisk" message to the tab to show the speedometer
+ */
+async function processUrl(url, tabId = null, notifyUI = false) {
   try {
-    if(url.startsWith("chrome", 0)) {
+    if (url.startsWith("chrome", 0)) {
       return;
     }
     const normDomain = normalizeDomain(url); // canonical domain for all checks
 
-    // read lists (chrome.storage.local.get returns a promise in MV3)
+    // read lists
     const { blacklist = [], whitelist = [] } = await chrome.storage.local.get(["blacklist", "whitelist"]);
 
-    // Fast flag: blacklist → block immediately (compare normalized)
+    // Fast flag: blacklist → block immediately
     const normalizedBlacklist = (blacklist || []).map(d => normalizeDomain(d));
     if (normalizedBlacklist.includes(normDomain)) {
       if (tabId) chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
-      chrome.storage.local.set({
-        lastBlockedReason: "dnr_rule",
-      });
-      return;
+      chrome.storage.local.set({ lastBlockedReason: "dnr_rule" });
+      return { blocked: true, reason: "dnr_rule", url };
     }
 
     // Fast flag: whitelist (remove expired entries and compare normalized)
     const now = Date.now();
     const validWhitelist = (whitelist || []).filter(e => e && e.expiry > now);
-    // persist cleanup if some expired
     if (validWhitelist.length !== (whitelist || []).length) {
       chrome.storage.local.set({ whitelist: validWhitelist });
     }
     const whitelistSet = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
     if (whitelistSet.has(normDomain)) {
-      // whitelisted — skip scanning and do not block
       console.log("✅ Domain is whitelisted, skipping scan:", normDomain);
-
-      // clear lastBlocked info so blocked page won't erroneously show
       chrome.storage.local.set({
         lastBlockedDomain: null,
         lastBlockedUrl: null,
         lastBlockedReason: null,
         lastBlockedScore: null
       });
-      return;
+      return { whitelisted: true, url };
     }
 
     // Not blacklisted or whitelisted → call backend
@@ -130,18 +133,19 @@ async function processUrl(url, tabId = null) {
 
     if (!res.ok) {
       console.error("Backend HTTP error", res.status, await res.text());
-      return;
+      return { error: true, status: res.status, url };
     }
 
     const data = await res.json();
     if (!data) {
       console.error("No data from backend");
-      return;
+      return { error: true, url };
     }
 
     console.log("Backend scan result:", data);
 
-    if (tabId) {
+    // ONLY notify the content script UI if explicitly requested
+    if (tabId && notifyUI) {
       chrome.tabs.sendMessage(tabId, {
         type: "updateRisk",
         risk_score: data.risk_score,
@@ -149,7 +153,6 @@ async function processUrl(url, tabId = null) {
       });
     }
 
-    // Use backend-provided domain if present, otherwise our normalized domain
     const backendDomain = data?.domain;
     const domainToBlacklist = normalizeDomain(backendDomain ?? url);
     const score = Number(data.risk_score);
@@ -176,28 +179,27 @@ async function processUrl(url, tabId = null) {
         lastBlockedScore: score,
         timestamp: Date.now()
       }, () => {
-        // rebuild rules then redirect
         (async () => {
           try {
             await rebuildRules();
           } catch (err) {
             console.warn("rebuildRules failed:", err);
           } finally {
-            chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
+            // redirect to blocked page only if notifyUI was intended (we still want to block navigations)
+            // Keep redirect behavior for navigation scans (tabId present)
+            if (tabId) chrome.tabs.update(tabId, { url: chrome.runtime.getURL("html/blocked.html") });
           }
         })();
       });
     } else {
-      const wlDomain = domainToBlacklist; // already normalized above
-
+      // existing whitelist/blacklist update logic (unchanged)
+      const wlDomain = domainToBlacklist;
       chrome.storage.local.get(["blacklist", "whitelist"], (items) => {
         let blacklist = items.blacklist || [];
         let whitelist = items.whitelist || [];
 
-        // remove from blacklist if present
         blacklist = blacklist.filter(d => normalizeDomain(d) !== wlDomain);
 
-        // add to whitelist if not already present (compare normalized)
         const alreadyWhitelisted = whitelist.some(e => normalizeDomain(e.domain) === wlDomain);
         if (!alreadyWhitelisted) {
           const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -207,9 +209,7 @@ async function processUrl(url, tabId = null) {
           console.log("Domain already whitelisted:", wlDomain);
         }
 
-        // save updated lists and rebuild rules
         chrome.storage.local.set({ blacklist, whitelist }, () => {
-          // rebuild rules so DNR reflects the updated lists
           (async () => {
             try {
               await rebuildRules();
@@ -220,11 +220,15 @@ async function processUrl(url, tabId = null) {
         });
       });
     }
-    return { risk_score: Number(data.risk_score), url};
+
+    // return a structured result for callers (analyze flow uses this)
+    return { risk_score: Number(data.risk_score), url, api_results: data };
   } catch (err) {
     console.error("processUrl error:", err);
+    return { error: true, err, url };
   }
 }
+
 
 
 // ---------------------------
@@ -258,14 +262,15 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   }
 
   // neutral → do full process
-  processUrl(msg.url).then((backendResult) => {
-    sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
-  }).catch((err) => {
-    console.error("processUrl failed:", err);
-    sendResponse({ risk_score: 0, url: msg.url });
-  });
-
-  return true; // keep channel open for async sendResponse
+  try {
+  const backendResult = await processUrl(msg.url, sender.tab?.id || null, true);
+  // send back result to content script caller (the callback passed to runtime.sendMessage)
+  sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
+} catch (err) {
+  console.error("processUrl failed:", err);
+  sendResponse({ risk_score: 0, url: msg.url });
+}
+return true; // keep channel open for async sendResponse
   }
 
   // Move domain to whitelist
@@ -392,7 +397,7 @@ async function navigationHandler(details) {
     console.error("FastFlag check failed:", err);
   }
 
-  processUrl(details.url, details.tabId);
+  processUrl(details.url, details.tabId, false);
 }
 
 // --- Listener control ---
