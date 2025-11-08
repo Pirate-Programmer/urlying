@@ -220,7 +220,7 @@ async function processUrl(url, tabId = null) {
         });
       });
     }
-
+    return { risk_score: Number(data.risk_score), url};
   } catch (err) {
     console.error("processUrl error:", err);
   }
@@ -237,27 +237,35 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
   if (msg.type === "updateLink") lastLinkUrl = msg.url;
 
   // Analyze button clicked → process URL through fast flags + backend
-  if (msg.type === "analyzeURL" && msg.url) {    
-    const fast = await runFastFlags(msg.url);
+  if (msg.type === "analyzeURL" && msg.url) {
+  const fast = await runFastFlags(msg.url);
 
-    if (fast.status === "block") {
-      await chrome.storage.local.set({
-        lastBlockedReason: fast.reason,
-        lastBlockedUrl: msg.url,
-      });
-      chrome.tabs.update(sender.tab.id, { url: "blocked.html" });
-      return;
-    }
-
-    if (fast.status === "allow") {
-      return; // no need to analyze further
-    }
-
-    processUrl(msg.url).then(async (backendResult) => {
-      // backendResult = { risk_score, url, api_results }
-      sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
+  if (fast.status === "block") {
+    await chrome.storage.local.set({
+      lastBlockedReason: fast.reason,
+      lastBlockedUrl: msg.url,
     });
-    return true; // keep async
+    // respond immediately so caller isn't left waiting
+    sendResponse({ risk_score: 100, url: msg.url, fastReason: fast.reason });
+    chrome.tabs.update(sender.tab.id, { url: "blocked.html" });
+    return; // done
+  }
+
+  if (fast.status === "allow") {
+    // allow → short-circuit and inform caller
+    sendResponse({ risk_score: 0, url: msg.url, fastReason: fast.reason });
+    return;
+  }
+
+  // neutral → do full process
+  processUrl(msg.url).then((backendResult) => {
+    sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
+  }).catch((err) => {
+    console.error("processUrl failed:", err);
+    sendResponse({ risk_score: 0, url: msg.url });
+  });
+
+  return true; // keep channel open for async sendResponse
   }
 
   // Move domain to whitelist

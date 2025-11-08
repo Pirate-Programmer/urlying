@@ -1,33 +1,39 @@
 {
-    "domain": "swayam-sso.swayam2.ac.in",
+    "domain": "phishtank.com",
     "A": {
         "records": [
-            "142.250.207.179"
+            "104.18.162.237",
+            "104.18.161.237"
         ],
-        "ttl": 298
+        "ttl": 300
     },
     "AAAA": {
         "records": [
-            "2404:6800:4009:82a::2013"
+            "2606:4700:8d72:2ee:d0d7:dfd:6812:a1ed"
         ],
-        "ttl": 290
+        "ttl": 60
     },
     "CNAME": {
-        "records": [
-            "ghs.googlehosted.com."
-        ],
-        "ttl": 1096
+        "records": [],
+        "ttl": null
     },
     "MX": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "100 inbound-smtp.us-east-1.amazonaws.com."
+        ],
+        "ttl": 300
     },
     "NS": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "fiona.ns.cloudflare.com.",
+            "lakas.ns.cloudflare.com."
+        ],
+        "ttl": 86400
     },
     "TXT": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "\"v=spf1 ip4:34.237.97.135/32 a mx include:mailgun.org include:amazonses.com ?all\""
+        ],
+        "ttl": 300
     }
 }

@@ -1,12 +1,18 @@
 {
-    "domain_name": "swayam2.ac.in",
-    "creation_date": "2019-03-26T06:02:01.072000",
-    "expiration_date": "2028-03-26T06:02:01.072000",
-    "updated_date": "2023-04-01T06:30:12.148000",
+    "domain_name": "HURBANEWHOLESALETOWELS.COM",
+    "creation_date": "2022-06-04T00:07:11",
+    "expiration_date": "2026-06-04T00:07:11",
+    "updated_date": [
+        "2025-05-05T08:02:36",
+        "2025-05-05T08:02:36.350000"
+    ],
     "dnssec": "unsigned",
-    "status": "ok https://icann.org/epp#ok",
-    "emails": "tejalt@eis.ernet.in",
-    "registrar": "ERNET India",
-    "asn": "55824",
-    "asn_country_code": "IN"
+    "status": "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
+    "emails": [
+        "abuse@namecheap.com",
+        "6856dd1539c64f008441e1b8f51d0e1b.protect@withheldforprivacy.com"
+    ],
+    "registrar": "NAMECHEAP INC",
+    "asn": "395111",
+    "asn_country_code": "US"
 }
