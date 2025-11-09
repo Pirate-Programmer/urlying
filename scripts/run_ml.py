@@ -2,7 +2,8 @@ import os
 import json
 from xgboost import XGBClassifier
 
-MODEL_FILENAME = os.path.join(os.path.dirname(__file__), "xgboost_model_with_no_feature_filtration.json")
+# MODEL_FILENAME = os.path.join(os.path.dirname(__file__), "xgboost_model_with_no_feature_filtration.json")
+MODEL_FILENAME = os.path.join(os.path.dirname(__file__), "xgboostv1.json")
 FEATURES_FILENAME = os.path.join(os.path.dirname(__file__), "features.json")
 
 META_KEYS = {"url", "domain", "path", "query", "fragment"}
