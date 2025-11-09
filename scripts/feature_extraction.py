@@ -490,7 +490,7 @@ def process_urls(urls: List[str],
 
 if __name__ == "__main__":
     urls = [
-        "https://www.google.com/"
+        "https://www.apple.com"
     ]
     feats = process_urls(urls, max_workers=4)
     print(f"Processed {len(feats)} URLs, saved to features.json")
