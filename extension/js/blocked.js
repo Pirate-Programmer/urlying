@@ -24,12 +24,32 @@ chrome.storage.local.get(
       messageEl.textContent = blockedDomain
         ? `This domain "${blockedDomain}" is blocked by your blacklist rules.`
         : "This site is blocked by your blacklist rules.";
-    } else {
+    } else if(reason === "public IP address") {
+      messageEl.textContent = blockedDomain
+        ? `"${blockedDomain}" is Public IP address.`
+        : "This site may be malicious or harmful.";
+    }else if(reason === "punycode domain"){
+      messageEl.textContent = blockedDomain
+        ? `The domain is punycoded. It resolves to "${blockedDomain}".`
+        : "This site may be malicious or harmful.";
+    }else if(reason === "URL shortener"){
+      messageEl.textContent = blockedDomain
+        ? `The domain is using shortening service hiding true destination.`
+        : "This site may be malicious or harmful.";
+    }else if(reason === "harmful extension") {
+      messageEl.textContent = blockedDomain
+        ? `The URL is downloading a file with harmful file extension`
+        : "Please review before downloading.";
+    }else if(reason === "@ redirect mismatch" || reason === "malformed @ redirect"){
+      messageEl.textContent = blockedDomain
+        ? `You are being redirected to "${blockedDomain}"`
+        : "We have blacklisted this domain as it may be malicious or harmful.";
+    }else {
       messageEl.textContent = blockedDomain
         ? `The domain "${blockedDomain}" is in your blacklist.`
         : "This site is in your blacklist.";
     }
-
+    
     // ===== DETAILS =====
     if (score !== null || blockedUrl) {
       let parts = [];
@@ -48,7 +68,7 @@ document.getElementById("unblock-btn").addEventListener("click", () => {
     alert("No domain available to unblock.");
     return;
   }
-
+  
   chrome.runtime.sendMessage({ action: "moveToWhitelist", domain: blockedDomain }, (res) => {
     if (res?.ok) {
       console.log(`✅ ${blockedDomain} moved to whitelist. Redirecting...`);
