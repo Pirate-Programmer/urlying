@@ -26,6 +26,12 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const blacklistSet = new Set((blacklist || []).map(d => normalizeDomain(d)));
   if (blacklistSet.has(domain)) {
     console.log("🚫 Blacklisted domain:", domain);
+    chrome.storage.local.set({
+      lastBlockedReason: "dnr_rule",
+      lastBlockedUrl: url,
+      lastBlockedDomain: domain,
+      lastBlockedScore: null
+    });
     chrome.tabs.update(details.tabId, {
       url: chrome.runtime.getURL("html/blocked.html") + "?reason=blacklist"
     });
@@ -51,9 +57,6 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     });
   }
 });
-
-
-
 
 let lastSelectedText = "";
 let lastLinkUrl = "";
@@ -448,33 +451,24 @@ try {
   }
 
   // 3️⃣ FastFlag layer (only if not listed)
-  const flag = await runFastFlags(url);
+const flag = await runFastFlags(url);
 
-  if (flag.status === "block") {
-    console.warn(`[FASTFLAG BLOCK] ${url} — ${flag.reason}`);
+if (flag.status === "block") {
+  // Normalize domain for storage
+  const domain = flag.domain || normalizeDomain(url);
 
-    // Add to blacklist (if not already and not whitelisted)
-    if (!whitelistSet.has(normalizedUrl) && !normalizedBlacklist.includes(normalizedUrl)) {
-      const newBL = [...blacklist, normalizedUrl];
-      await chrome.storage.local.set({ blacklist: newBL });
-      console.log("🚫 Added to blacklist (FastFlag trigger):", normalizedUrl);
-    }
+  // Save reason and domain to storage, then redirec
+      // Redirect to blocked page after storage is saved
+      chrome.tabs.update(details.tabId, {
+        url: chrome.runtime.getURL("html/blocked.html")
+      });
 
-    await chrome.storage.local.set({
-      lastBlockedReason: flag.reason,
-      lastBlockedUrl: url,
-      lastBlockedDomain: normalizedUrl,
-      lastBlockedScore: null
-    });
-    chrome.tabs.update(details.tabId, {
-      url: chrome.runtime.getURL("html/blocked.html")
-    });
-    return;
-  }
+  return;
+}
 
   if (flag.status === "allow") {
     console.log(`[FASTFLAG ALLOW] ${url} — ${flag.reason}`);
-    return; // ✅ explicitly allowed
+    return; 
   }
 
 } catch (err) {
