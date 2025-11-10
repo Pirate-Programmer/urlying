@@ -30,8 +30,8 @@ def run():
 
     print("Model Prediction: ", prediction)
     if prediction == 1:
-        return 30
-    return -30
+        return 70
+    return -70
 
 if __name__ == "__main__":
     print(run())

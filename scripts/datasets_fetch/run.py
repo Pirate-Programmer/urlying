@@ -58,4 +58,4 @@ def run_all_parallel(max_workers: int | None = None, per_task_timeout: float | N
 
 if __name__ == "__main__":
     # Example: limit to 6 threads and give each task 180s to finish
-    run_all_parallel(max_workers=6, per_task_timeout=180)
+    run_all_parallel(max_workers=8, per_task_timeout=180)
