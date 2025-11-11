@@ -1,13 +1,12 @@
 {
-    "domain_name": null,
+    "domain_name": "OASS.CO.JP",
     "creation_date": null,
     "expiration_date": null,
-    "updated_date": null,
+    "updated_date": "2025/11/04 16:08:03 (JST)",
     "dnssec": null,
-    "status": null,
+    "status": "Connected (2025/11/30)",
     "emails": null,
     "registrar": null,
-    "ip": null,
-    "asn": null,
-    "error": "gethostbyname() argument 1 must be str, bytes or bytearray, not None"
+    "asn": "7506",
+    "asn_country_code": "JP"
 }

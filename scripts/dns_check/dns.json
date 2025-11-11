@@ -1,10 +1,10 @@
 {
-    "domain": "croc.finance",
+    "domain": "oass.co.jp",
     "A": {
         "records": [
-            "75.2.60.5"
+            "157.7.107.29"
         ],
-        "ttl": 300
+        "ttl": 3600
     },
     "AAAA": {
         "records": [],
@@ -15,20 +15,24 @@
         "ttl": null
     },
     "MX": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "10 mx01.lolipop.jp."
+        ],
+        "ttl": 3600
     },
     "NS": {
         "records": [
-            "ns-2016.awsdns-60.co.uk.",
-            "ns-260.awsdns-32.com.",
-            "ns-1000.awsdns-61.net.",
-            "ns-1309.awsdns-35.org."
+            "04.dnsv.jp.",
+            "01.dnsv.jp.",
+            "02.dnsv.jp.",
+            "03.dnsv.jp."
         ],
-        "ttl": 172800
+        "ttl": 86400
     },
     "TXT": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "\"v=spf1 include:spf.makeshop.jp ~all\""
+        ],
+        "ttl": 3600
     }
 }
