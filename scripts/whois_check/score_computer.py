@@ -228,8 +228,17 @@ def whois_score_computer():
     except Exception as e:
         return {"error": "failed to load whois.json", "exception": str(e)}
 
+    if isinstance(data, dict) and len(data) == 1 and "error" in data:
+        return 50
+
     score = 0
     domain = data.get("domain_name")
+
+    # If domain is absent / null / empty -> return 50
+    if not domain:
+        return 50
+    
+    score = 0
     creation_date = data.get("creation_date")
     expiration_date = data.get("expiration_date")
     updated_date = data.get("updated_date")

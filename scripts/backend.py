@@ -83,7 +83,7 @@ def check_url():
 #run the da run.py script on chrome launch
 @app.route("/update_dataset", methods=["POST"])
 def update_dataset():
-    run_all_parallel()
+    run_all_parallel(8, 180)
     return "datasets_fetched"
 
 if __name__ == "__main__":

@@ -1,18 +1,14 @@
 {
-    "domain": "bridge-trzr-eng-sso.pages.dev",
+    "domain": "croc.finance",
     "A": {
         "records": [
-            "172.66.47.181",
-            "172.66.44.75"
+            "75.2.60.5"
         ],
         "ttl": 300
     },
     "AAAA": {
-        "records": [
-            "2606:4700:310c::ac42:2fb5",
-            "2606:4700:310c::ac42:2c4b"
-        ],
-        "ttl": 300
+        "records": [],
+        "ttl": null
     },
     "CNAME": {
         "records": [],
@@ -24,10 +20,12 @@
     },
     "NS": {
         "records": [
-            "sonny.ns.cloudflare.com.",
-            "amber.ns.cloudflare.com."
+            "ns-2016.awsdns-60.co.uk.",
+            "ns-260.awsdns-32.com.",
+            "ns-1000.awsdns-61.net.",
+            "ns-1309.awsdns-35.org."
         ],
-        "ttl": 86400
+        "ttl": 172800
     },
     "TXT": {
         "records": [],

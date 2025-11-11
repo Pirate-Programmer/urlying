@@ -325,9 +325,15 @@ def score_computer():
         raise FileNotFoundError(f"Could not find {json_path}. Put ssl.json next to this script.")
     except Exception as e:
         return {"error": "failed to load ssl.json", "exception": str(e)}
-
+    
+    if isinstance(data, dict) and len(data) == 1 and "error" in data:
+        return 50
+    
     # Extract fields
     hostname = data.get("hostname")
+    if not hostname:
+        return 50
+
     tls_version = data.get("tls_version")
     cipher = data.get("cipher")
     key_size = data.get("key_size")
