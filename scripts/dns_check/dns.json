@@ -1,18 +1,18 @@
 {
-    "domain": "app.resgatesuasconquistas.info",
+    "domain": "bridge-trzr-eng-sso.pages.dev",
     "A": {
         "records": [
-            "172.67.134.58",
-            "104.21.25.124"
+            "172.66.47.181",
+            "172.66.44.75"
         ],
-        "ttl": 299
+        "ttl": 300
     },
     "AAAA": {
         "records": [
-            "2606:4700:3036::6815:197c",
-            "2606:4700:3030::ac43:863a"
+            "2606:4700:310c::ac42:2fb5",
+            "2606:4700:310c::ac42:2c4b"
         ],
-        "ttl": 299
+        "ttl": 300
     },
     "CNAME": {
         "records": [],
@@ -23,8 +23,11 @@
         "ttl": null
     },
     "NS": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "sonny.ns.cloudflare.com.",
+            "amber.ns.cloudflare.com."
+        ],
+        "ttl": 86400
     },
     "TXT": {
         "records": [],

@@ -1,8 +1,8 @@
 {
     "success": true,
     "unsafe": false,
-    "abuse_score": 18,
-    "ip": "15.197.225.128",
-    "target": "secure1stbank.com",
+    "abuse_score": 0,
+    "ip": "172.66.44.75",
+    "target": "bridge-trzr-eng-sso.pages.dev",
     "source": "AbuseIPDB"
 }

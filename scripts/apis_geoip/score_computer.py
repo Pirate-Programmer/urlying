@@ -74,9 +74,9 @@ def virustotal(unsafe, reputation):
     return score
 
 def score_computer():
-    json_path1 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis", "abuseIPDB.json"))
-    json_path2 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis", "gsb.json"))
-    json_path3 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis", "virustotal.json"))
+    json_path1 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis_geoip", "abuseIPDB.json"))
+    json_path2 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis_geoip", "gsb.json"))
+    json_path3 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis_geoip", "virustotal.json"))
 
     try:
         with open(json_path1, "r", encoding="utf-8") as f:
