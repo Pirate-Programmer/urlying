@@ -1,5 +1,5 @@
 {
-    "hostname": "steamrip.com",
+    "hostname": "nflix-resubscribe.com",
     "tls_version": null,
     "cipher": null,
     "key_size": null,
@@ -13,7 +13,7 @@
     "signature_algorithm": null,
     "chain": [],
     "chain_method": "none",
-    "chain_error": "leaf-fetch-failed: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1010)",
+    "chain_error": "leaf-fetch-failed: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'nflix-resubscribe.com'. (_ssl.c:1010)",
     "leaf_present": false,
     "openssl_verify_code": null,
     "openssl_verify_text": null

@@ -1,17 +1,17 @@
 {
     "success": true,
-    "unsafe": false,
-    "target": "dentalclinic.co.cr",
+    "unsafe": true,
+    "target": "nflix-resubscribe.com",
     "source": "VirusTotal",
     "extra": {
         "stats": {
-            "malicious": 0,
+            "malicious": 9,
             "suspicious": 0,
-            "undetected": 9,
-            "harmless": 62,
+            "undetected": 31,
+            "harmless": 58,
             "timeout": 0
         },
         "reputation": 0,
-        "scan_date": 1570712696
+        "scan_date": 1763301605
     }
 }

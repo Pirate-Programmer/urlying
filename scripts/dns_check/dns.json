@@ -1,43 +1,33 @@
 {
-    "domain": "steamrip.com",
+    "domain": "nflix-resubscribe.com",
     "A": {
         "records": [
-            "208.91.112.55"
+            "102.135.91.206"
         ],
-        "ttl": 44
+        "ttl": 900
     },
     "AAAA": {
-        "records": [
-            "2620:101:9000:53::55"
-        ],
-        "ttl": 60
+        "records": [],
+        "ttl": null
     },
     "CNAME": {
         "records": [],
         "ttl": null
     },
     "MX": {
-        "records": [
-            "10 eforward3.registrar-servers.com.",
-            "20 eforward5.registrar-servers.com.",
-            "15 eforward4.registrar-servers.com.",
-            "10 eforward2.registrar-servers.com.",
-            "10 eforward1.registrar-servers.com."
-        ],
-        "ttl": 300
+        "records": [],
+        "ttl": null
     },
     "NS": {
         "records": [
-            "rick.ns.cloudflare.com.",
-            "eleanor.ns.cloudflare.com."
+            "ns1.openprovider.nl.",
+            "ns2.openprovider.be.",
+            "ns3.openprovider.eu."
         ],
-        "ttl": 86400
+        "ttl": 3600
     },
     "TXT": {
-        "records": [
-            "\"v=spf1 include:spf.efwd.registrar-servers.com ~all\"",
-            "\"google-site-verification=R29_k8RATHVuhfjDrKlUeaQGQ8Xrdj58ZY2EWAqtlKA\""
-        ],
-        "ttl": 300
+        "records": [],
+        "ttl": null
     }
 }

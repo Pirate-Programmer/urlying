@@ -335,6 +335,8 @@ def score_computer():
         return 50
 
     tls_version = data.get("tls_version")
+    if not hostname:
+        return 50
     cipher = data.get("cipher")
     key_size = data.get("key_size")
     subject = data.get("subject") or {}
