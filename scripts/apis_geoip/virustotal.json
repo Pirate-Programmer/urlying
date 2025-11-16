@@ -1,17 +1,17 @@
 {
     "success": true,
-    "unsafe": true,
-    "target": "bridge-trzr-eng-sso.pages.dev",
+    "unsafe": false,
+    "target": "dentalclinic.co.cr",
     "source": "VirusTotal",
     "extra": {
         "stats": {
-            "malicious": 6,
+            "malicious": 0,
             "suspicious": 0,
-            "undetected": 29,
-            "harmless": 63,
+            "undetected": 9,
+            "harmless": 62,
             "timeout": 0
         },
         "reputation": 0,
-        "scan_date": 1760931921
+        "scan_date": 1570712696
     }
 }

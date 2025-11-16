@@ -1,14 +1,16 @@
 {
-    "domain": "oass.co.jp",
+    "domain": "steamrip.com",
     "A": {
         "records": [
-            "157.7.107.29"
+            "208.91.112.55"
         ],
-        "ttl": 3600
+        "ttl": 44
     },
     "AAAA": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "2620:101:9000:53::55"
+        ],
+        "ttl": 60
     },
     "CNAME": {
         "records": [],
@@ -16,23 +18,26 @@
     },
     "MX": {
         "records": [
-            "10 mx01.lolipop.jp."
+            "10 eforward3.registrar-servers.com.",
+            "20 eforward5.registrar-servers.com.",
+            "15 eforward4.registrar-servers.com.",
+            "10 eforward2.registrar-servers.com.",
+            "10 eforward1.registrar-servers.com."
         ],
-        "ttl": 3600
+        "ttl": 300
     },
     "NS": {
         "records": [
-            "04.dnsv.jp.",
-            "01.dnsv.jp.",
-            "02.dnsv.jp.",
-            "03.dnsv.jp."
+            "rick.ns.cloudflare.com.",
+            "eleanor.ns.cloudflare.com."
         ],
         "ttl": 86400
     },
     "TXT": {
         "records": [
-            "\"v=spf1 include:spf.makeshop.jp ~all\""
+            "\"v=spf1 include:spf.efwd.registrar-servers.com ~all\"",
+            "\"google-site-verification=R29_k8RATHVuhfjDrKlUeaQGQ8Xrdj58ZY2EWAqtlKA\""
         ],
-        "ttl": 3600
+        "ttl": 300
     }
 }
