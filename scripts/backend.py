@@ -26,7 +26,6 @@ def domain(url) :
         print(f"Error: {e}")
         return "" 
     
-#this process the url to compture threat score
 @app.route("/check_url", methods=["POST"])
 def check_url():
     data = request.get_json()
@@ -35,12 +34,9 @@ def check_url():
     level = int(config.get("securityLevel", 3))
     print("Received URL:", url, "Security level:", level)
 
-    # Step 1: process URLs (no threading, as requested) 
-    # this is feature extraction
     process_urls([url], max_workers=4)
     print("Feature Extraction Done !!!")
 
-    # Step 2: Define tasks based on level
     tasks = []
     if level >= 1:
         tasks.append(run_ml)
@@ -53,12 +49,10 @@ def check_url():
     if level >= 5:
         tasks.append(run_apis)
 
-    # Step 3: Run selected functions in thread pool
     futures = []
     for fn in tasks:
         futures.append(executor.submit(fn))
 
-    # Step 4: Collect numeric results
     total_score = 0
     for fut in futures:
         try:
@@ -71,7 +65,7 @@ def check_url():
             print("Error running task:", e)
 
     print(f"computed score: {total_score}")
-    # Step 5: Prepare response
+
     return jsonify({
         "url": url,
         "domain": domain(url),
@@ -79,8 +73,6 @@ def check_url():
         "verdict": f"suspicious ({level})"
     })
 
-
-#run the da run.py script on chrome launch
 @app.route("/update_dataset", methods=["POST"])
 def update_dataset():
     run_all_parallel(8, 180)

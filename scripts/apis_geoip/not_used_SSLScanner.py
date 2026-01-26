@@ -19,7 +19,6 @@ class SSLCertScanner:
                 "source": self.source
             }
 
-        # Parse certificate details
         subject = dict(x[0] for x in cert.get("subject", []))
         issuer = dict(x[0] for x in cert.get("issuer", []))
         cn = subject.get("commonName", "")

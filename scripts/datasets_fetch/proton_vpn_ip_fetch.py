@@ -4,13 +4,11 @@ import os
 import csv
 import io
 
-# ==== Configuration ====
 RAW_URL = "https://raw.githubusercontent.com/mthcht/awesome-lists/refs/heads/main/Lists/VPN/ProtonVPN/protonvpn_ip_list.csv"
 FILENAME = "proton_vpn_ip_list.csv"
 SAVE_AS = f"./datasets/vpn_ips/{FILENAME}"
 HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 
-# ==== Utilities ====
 def get_md5(data):
     """Return MD5 hash (hex) for whole file."""
     return hashlib.md5(data).hexdigest()
@@ -30,7 +28,6 @@ def ensure_dirs():
     os.makedirs(os.path.dirname(SAVE_AS), exist_ok=True)
     os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
 
-# ==== Step 1: Fetch File ====
 def fetch_file():
     try:
         ensure_dirs()
@@ -56,7 +53,6 @@ def fetch_file():
         print(f"[!] Error: {e}")
         return False, None
 
-# ==== Step 2: Process CSV ====
 def process_csv(raw_csv_bytes):
     try:
         csv_data = io.StringIO(raw_csv_bytes.decode("utf-8", errors="ignore"))
@@ -68,7 +64,6 @@ def process_csv(raw_csv_bytes):
             if ip_value:
                 processed_rows.append({"ip": ip_value.strip()})
 
-        # dedupe and sort IPs
         unique_ips = sorted({r["ip"] for r in processed_rows})
         processed_rows = [{"ip": ip} for ip in unique_ips]
 
@@ -87,7 +82,6 @@ def run():
     if updated and content:
         process_csv(content)
         
-# ==== Main Runner ====
 if __name__ == "__main__":
     updated, content = fetch_file()
     if updated and content:

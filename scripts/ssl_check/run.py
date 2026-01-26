@@ -30,5 +30,3 @@ def run():
     print("SSL score: ", score)
     return score
 
-if __name__ == "__main__":
-    print(run())

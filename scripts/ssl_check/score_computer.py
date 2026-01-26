@@ -43,7 +43,6 @@ def issuer_trust_score(issuer_name):
 
     n = issuer_name.lower()
 
-    # self-signed detection
     if "self-signed" in n or "selfsigned" in n or ("self" in n and "signed" in n):
         return 15
 
@@ -92,7 +91,7 @@ def key_size_score(key_size, cipher):
     return 0
 
 def cn_san_match_score(cn, san_list, hostname):
-    if not hostname: # change this later to get directly from url
+    if not hostname: 
         return 0
     host = hostname.lower()
     cn_ok = False
@@ -118,7 +117,7 @@ def cn_san_match_score(cn, san_list, hostname):
     
     if is_wildcard_in_san(san_list) and not (cn_ok or san_ok):
         return 5
-    # mismatch heavy penalty
+
     return 15
 
 def parse_iso(datestr):
@@ -129,10 +128,8 @@ def parse_iso(datestr):
         dt = datestr
     else:
         try:
-            # Python 3.7+ fromisoformat (handles offset-aware strings)
             dt = datetime.fromisoformat(datestr)
         except Exception:
-            # fallback formats
             fmts = [
                 "%Y-%m-%dT%H:%M:%S.%f%z",
                 "%Y-%m-%dT%H:%M:%S%z",
@@ -151,7 +148,6 @@ def parse_iso(datestr):
             if parsed is None:
                 return None
 
-    # Make timezone-aware (assume UTC if none)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
     else:
@@ -226,7 +222,7 @@ def san_count_score(san_list):
 
     return 0
 
-def version_score(version) : # https://learn.microsoft.com/en-us/azure/iot-hub/reference-x509-certificates
+def version_score(version) : 
     if not version: return 0
 
     if version == 2 or version == 1 or version == "v2" or version == "v1":
@@ -246,7 +242,7 @@ def issuer_score(issuer_name: str, is_root: bool = False) -> int:
         "godaddy", "google trust", "microsoft corporation", "amazon trust services",
         "identrust", "quovadis", "d-trust", "dtrust", "buypass", "netlock",
         "trustis", "trustcor", "certipost", "certigna", "gov", "government",
-        "post", "kisa", "isrg root x1"  # note: ISRG Root X1 is the root that signs Let's Encrypt intermediates
+        "post", "kisa", "isrg root x1"  
     )
 
     # ---- Suspicious / caution list (lower severity) ----
@@ -262,12 +258,11 @@ def issuer_score(issuer_name: str, is_root: bool = False) -> int:
     # ---- Known problematic / high-risk list (history of incidents) ----
     malicious_keywords = (
         "wo sign", "wosign", "startcom", "start commercial (startcom) ltd",
-        "chunghwa telecom"  # include only if you want stricter checks (example)
+        "chunghwa telecom" 
     )
 
     score = 0
 
-    # trusted check (exact/contains)
     for kw in trusted_keywords:
         if kw in n:
             # special-case: user wanted Let's Encrypt treated as suspicious,
@@ -329,7 +324,6 @@ def score_computer():
     if isinstance(data, dict) and len(data) == 1 and "error" in data:
         return 50
     
-    # Extract fields
     hostname = data.get("hostname")
     if not hostname:
         return 50
@@ -354,9 +348,7 @@ def score_computer():
     intermediate_certs = []
     root_cert = None
     if chain:
-        # Last one = root cert
         root_cert = chain[-1]
-        # Everything before last = intermediates
         if len(chain) > 1:
             intermediate_certs = chain[:-1]
  
@@ -366,7 +358,6 @@ def score_computer():
         host = hostname.lower()
         has_digit = any(ch.isdigit() for ch in host)
         # crude heuristic: digits in hostname often indicate typosquat / homoglyph attempts
-        # (this is intentionally simple to avoid adding new helper funcs)
         if has_digit and any(ch.isalpha() for ch in host):
             # treat digit-substitution as high suspicion
             score += 30
@@ -415,7 +406,6 @@ def score_computer():
     
             score += inter_score
 
-    # ---- Add score for root cert ----
     if root_cert:
         info = extract_cert_info(root_cert)
 
@@ -431,6 +421,3 @@ def score_computer():
 
     return score
 
-
-if __name__ == "__main__":
-    print(score_computer())

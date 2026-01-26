@@ -1,7 +1,6 @@
 import pandas as pd
 import os, json
 
-# Common base directory (relative to this script)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.normpath(os.path.join(BASE_DIR, "..", "..", "datasets", "vpn_ips"))
 
@@ -46,7 +45,7 @@ def abuseIPDB(unsafe, abuse_score):
     if isinstance(abuse_score, (int, float)):
         score += abuse_score * 0.5
     else:
-        # score += 0  # optional, do nothing
+        # score += 0 
         pass
 
     return score
@@ -67,7 +66,6 @@ def virustotal(unsafe, reputation):
     else:
         score -= 5
 
-    # Handle None reputation
     rep = reputation if isinstance(reputation, (int, float)) else 0
 
     score -= rep * 0.1

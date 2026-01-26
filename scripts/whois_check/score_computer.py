@@ -109,18 +109,16 @@ def email_score(emails, registrar, hostname=None):
     if not emails:
         return 5
 
-    # Normalize and split registrar into meaningful parts
     registrar_parts = set()
     if registrar:
         reg = registrar.lower()
-        # Replace punctuation except dot and dash with space (commas, parentheses, slashes, etc.)
+      
         reg = re.sub(r"[^a-z0-9\.\-\s]", " ", reg)
-        # Replace multiple spaces with single space, then split
+
         for part in re.split(r"\s+", reg.strip()):
             if part:
                 registrar_parts.add(part)
 
-    # Normalize hostname similarly (store as string)
     hostname_norm = None
     if hostname:
         hn = hostname.lower().strip()
@@ -130,7 +128,6 @@ def email_score(emails, registrar, hostname=None):
 
     score = 0
 
-    # regex to extract domain part after '@' (handles <Name> formats too)
     email_domain_re = re.compile(r"@([A-Za-z0-9\.\-]+)")
 
     for email in emails:
@@ -141,27 +138,22 @@ def email_score(emails, registrar, hostname=None):
 
             m = email_domain_re.search(email)
             if not m:
-                # no domain found -> treat as suspicious/invalid
                 score += 5
                 continue
 
             domain_part = m.group(1).lower().strip()
 
-            # Clean domain (strip trailing punctuation)
             domain_part = domain_part.strip(" .,-_")
 
             matched = False
 
-            # Check registrar parts as substrings in the domain
             for part in registrar_parts:
-                # skip trivial parts
                 if len(part) < 2:
                     continue
                 if part in domain_part:
                     matched = True
                     break
 
-            # Check hostname if not matched yet
             if not matched and hostname_norm:
                 if hostname_norm in domain_part:
                     matched = True
@@ -180,19 +172,17 @@ def updated_date_score(updated_date):
     now = datetime.now(timezone.utc)
     dt = parse_iso(updated_date)
     if not dt:
-        return 0   # No penalty because some WHOIS hides this
+        return 0  
 
     days = (now - dt).days
 
-    # Recently updated (< 90 days) often legit
     if days <= 90:
         return -10 
     
-    # Updated a long time back (> 2 years) suspicious
     if days > 730:
         return 5
     
-    return 0  # Slight neutral suspicion otherwise
+    return 0  
 
 def dnssec_score(dnssec):
     if dnssec == "signed":
@@ -219,7 +209,6 @@ def whois_score_computer():
     base_path = os.path.dirname(__file__)
     json_path = os.path.join(base_path, "whois.json")
 
-    # Load json
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             data = json.load(f)  
@@ -234,7 +223,6 @@ def whois_score_computer():
     score = 0
     domain = data.get("domain_name")
 
-    # If domain is absent / null / empty -> return 50
     if not domain:
         return 50
     

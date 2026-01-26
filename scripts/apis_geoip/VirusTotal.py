@@ -9,10 +9,6 @@ class VirusTotalScanner:
         self.VT_URL = "https://www.virustotal.com/api/v3/urls/"
         self.source = "VirusTotal"
 
-    """return -> dict
-        if success == true, unsafe : bool, source : str, extra : dict (scan stats)
-        if success == false , error : str, source : str
-    """
     def fetch_result(self, target_url):
         headers = {
             "x-apikey": self.api_key

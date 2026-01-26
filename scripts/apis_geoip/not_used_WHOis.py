@@ -25,7 +25,7 @@ class WhoisScanner:
             data = response.json().get("WhoisRecord", {})
             result = {
                 "success": True,
-                "unsafe": False,  # WHOIS doesn't give threat info directly
+                "unsafe": False,  
                 "source": self.source,
                 "extra": {
                     "domain": data.get("domainName"),

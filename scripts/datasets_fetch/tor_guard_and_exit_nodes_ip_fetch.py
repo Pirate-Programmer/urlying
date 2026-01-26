@@ -4,7 +4,6 @@ import os
 import csv
 from io import StringIO
 
-# ==== Tor Node Feeds ====
 TOR_SOURCES = [
     {
         "name": "tor_exit_nodes_ip_list.csv",
@@ -16,7 +15,6 @@ TOR_SOURCES = [
     }
 ]
 
-# ==== Utilities ====
 def get_md5(data):
     return hashlib.md5(data).hexdigest()
 
@@ -44,7 +42,6 @@ def process_csv(content, save_as):
         if ip:
             ips.append(ip)
 
-    # dedupe and sort
     unique_sorted_ips = sorted(set(ips))
 
     os.makedirs(os.path.dirname(save_as), exist_ok=True)
@@ -56,7 +53,6 @@ def process_csv(content, save_as):
 
     print(f"[✓] Processed & saved: {save_as} (count: {len(unique_sorted_ips)})")
 
-# ==== Fetch Logic ====
 def fetch_tor_lists():
     for source in TOR_SOURCES:
         filename = source["name"]
@@ -88,6 +84,5 @@ def fetch_tor_lists():
         except Exception as e:
             print(f"[!] Error fetching {filename}: {e}")
 
-# ==== Run Script ====
 if __name__ == "__main__":
     fetch_tor_lists()

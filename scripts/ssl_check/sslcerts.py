@@ -12,24 +12,15 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 
 def _fmt_dt(dt):
-    """
-    Accept either:
-      - timezone-aware properties like not_valid_after_utc (preferred), or
-      - older naive datetime properties (fallback),
-      - or an input string (returned as-is if parsing fails).
-    Returns ISO 8601 string or None.
-    """
     if dt is None:
         return None
 
-    # Preferred: use isoformat if available (handles tz-aware datetimes)
     if hasattr(dt, "isoformat"):
         try:
             return dt.isoformat()
         except Exception:
             pass
 
-    # For older string inputs, try to parse common OpenSSL format
     if isinstance(dt, str):
         try:
             return datetime.strptime(dt, "%b %d %H:%M:%S %Y %Z").isoformat()
@@ -40,10 +31,6 @@ def _fmt_dt(dt):
 
 
 def _x509_to_dict(x509_cert):
-    """
-    Convert a cryptography.x509.Certificate to a serializable dict.
-    Defensive: if PEM/DER serialization fails, we continue without them.
-    """
     subj = {}
     for attr in x509_cert.subject:
         key = attr.oid._name if hasattr(attr.oid, "_name") else attr.oid.dotted_string
@@ -69,7 +56,6 @@ def _x509_to_dict(x509_cert):
     except Exception:
         sig_alg = None
 
-    # pick the preferred datetime attributes if available (utc-aware)
     not_before = None
     not_after = None
     if hasattr(x509_cert, "not_valid_before_utc"):
@@ -100,7 +86,6 @@ def _x509_to_dict(x509_cert):
         "signature_algorithm": sig_alg,
     }
 
-    # PEM and DER are optional — do them inside try/except to avoid crashes
     try:
         pem = x509_cert.public_bytes(encoding=serialization.Encoding.PEM).decode("utf-8")
         result["pem"] = pem
@@ -117,10 +102,6 @@ def _x509_to_dict(x509_cert):
 
 
 def _parse_verify_return(out):
-    """
-    Parse 'Verify return code: <num> (<text>)' from openssl output.
-    Returns (code:int|None, text:str|None).
-    """
     if not out:
         return None, None
     m = re.search(r"Verify return code:\s*(\d+)\s*\((.*?)\)", out)
@@ -133,12 +114,6 @@ def _parse_verify_return(out):
 
 
 def _fetch_chain_with_openssl_cli(hostname, port=443, timeout=10, debug_write_raw_output=True):
-    """
-    Fetch chain using `openssl s_client -showcerts`.
-    Returns tuple (certs_list, openssl_raw_output, verify_code, verify_text).
-    Raises FileNotFoundError if openssl missing.
-    Raises RuntimeError for other fatal openssl failures (timeouts, connection issues, or debug dump created).
-    """
     if shutil.which("openssl") is None:
         raise FileNotFoundError("openssl not found on PATH")
 
@@ -238,7 +213,6 @@ def get_ssl_info(hostname, port=443, timeout=5.0, openssl_timeout=10):
         "openssl_verify_text": None,
     }
 
-    # First, get leaf info (stdlib ssl)
     try:
         context = ssl.create_default_context()
         with socket.create_connection((hostname, port), timeout=timeout) as sock:
@@ -266,7 +240,6 @@ def get_ssl_info(hostname, port=443, timeout=5.0, openssl_timeout=10):
             info["notAfter"] = _fmt_dt(cert_struct.get("notAfter"))
         except Exception:
             try:
-                # try cryptography properties (fallback)
                 if hasattr(x509_leaf, "not_valid_before_utc"):
                     info["notBefore"] = _fmt_dt(x509_leaf.not_valid_before_utc)
                 else:
@@ -293,7 +266,7 @@ def get_ssl_info(hostname, port=443, timeout=5.0, openssl_timeout=10):
         info["chain_error"] = f"leaf-fetch-failed: {e}"
         return info
 
-    # Now fetch chain using openssl CLI (preferred)
+    # fetch chain using openssl 
     try:
         certs, raw_out, verify_code, verify_text = _fetch_chain_with_openssl_cli(hostname, port, timeout=openssl_timeout)
         info["openssl_verify_code"] = verify_code
@@ -335,9 +308,3 @@ def save_ssl_info(hostname, filename="ssl.json"):
         json.dump(info, f, indent=4)
     return file_path
 
-
-if __name__ == "__main__":
-    # simple local test
-    target = "accounts.google.com"
-    out_path = save_ssl_info(target, "ssl_test.json")
-    print("Wrote:", out_path)

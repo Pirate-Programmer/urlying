@@ -30,6 +30,3 @@ def run():
     print("DNS Score: ", score)
     return score
 
-
-if __name__ == "__main__":
-    print(run())

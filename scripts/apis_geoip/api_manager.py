@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from .AbuseIPDB import AbuseIPDBScanner
 from .VirusTotal import VirusTotalScanner
 from .GSB import GSB
-load_dotenv()  # Load environment variables from .env
+load_dotenv()  
 
 class ApiManager:
     def __init__(self):

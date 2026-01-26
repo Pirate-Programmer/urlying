@@ -34,6 +34,7 @@ def run():
     abuse_result = manager.abuseipdb.fetch_result(domain)
     manager.abuseipdb.save_result_to_file(abuse_result)
 
+    # GSB
     gsb_result = manager.gsb.fetch_result(domain)
     manager.gsb.save_result_to_file(gsb_result)
 
