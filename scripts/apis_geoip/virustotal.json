@@ -1,17 +1,17 @@
 {
     "success": true,
-    "unsafe": true,
-    "target": "nflix-resubscribe.com",
+    "unsafe": false,
+    "target": "google.com",
     "source": "VirusTotal",
     "extra": {
         "stats": {
-            "malicious": 9,
+            "malicious": 0,
             "suspicious": 0,
-            "undetected": 31,
-            "harmless": 58,
+            "undetected": 26,
+            "harmless": 72,
             "timeout": 0
         },
-        "reputation": 0,
-        "scan_date": 1763301605
+        "reputation": 2714,
+        "scan_date": 1763346738
     }
 }

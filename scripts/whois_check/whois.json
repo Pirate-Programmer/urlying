@@ -1,15 +1,15 @@
 {
-    "domain_name": "NFLIX-RESUBSCRIBE.COM",
-    "creation_date": "2025-11-13T20:50:30",
-    "expiration_date": "2026-11-13T20:50:30",
-    "updated_date": [
-        "2025-11-16T02:04:59",
-        "2025-11-16T03:04:59"
+    "domain_name": "THEHINDU.COM",
+    "creation_date": "1996-03-01T05:00:00",
+    "expiration_date": "2028-03-02T05:00:00",
+    "updated_date": "2023-02-28T05:44:13",
+    "dnssec": "unsigned",
+    "status": [
+        "ok https://icann.org/epp#ok",
+        "ok https://www.icann.org/epp#ok"
     ],
-    "dnssec": "signedDelegation",
-    "status": "clientTransferProhibited https://icann.org/epp#clientTransferProhibited",
-    "emails": "abuse@registrar.eu",
-    "registrar": "Hosting Concepts B.V. d/b/a Registrar.eu",
-    "asn": "213441",
-    "asn_country_code": "SC"
+    "emails": "abuse@enom.com",
+    "registrar": "ENOM, INC.",
+    "asn": "13335",
+    "asn_country_code": "US"
 }

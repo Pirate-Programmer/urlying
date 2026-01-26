@@ -1,14 +1,18 @@
 {
-    "domain": "nflix-resubscribe.com",
+    "domain": "tjmzw.kortexl.cfd",
     "A": {
         "records": [
-            "102.135.91.206"
+            "104.21.71.77",
+            "172.67.143.232"
         ],
-        "ttl": 900
+        "ttl": 299
     },
     "AAAA": {
-        "records": [],
-        "ttl": null
+        "records": [
+            "2606:4700:3031::ac43:8fe8",
+            "2606:4700:3037::6815:474d"
+        ],
+        "ttl": 299
     },
     "CNAME": {
         "records": [],
@@ -19,12 +23,8 @@
         "ttl": null
     },
     "NS": {
-        "records": [
-            "ns1.openprovider.nl.",
-            "ns2.openprovider.be.",
-            "ns3.openprovider.eu."
-        ],
-        "ttl": 3600
+        "records": [],
+        "ttl": null
     },
     "TXT": {
         "records": [],

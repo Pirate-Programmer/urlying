@@ -95,7 +95,7 @@ def status_score(status):
             continue
         cleaned_status = x.strip().split()[0]
         if cleaned_status in safe:
-            score -= 5
+            score -= 10
         elif cleaned_status in malicious:
             score += 5
         elif cleaned_status in suspicious:
@@ -255,11 +255,18 @@ def whois_score_computer():
     if updated_date:
         score += updated_date_score(updated_date)
     if registrar:
-        score += registrar_score(registrar)
-        if emails:
-            score += email_score(emails, registrar, domain)
+        if(registrar == "ERNET India") : 
+            score -= 10
+            if emails:
+                score += email_score(emails, registrar, domain)
+            else:
+                score += 10
         else:
-            score += 10
+            score += registrar_score(registrar)
+            if emails:
+                score += email_score(emails, registrar, domain)
+            else:
+                score += 10
     if dnssec:
         score += dnssec_score(dnssec)
     if status:

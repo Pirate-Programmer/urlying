@@ -1,8 +1,6 @@
 {
-    "success": true,
-    "unsafe": false,
-    "abuse_score": 0,
-    "ip": "102.135.91.206",
-    "target": "nflix-resubscribe.com",
-    "source": "AbuseIPDB"
+    "success": false,
+    "error": "HTTPSConnectionPool(host='api.abuseipdb.com', port=443): Max retries exceeded with url: /api/v2/check?ipAddress=142.250.192.110&maxAgeInDays=60&verbose=True (Caused by NameResolutionError(\"<urllib3.connection.HTTPSConnection object at 0x000001856B202210>: Failed to resolve 'api.abuseipdb.com' ([Errno 11001] getaddrinfo failed)\"))",
+    "source": "AbuseIPDB",
+    "target": "google.com"
 }
