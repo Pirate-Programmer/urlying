@@ -467,10 +467,8 @@ def process_urls(urls: List[str],
                 feat = future.result(timeout=timeout)
                 results.append(feat)
             except Exception as e:
-                # collect error info but continue processing others
                 errors.append({"url": url, "error": str(e)})
     
-    # Save results and optionally errors into a JSON object
     output = {
         "features": results,
         "errors": errors
@@ -479,7 +477,6 @@ def process_urls(urls: List[str],
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(script_dir, "features.json")
 
-    # write to file
     try:
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
@@ -490,7 +487,7 @@ def process_urls(urls: List[str],
 
 if __name__ == "__main__":
     urls = [
-        "https://www.apple.com"
+        "https://google.com"
     ]
     feats = process_urls(urls, max_workers=4)
     print(f"Processed {len(feats)} URLs, saved to features.json")

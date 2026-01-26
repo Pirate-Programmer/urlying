@@ -39,11 +39,9 @@ def process_csv(content):
             continue 
         processed_rows.append({"ip": ip.strip()})
     
-    # Remove duplicates and sort
     unique_ips = sorted({r["ip"] for r in processed_rows})
     processed_rows = [{"ip": ip} for ip in unique_ips]
-    
-    # Save processed CSV
+
     with open(SAVE_AS, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["ip"])
         writer.writeheader()

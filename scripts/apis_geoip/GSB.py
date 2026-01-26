@@ -9,10 +9,6 @@ class GSB:
         self.source = "GSB"
         self.GSB_URL = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={self.API_KEY}"
     
-    """return -> dict
-        if success == true, unsafe : bool, source : str
-        if success == false , error : str, source : str
-    """
     def fetch_result(self, target_url):
         payload = {
             "client": {
@@ -62,7 +58,6 @@ class GSB:
 
 
     def save_result_to_file(self, result):
-        """Store ONLY the latest scan result"""
         try:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             file_path = os.path.join(script_dir, "gsb.json")

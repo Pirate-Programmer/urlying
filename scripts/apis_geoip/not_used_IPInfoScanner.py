@@ -6,11 +6,6 @@ class IPInfoScanner:
         self.api_key = api_key
         self.source = "IPINFO"
 
-
-    """return -> dict
-        if success == true, unsafe : bool (always False here), source : str, extra : list[dict] (geo info per IP)
-        if success == false, error : str, source : str
-    """
     def fetch_result(self, target_url):
         try:
             ip_list = self.resolve_domain_dns(target_url)
@@ -31,7 +26,7 @@ class IPInfoScanner:
                 "success": True,
                 "unsafe": False,
                 "source": self.source,
-                "extra": geo_results  # contains all IP geo info
+                "extra": geo_results  
             }
 
         except Exception as e:
@@ -40,8 +35,6 @@ class IPInfoScanner:
                 "error": str(e),
                 "source": self.source
             }
-
-
 
     def resolve_domain_dns(self, domain):
         try:

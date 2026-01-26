@@ -1,7 +1,6 @@
 import pandas as pd
 import os, json
 
-# Common base directory (relative to this script)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.normpath(os.path.join(BASE_DIR, "..", "..", "datasets", "vpn_ips"))
 
@@ -46,7 +45,7 @@ def abuseIPDB(unsafe, abuse_score):
     if isinstance(abuse_score, (int, float)):
         score += abuse_score * 0.5
     else:
-        # score += 0  # optional, do nothing
+        # score += 0 
         pass
 
     return score
@@ -67,16 +66,15 @@ def virustotal(unsafe, reputation):
     else:
         score -= 5
 
-    # Handle None reputation
     rep = reputation if isinstance(reputation, (int, float)) else 0
 
     score -= rep * 0.1
     return score
 
 def score_computer():
-    json_path1 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis", "abuseIPDB.json"))
-    json_path2 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis", "gsb.json"))
-    json_path3 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis", "virustotal.json"))
+    json_path1 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis_geoip", "abuseIPDB.json"))
+    json_path2 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis_geoip", "gsb.json"))
+    json_path3 = os.path.normpath(os.path.join(BASE_DIR, "..", "apis_geoip", "virustotal.json"))
 
     try:
         with open(json_path1, "r", encoding="utf-8") as f:

@@ -4,7 +4,6 @@ import os
 import csv
 from io import StringIO
 
-# GitHub raw file URL for NordVPN IPs
 RAW_URL = "https://raw.githubusercontent.com/drb-ra/C2IntelFeeds/master/vpn/NordVPNIPs.csv"
 
 FILENAME = "nord_vpn_ip_list.csv"
@@ -39,7 +38,6 @@ def process_csv(content):
             continue
         processed_rows.append({"ip": ip.strip()})
     
-    # Sort IPs alphabetically
     processed_rows.sort(key=lambda x: x["ip"])
     
     with open(SAVE_AS, "w", newline="") as f:

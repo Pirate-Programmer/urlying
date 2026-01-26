@@ -1,8 +1,6 @@
 {
-    "success": true,
-    "unsafe": false,
-    "abuse_score": 18,
-    "ip": "15.197.225.128",
-    "target": "secure1stbank.com",
-    "source": "AbuseIPDB"
+    "success": false,
+    "error": "401 Client Error: Unauthorized for url: https://api.abuseipdb.com/api/v2/check?ipAddress=142.250.76.174&maxAgeInDays=60&verbose=True",
+    "source": "AbuseIPDB",
+    "target": "google.com"
 }

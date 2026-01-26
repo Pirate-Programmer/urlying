@@ -3,11 +3,11 @@ import { runFastFlags } from "./fastflags.js";
 //flag flags
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   const url = details.url;
- 
+
   // Skip internal chrome URLs
   if (url.startsWith("chrome")) return;
 
- console.log("Intercepted URL:", url);
+  console.log("Intercepted URL:", url);
 
   const { blacklist = [], whitelist = [] } = await chrome.storage.local.get(["blacklist", "whitelist"]);
 
@@ -299,35 +299,35 @@ chrome.runtime.onMessage.addListener(async (msg, sender, sendResponse) => {
 
   // Analyze button clicked → process URL through fast flags + backend
   if (msg.type === "analyzeURL" && msg.url) {
-  const fast = await runFastFlags(msg.url);
+    const fast = await runFastFlags(msg.url);
 
-  if (fast.status === "block") {
-    await chrome.storage.local.set({
-      lastBlockedReason: fast.reason,
-      lastBlockedUrl: msg.url,
-    });
-    // respond immediately so caller isn't left waiting
-    sendResponse({ risk_score: 100, url: msg.url, fastReason: fast.reason });
-    chrome.tabs.update(sender.tab.id, { url: "blocked.html" });
-    return; // done
-  }
+    if (fast.status === "block") {
+      await chrome.storage.local.set({
+        lastBlockedReason: fast.reason,
+        lastBlockedUrl: msg.url,
+      });
+      // respond immediately so caller isn't left waiting
+      sendResponse({ risk_score: 100, url: msg.url, fastReason: fast.reason });
+      chrome.tabs.update(sender.tab.id, { url: "blocked.html" });
+      return; // done
+    }
 
-  if (fast.status === "allow") {
-    // allow → short-circuit and inform caller
-    sendResponse({ risk_score: 0, url: msg.url, fastReason: fast.reason });
-    return;
-  }
+    if (fast.status === "allow") {
+      // allow → short-circuit and inform caller
+      sendResponse({ risk_score: 0, url: msg.url, fastReason: fast.reason });
+      return;
+    }
 
-  // neutral → do full process
-  try {
-  const backendResult = await processUrl(msg.url, sender.tab?.id || null, true);
-  // send back result to content script caller (the callback passed to runtime.sendMessage)
-  sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
-} catch (err) {
-  console.error("processUrl failed:", err);
-  sendResponse({ risk_score: 0, url: msg.url });
-}
-return true; // keep channel open for async sendResponse
+    // neutral → do full process
+    try {
+      const backendResult = await processUrl(msg.url, sender.tab?.id || null, true);
+      // send back result to content script caller (the callback passed to runtime.sendMessage)
+      sendResponse({ risk_score: backendResult?.risk_score || 0, url: msg.url });
+    } catch (err) {
+      console.error("processUrl failed:", err);
+      sendResponse({ risk_score: 0, url: msg.url });
+    }
+    return true; // keep channel open for async sendResponse
   }
 
   // Move domain to whitelist
@@ -343,11 +343,11 @@ return true; // keep channel open for async sendResponse
 
 
       // Add to whitelist if not already
-    // Add to whitelist if not already
-    if (!whitelist.some(e => normalizeDomain(e.domain) === domain)) {
-      const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
-      whitelist.push({ domain, expiry });
-    }
+      // Add to whitelist if not already
+      if (!whitelist.some(e => normalizeDomain(e.domain) === domain)) {
+        const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 days
+        whitelist.push({ domain, expiry });
+      }
 
       // Save back and rebuild rules
       chrome.storage.local.set({ blacklist, whitelist }, async () => {
@@ -421,59 +421,57 @@ async function navigationHandler(details) {
   }
   const url = details.url;
 
-try {
-  const { blacklist = [], whitelist = [] } = await chrome.storage.local.get(["blacklist", "whitelist"]);
-  const normalizedUrl = normalizeDomain(url);
+  try {
+    const { blacklist = [], whitelist = [] } = await chrome.storage.local.get(["blacklist", "whitelist"]);
+    const normalizedUrl = normalizeDomain(url);
 
-  // 1️⃣ Whitelist check
-  const now = Date.now();
-  const validWhitelist = whitelist.filter(e => e.expiry > now);
-  const whitelistSet = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
-  if (whitelistSet.has(normalizedUrl)) {
-    console.log("🟢 Whitelisted, skipping:", normalizedUrl);
-    return;
-  }
+    // 1️⃣ FASTFLAGS FIRST
+    const flag = await runFastFlags(url);
 
-  // 2️⃣ Blacklist check
-  const normalizedBlacklist = (blacklist || []).map(d => normalizeDomain(d));
-  if (normalizedBlacklist.includes(normalizedUrl)) {
-    console.warn("⛔ Blocked by manual blacklist:", normalizedUrl);
-    await chrome.storage.local.set({
-      lastBlockedReason: "manual_blacklist",
-      lastBlockedUrl: url,
-      lastBlockedDomain: normalizedUrl,
-      lastBlockedScore: null
-    });
-    chrome.tabs.update(details.tabId, {
-      url: chrome.runtime.getURL("html/blocked.html")
-    });
-    return;
-  }
+    if (flag.status === "block") {
+      const domain = flag.domain || normalizeDomain(url);
+      console.warn("⛔ Blocked by FastFlag:", domain);
 
-  // 3️⃣ FastFlag layer (only if not listed)
-const flag = await runFastFlags(url);
+      chrome.storage.local.set({
+        lastBlockedReason: flag.reason,
+        lastBlockedUrl: url,
+        lastBlockedDomain: domain,
+        lastBlockedScore: null
+      });
 
-if (flag.status === "block") {
-  // Normalize domain for storage
-  const domain = flag.domain || normalizeDomain(url);
-
-  // Save reason and domain to storage, then redirec
-      // Redirect to blocked page after storage is saved
       chrome.tabs.update(details.tabId, {
         url: chrome.runtime.getURL("html/blocked.html")
       });
+      return;
+    }
 
-  return;
-}
+    if (flag.status === "allow") {
+      console.log(`[FASTFLAG ALLOW] ${url} — ${flag.reason}`);
+      return;
+    }
 
-  if (flag.status === "allow") {
-    console.log(`[FASTFLAG ALLOW] ${url} — ${flag.reason}`);
-    return; 
+    // 2️⃣ WHITELIST
+    const now = Date.now();
+    const validWhitelist = whitelist.filter(e => e.expiry > now);
+    const whitelistSet = new Set(validWhitelist.map(e => normalizeDomain(e.domain)));
+
+    if (whitelistSet.has(normalizedUrl)) {
+      console.log("🟢 Whitelisted, skipping:", normalizedUrl);
+      return;
+    }
+
+    // 3️⃣ BLACKLIST
+    const normalizedBlacklist = blacklist.map(normalizeDomain);
+    if (normalizedBlacklist.includes(normalizedUrl)) {
+      console.warn("⛔ Blocked by manual blacklist:", normalizedUrl);
+
+      return;
+    }
+
+
+  } catch (err) {
+    console.error("Navigation check failed:", err);
   }
-
-} catch (err) {
-  console.error("Navigation check failed:", err);
-}
 
   processUrl(details.url, details.tabId);
 }

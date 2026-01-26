@@ -1,8 +1,8 @@
 // Global sets (shared across invocations)
 const harmfulExtensions = new Set([
-  "exe", "bat", "cmd", "js", "vbs", "vbe", "wsf", "wsh", "scr", "dll",
+  "bat", "cmd", "js", "vbs", "vbe", "wsf", "wsh", "scr", "dll",
   "msi", "msp", "mst", "jar", "ps1", "ps2", "reg", "pif", "chm", "hta",
-  "cpl", "com", "msc", "ocx", "inf"
+  "cpl", "com", "msc", "ocx", "inf", "sh"
 ]);
 
 const shorteners = new Set([

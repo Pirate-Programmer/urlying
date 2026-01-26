@@ -6,7 +6,6 @@ import json
 import os
 
 def _get_authoritative_ns_names(domain):
-    """Return list of authoritative NS hostnames (may be empty)."""
     try:
         ans = dns.resolver.resolve(domain, "NS", lifetime=2.0)
         return [str(rdata).rstrip('.') for rdata in ans]
@@ -14,7 +13,6 @@ def _get_authoritative_ns_names(domain):
         return []
 
 def _ns_names_to_ips(ns_names):
-    """Resolve NS hostnames to IP addresses (A/AAAA)."""
     ips = []
     for ns in ns_names:
         try:
@@ -30,7 +28,6 @@ def _ns_names_to_ips(ns_names):
     return ips
 
 def _query_authoritative_ttl(domain, rtype, ns_ip):
-    """Query authoritative server and return TTL if found."""
     try:
         q = dns.message.make_query(domain, rtype, use_edns=True)
         q.flags &= ~dns.flags.RD
@@ -48,9 +45,8 @@ def _query_authoritative_ttl(domain, rtype, ns_ip):
     return None
 
 def get_dns_records(domain):
-    # Removed SOA, PTR, SRV as requested
     record_types = ["A", "AAAA", "CNAME", "MX", "NS", "TXT"]
-    all_records = {"domain": domain}  # Save domain in JSON
+    all_records = {"domain": domain}  
 
     ns_names = _get_authoritative_ns_names(domain)
     ns_ips = _ns_names_to_ips(ns_names) if ns_names else []
@@ -91,7 +87,3 @@ def save_dns_records(domain, filename="dns.json"):
         json.dump(info, f, indent=4)
 
     return file_path
-
-#  https://fse.studenttheses.ub.rug.nl/13509/1/master_thesis_pascal_bouwers.pdf
-
-# https://learn.microsoft.com/en-us/archive/technet-wiki/7608.srv-records-registered-by-net-logon

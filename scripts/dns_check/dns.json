@@ -2,13 +2,13 @@
     "domain": "google.com",
     "A": {
         "records": [
-            "142.250.182.46"
+            "142.250.76.174"
         ],
         "ttl": 300
     },
     "AAAA": {
         "records": [
-            "2404:6800:4002:819::200e"
+            "2404:6800:4002:81b::200e"
         ],
         "ttl": 300
     },
@@ -24,28 +24,28 @@
     },
     "NS": {
         "records": [
-            "ns1.google.com.",
             "ns2.google.com.",
             "ns3.google.com.",
+            "ns1.google.com.",
             "ns4.google.com."
         ],
         "ttl": 345600
     },
     "TXT": {
         "records": [
-            "\"google-site-verification=4ibFUgB-wXLQ_S7vsXVomSTVamuOXBiVAzpR5IZ87D0\"",
             "\"facebook-domain-verification=22rm551cu4k0ab0bxsw536tlds4h95\"",
+            "\"onetrust-domain-verification=6d685f1d41a94696ad7ef771f68993e0\"",
             "\"apple-domain-verification=30afIBcvSuDV2PLX\"",
-            "\"cisco-ci-domain-verification=47c38bc8c4b74b7233e9053220c1bbe76bcc1cd33c7acf7acd36cd6a5332004b\"",
-            "\"docusign=1b0a6754-49b1-4db5-8540-d2c12664b289\"",
-            "\"globalsign-smime-dv=CDYX+XFHUw2wml6/Gb8+59BsH31KzUr6c1l2BPvqKX8=\"",
-            "\"onetrust-domain-verification=de01ed21f2fa4d8781cbc3ffb89cf4ef\"",
-            "\"google-site-verification=TV9-DBe4R80X4v0M4U_bd_J9cpOJM0nikft0jAgjmsQ\"",
+            "\"MS=E4A68B9AB2BB9670BCE15412F62916164C0B20BB\"",
             "\"google-site-verification=wD8N7i1JTNTkezJ49swvWW48f8_9xveREV4oB-0Hf5o\"",
-            "\"v=spf1 include:_spf.google.com ~all\"",
+            "\"cisco-ci-domain-verification=47c38bc8c4b74b7233e9053220c1bbe76bcc1cd33c7acf7acd36cd6a5332004b\"",
+            "\"google-site-verification=TV9-DBe4R80X4v0M4U_bd_J9cpOJM0nikft0jAgjmsQ\"",
+            "\"docusign=1b0a6754-49b1-4db5-8540-d2c12664b289\"",
             "\"docusign=05958488-4752-4ef2-95eb-aa7ba8a3bd0e\"",
-            "\"MS=E4A68B9AB2BB9670BCE15412F62916164C0B20BB\""
+            "\"google-site-verification=4ibFUgB-wXLQ_S7vsXVomSTVamuOXBiVAzpR5IZ87D0\"",
+            "\"v=spf1 include:_spf.google.com ~all\"",
+            "\"globalsign-smime-dv=CDYX+XFHUw2wml6/Gb8+59BsH31KzUr6c1l2BPvqKX8=\""
         ],
-        "ttl": 3600
+        "ttl": 300
     }
 }

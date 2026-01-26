@@ -4,14 +4,12 @@ import os
 import csv
 from io import StringIO
 
-# SurfsharkVPN IP list
 RAW_URL = "https://raw.githubusercontent.com/mthcht/awesome-lists/main/Lists/VPN/SurfSharkVPN/surfshark_vpn_servers_domains_and_ips_list.csv"
 
 FILENAME = "surfshark_vpn_ip_list.csv"
 SAVE_AS = f"./datasets/vpn_ips/{FILENAME}"
 HASH_FILE = f"./hashed_files/{FILENAME}.md5"
 
-# === Utilities ===
 def get_md5(data):
     return hashlib.md5(data).hexdigest()
 
@@ -30,7 +28,6 @@ def ensure_dirs():
     os.makedirs(os.path.dirname(SAVE_AS), exist_ok=True)
     os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
 
-# === Processing ===
 def process_csv(content):
     decoded = content.decode("utf-8", errors="replace")
     reader = csv.DictReader(StringIO(decoded))
@@ -52,7 +49,6 @@ def process_csv(content):
 
     print(f"[✓] Processed & saved: {SAVE_AS} (count: {len(unique_sorted_ips)})")
 
-# === Fetching ===
 def fetch_file():
     try:
         ensure_dirs()
@@ -75,6 +71,5 @@ def fetch_file():
     except Exception as e:
         print(f"[!] Error: {e}")
 
-# === Run ===
 if __name__ == "__main__":
     fetch_file()

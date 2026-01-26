@@ -10,7 +10,6 @@ SAVE_TXT = f"./datasets/tlds/{FILENAME_TXT}"
 SAVE_CSV = f"./datasets/tlds/{FILENAME_CSV}"
 HASH_FILE = f"./hashed_files/{FILENAME_TXT}.md5"
 
-# ==== Utilities ====
 def get_md5(data):
     """Return MD5 hash (hex) for full file update checking."""
     return hashlib.md5(data).hexdigest()
@@ -30,7 +29,6 @@ def ensure_dirs():
     os.makedirs(os.path.dirname(SAVE_TXT), exist_ok=True)
     os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
 
-# ==== Step 1: Fetch TLD List ====
 def fetch_tld_list():
     try:
         ensure_dirs()
@@ -59,16 +57,13 @@ def fetch_tld_list():
         print(f"[!] Error fetching TLD list: {e}")
         return False
 
-# ==== Step 2: Convert TXT → CSV ====
 def convert_txt_to_csv(txt_file, csv_file):
     try:
         with open(txt_file, "r") as infile:
             lines = infile.readlines()
 
-        # Skip first line (comment), convert to lowercase
         tlds = [line.strip().lower() for line in lines if not line.startswith("#")]
 
-        # Save plain CSV with single column "tld"
         with open(csv_file, "w", newline='') as outfile:
             writer = csv.writer(outfile)
             writer.writerow(["tld"])
@@ -86,6 +81,5 @@ def run():
     else:
         print("[=] Skipping CSV conversion — no changes in TLD list.")
 
-# ==== Main Runner ====
 if __name__ == "__main__":
     run()

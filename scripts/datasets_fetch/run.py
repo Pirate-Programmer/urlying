@@ -26,13 +26,11 @@ def run_all_parallel(max_workers: int | None = None, per_task_timeout: float | N
     Run all TASKS in parallel using threads.
 
     - max_workers: None -> ThreadPoolExecutor default (min(32, os.cpu_count() + 4)).
-                   You can set an int to limit concurrency.
     - per_task_timeout: seconds to wait for each task result (None disables).
     """
     start_all = time.time()
     print(f"[{datetime.utcnow().isoformat()}Z] Starting {len(TASKS)} fetchers (max_workers={max_workers})")
 
-    # Submit tasks
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_name = {
             executor.submit(func): name for (name, func) in TASKS
@@ -57,5 +55,4 @@ def run_all_parallel(max_workers: int | None = None, per_task_timeout: float | N
 
 
 if __name__ == "__main__":
-    # Example: limit to 6 threads and give each task 180s to finish
-    run_all_parallel(max_workers=6, per_task_timeout=180)
+    run_all_parallel(max_workers=8, per_task_timeout=180)

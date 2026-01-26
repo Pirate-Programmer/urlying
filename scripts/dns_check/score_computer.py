@@ -21,7 +21,7 @@ def tld_score(domain) :
     return 0
 
 def ttl_a(ttl):
-    if ttl is None: # https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/
+    if ttl is None: 
         return 0
     if ttl <= 60:
         return 10
@@ -32,7 +32,7 @@ def ttl_a(ttl):
     else:
         return 0
 
-def ttl_aaaa(ttl): # https://developers.cloudflare.com/dns/manage-dns-records/reference/ttl/
+def ttl_aaaa(ttl): 
     if ttl is None:
         return 0
     if ttl <= 60:

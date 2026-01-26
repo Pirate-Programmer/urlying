@@ -28,7 +28,6 @@ def ensure_dirs():
     os.makedirs(os.path.dirname(SAVE_AS), exist_ok=True)
     os.makedirs(os.path.dirname(HASH_FILE), exist_ok=True)
 
-# ==== Step 1: Fetch File ====
 def fetch_file():
     try:
         ensure_dirs()
@@ -54,7 +53,6 @@ def fetch_file():
         print(f"[!] Error: {e}")
         return False, None
 
-# ==== Step 2: Process CSV ====
 def process_csv(raw_csv_bytes):
     try:
         csv_data = io.StringIO(raw_csv_bytes.decode("utf-8", errors="ignore"))
@@ -80,7 +78,6 @@ def process_csv(raw_csv_bytes):
     except Exception as e:
         print(f"[!] Error processing CSV: {e}")
 
-# ==== Step 3: Run ====
 def run():
     updated, content = fetch_file()
     if updated and content:

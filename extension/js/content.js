@@ -4,7 +4,10 @@ if (!window.__analyzeInjected) {
   let analyzeBtn = document.createElement("button");
   analyzeBtn.id = "analyze-btn";
   analyzeBtn.innerText = "Analyze";
-  analyzeBtn.style.display = "none";
+
+  // Force-hidden: use !important so later code can't show it
+  analyzeBtn.style.setProperty("display", "none", "important");
+  analyzeBtn.style.position = "absolute"; // keep positioning so layout isn't affected if accidentally shown
   document.body.appendChild(analyzeBtn);
 
   let currentSelection = "";

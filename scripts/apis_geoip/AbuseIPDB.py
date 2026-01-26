@@ -10,10 +10,6 @@ class AbuseIPDBScanner:
         self.source = "AbuseIPDB"
         self.log_file = os.path.join(os.path.dirname(__file__), "abuseipdb_logs.json")
 
-    """return -> dict
-        if success == true, unsafe : bool (based on abuse score), source : str
-        if success == false , error : str, source : str
-    """
     def fetch_result(self, target_url):
         ip = self.resolve_to_ip(target_url)
         if not ip:
@@ -74,13 +70,11 @@ class AbuseIPDBScanner:
             return None
 
     def save_result_to_file(self, result):
-        """Store ONLY the latest scan result in geoipAndApis.json"""
         try:
             script_dir = os.path.dirname(os.path.abspath(__file__))
             file_path = os.path.join(script_dir, "abuseIPDB.json")
 
             with open(file_path, "w") as f:
-                # Save ONLY latest result (single object, not list)
                 json.dump(result, f, indent=4)
 
         except Exception as e:
