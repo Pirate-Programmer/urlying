@@ -7,6 +7,7 @@ env/
 /datasets/dataset_with_features/*
 **/__pycache__/
 env
+
 # environment / secrets
 .env
 .env.*
