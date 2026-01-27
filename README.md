@@ -32,8 +32,8 @@ To install openssl run:
 ```bash
 choco install openssl
 ```
-
 ## To run:
+### Load Extension:
 As this extension is not available on Chrome Web Store, you need to manually load it into the browser. To do that open your browser, go to
 **Manage Extensions** > Turn on **Developer Mode**.
 
@@ -51,26 +51,52 @@ python3 backend.py
 
 > Note: Open the browser only after running the backend.py.<br>
 > The websites are analyzed only after they are loaded completely.
+
+### API KEYS:
+If the defense level is set at 5, then you may need API KEYs. By default the defense level is set to 3.
+
+Please generate your own API KEYS from : <br>
+- <a href="https://www.virustotal.com/gui/home/url">Virustotal</a>
+- <a href="https://www.abuseipdb.com/">AbuseIPDB</a>
+- <a href="https://safebrowsing.google.com/">Google Safe Browsing</a>
+
+Create a file **.env** in the folder **scripts/apis_geopip/**.
+
+Edit **.env**:
+```bash
+GSB_API_KEY="YOUR_GSB_KEY"
+AbuseIPDB_API_KEY="YOUR_ABUSIPDB_KEY"
+VirusTotal_API_KEY="YOUR_VIRUSTOTAL_KEY"
+```
+
+## Special Thanks
+We would like to thank <a href="https://github.com/ebubekirbbr">ebubekirbbr</a> for providing a curated list of URLs sourced from PhishTank.
+
+## Future Work
+The raw URLs are available in **datasets/raw_dataset**. This dataset does not contain extracted features. Feature extraction can be performed using the notebook **ipynbs/features.ipynb**.
+
+All other datasets used in this project are stored in the **datasets** directory. The corresponding download links for these datasets can be found in the respective files within the **scripts/datasets_fetch** folder.
+
 ## Contributors
 <p>
   <a href="https://github.com/the404packet">
     <img src="https://github.com/the404packet.png"
-     width=50"
-     height=50"
+     width="50"
+     height="50"
      style="border-radius:50%;"
      alt="the404packet"/>
   </a>
   <a href="https://github.com/Pirate-Programmer">
     <img src="https://github.com/Pirate-Programmer.png"
-     width=50"
-     height=50"
+     width="50"
+     height="50"
      style="border-radius:50%;"
      alt="Pirate-Programmer"/>
   </a>
   <a href="https://github.com/Ecstaticvanilla">
     <img src="https://github.com/Ecstaticvanilla.png"
-     width=50"
-     height=50"
+     width="50"
+     height="50"
      style="border-radius:50%;"
      alt="Ecstaticvanilla"/>
   </a>
