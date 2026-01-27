@@ -33,26 +33,44 @@ To install openssl run:
 choco install openssl
 ```
 
+## To run:
+As this extension is not available on Chrome Web Store, you need to manually load it into the browser. To do that open your browser, go to
+**Manage Extensions** > Turn on **Developer Mode**.
+
+You will see a **Load Unpacked** option at the top left.<br>
+Load the **<a href="https://github.com/Pirate-Programmer/urlying/tree/main/extension">extension</a>** folder using that.
+
+Now run the **<a href="https://github.com/Pirate-Programmer/urlying/blob/main/scripts/backend.py">backend.py</a>**.
+```bash
+python backend.py 
+```
+or
+```bash
+python3 backend.py
+```
+
+> Note: Open the browser only after running the backend.py.<br>
+> The websites are analyzed only after they are loaded completely.
 ## Contributors
 <p>
   <a href="https://github.com/the404packet">
     <img src="https://github.com/the404packet.png"
-     width="80"
-     height="80"
+     width=50"
+     height=50"
      style="border-radius:50%;"
      alt="the404packet"/>
   </a>
   <a href="https://github.com/Pirate-Programmer">
     <img src="https://github.com/Pirate-Programmer.png"
-     width="80"
-     height="80"
+     width=50"
+     height=50"
      style="border-radius:50%;"
      alt="Pirate-Programmer"/>
   </a>
   <a href="https://github.com/Ecstaticvanilla">
     <img src="https://github.com/Ecstaticvanilla.png"
-     width="80"
-     height="80"
+     width=50"
+     height=50"
      style="border-radius:50%;"
      alt="Ecstaticvanilla"/>
   </a>
